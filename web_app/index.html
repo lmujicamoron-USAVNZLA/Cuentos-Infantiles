@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Creator Kids - Registro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <!-- Imagen de Referencia de Marca (Siguiendo el código Flutter) -->
+        <div
+            style="display: flex; justify-content: center; width: 100%; margin-bottom: -2rem; z-index: 10; position: relative;">
+            <div
+                style="width: 366px; height: 221px; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: white;">
+                <img src="assets/images/HistoryCreatorKids.png"
+                    style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="History Creator Kids"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#6366f1; font-family:sans-serif; font-weight:bold; font-size:1.5rem; text-align:center; padding:1.5rem;\'><div style=\'line-height:1.2\'>History Creator Kids ✨<br><small style=\'font-size:0.75rem; font-weight:normal; opacity:0.6;\'>Instrucción: Guarda tu logo enviado como HistoryCreatorKids.png en assets/images/</small></div></div>'">
+            </div>
+        </div>
+
+        <section class="register-card" style="padding-top: 3rem;">
+            <header class="header">
+                <h1>Crea tu cuenta</h1>
+                <p>Únete a la aventura de crear historias mágicas</p>
+            </header>
+
+            <form id="registerForm" class="form">
+                <div class="avatar-upload">
+                    <div class="avatar-preview">
+                        <img id="imagePreview" src="https://via.placeholder.com/150/f0f0f0/cccccc?text=+"
+                            alt="Avatar Preview">
+                        <label for="avatarInput" class="upload-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                <circle cx="12" cy="13" r="4" />
+                            </svg>
+                        </label>
+                    </div>
+                    <input type="file" id="avatarInput" accept="image/*" hidden>
+                    <span>Foto de perfil</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="username">Nombre de usuario</label>
+                    <input type="text" id="username" placeholder="Tu nombre artístico" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" placeholder="ejemplo@correo.com" required>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirmar</label>
+                        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span>Empezar aventura</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                </button>
+            </form>
+
+            <footer class="footer">
+                <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+                <p style="margin-top: 1rem; font-size: 0.7rem; opacity: 0.5;">
+                    <a href="admin.html" style="color: var(--text-muted); font-weight: 400;">Acceso Administrador</a>
+                </p>
+            </footer>
+        </section>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase Real (cuentos-infantiles-2026)
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7vi4r6ahe-sZf8bFW0u1zCB54JkHPDFw",
+            authDomain: "cuentos-infantiles-2026.firebaseapp.com",
+            projectId: "cuentos-infantiles-2026",
+            storageBucket: "cuentos-infantiles-2026.firebasestorage.app",
+            messagingSenderId: "454293856709",
+            appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
+            measurementId: "G-GSLT5XHTPV"
+        };
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="database.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

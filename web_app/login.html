@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Story Creator Kids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <!-- Imagen de Referencia de Marca (Siguiendo el código Flutter) -->
+        <div
+            style="display: flex; justify-content: center; width: 100%; margin-bottom: -2rem; z-index: 10; position: relative;">
+            <div
+                style="width: 366px; height: 221px; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: white;">
+                <img src="assets/images/HistoryCreatorKids.png"
+                    style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="History Creator Kids"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#6366f1; font-family:sans-serif; font-weight:bold; font-size:1.5rem; text-align:center; padding:1.5rem;\'><div style=\'line-height:1.2\'>History Creator Kids ✨<br><small style=\'font-size:0.75rem; font-weight:normal; opacity:0.6;\'>Instrucción: Guarda tu logo enviado como HistoryCreatorKids.png en assets/images/</small></div></div>'">
+            </div>
+        </div>
+
+        <section class="register-card" style="padding-top: 3rem;">
+            <header class="header">
+                <h1>¡Hola de nuevo!</h1>
+                <p>Ingresa para continuar tu aventura mágica</p>
+            </header>
+
+            <form id="loginForm" class="form">
+                <div class="input-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" placeholder="ejemplo@correo.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="submit-btn" id="loginBtn">
+                    <span>Entrar al portal</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                </button>
+            </form>
+
+            <footer class="footer">
+                <p>¿Aún no tienes cuenta? <a href="index.html">Regístrate aquí</a></p>
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05);">
+                    <a href="index.html"
+                        style="color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg>
+                        Regresar al Inicio
+                    </a>
+                </div>
+            </footer>
+        </section>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase (cuentos-infantiles-2026)
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7vi4r6ahe-sZf8bFW0u1zCB54JkHPDFw",
+            authDomain: "cuentos-infantiles-2026.firebaseapp.com",
+            projectId: "cuentos-infantiles-2026",
+            storageBucket: "cuentos-infantiles-2026.firebasestorage.app",
+            messagingSenderId: "454293856709",
+            appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
+            measurementId: "G-GSLT5XHTPV"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            const originalContent = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>🚀 Verificando...</span>';
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(async (userCredential) => {
+                    const user = userCredential.user;
+
+                    // 1. Verificar si el email está verificado en Firebase Auth
+                    if (!user.emailVerified) {
+                        alert("Por favor, verifica tu correo antes de entrar. Revisa tu bandeja de entrada.");
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                        return;
+                    }
+
+                    try {
+                        // 2. Verificar en Firestore si el Administrador lo aprobó
+                        const userDoc = await firebase.firestore().collection("users").doc(user.uid).get();
+
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+
+                            // Actualizar emailVerified en Firestore si ya lo hizo en Auth
+                            if (!userData.emailVerified) {
+                                await firebase.firestore().collection("users").doc(user.uid).update({
+                                    emailVerified: true
+                                });
+                            }
+
+                            if (userData.status === 'aprobado') {
+                                window.location.href = 'dashboard.html';
+                            } else {
+                                alert("¡Casi listo! Tu cuenta está esperando la aprobación de un Guardián (Administrador).");
+                                btn.disabled = false;
+                                btn.innerHTML = originalContent;
+                            }
+                        } else {
+                            alert("No encontramos tus datos de aventurero. Por favor, regístrate de nuevo.");
+                            btn.disabled = false;
+                            btn.innerHTML = originalContent;
+                        }
+                    } catch (err) {
+                        console.error("Error consultando Firestore:", err);
+                        alert("Hubo un problema al verificar tu acceso. Intenta de nuevo.");
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                })
+                .catch((error) => {
+                    alert("Error al iniciar sesión: " + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lectura Mágica - Story Creator Kids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Quicksand:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #fdf2f8;
+            overflow: hidden;
+        }
+
+        .reader-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .book-wrapper {
+            width: 100%;
+            max-width: 900px;
+            height: 70vh;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: flex;
+            overflow: hidden;
+            animation: bookOpen 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bookOpen {
+            from {
+                transform: scale(0.9) rotateY(-20deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) rotateY(0);
+                opacity: 1;
+            }
+        }
+
+        .book-page {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .page-left {
+            background: #fff;
+            border-right: 1px solid #f1f5f9;
+        }
+
+        .page-right {
+            background: #fafafa;
+        }
+
+        .story-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .story-text {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #334155;
+            font-weight: 400;
+        }
+
+        .story-title-page {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .navigation-controls {
+            position: absolute;
+            bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-btn-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s;
+        }
+
+        .nav-btn-circle:hover {
+            transform: scale(1.1);
+            background: var(--primary-hover);
+        }
+
+        .nav-btn-circle:disabled {
+            background: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        .close-reader {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 1rem;
+            background: white;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            cursor: pointer;
+            border: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .book-wrapper {
+                flex-direction: column;
+                height: 85vh;
+            }
+
+            .page-left {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+                height: 40%;
+                padding: 1.5rem;
+            }
+
+            .page-right {
+                height: 60%;
+                padding: 1.5rem;
+            }
+
+            .story-text {
+                font-size: 1.1rem;
+            }
+
+            .story-title-page {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2" style="background: #fbcfe8;"></div>
+        <div class="blob blob-3" style="background: #ddd6fe;"></div>
+    </div>
+
+    <!-- BOTÓN DE REGRESO ARREGLADO -->
+    <div class="close-reader" onclick="window.location.href='dashboard.html'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6" />
+        </svg>
+        <span>Volver a Biblioteca</span>
+    </div>
+
+    <main class="reader-container">
+        <div class="book-wrapper">
+            <div class="book-page page-left">
+                <img id="storyImg"
+                    src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"
+                    class="story-image">
+            </div>
+            <div class="book-page page-right">
+                <div id="pageContent">
+                    <h1 class="story-title-page" id="storyTitle">Cargando cuento...</h1>
+                    <p class="story-text" id="storyBody">La magia está en camino...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation-controls">
+            <button class="nav-btn-circle" id="prevPage" onclick="changePage(-1)" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+            </button>
+            <span style="font-weight: 600; color: #64748b;"><span id="currNum">1</span> / <span
+                    id="totalNum">3</span></span>
+            <button class="nav-btn-circle" id="nextPage" onclick="changePage(1)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7vi4r6ahe-sZf8bFW0u1zCB54JkHPDFw",
+            authDomain: "cuentos-infantiles-2026.firebaseapp.com",
+            projectId: "cuentos-infantiles-2026",
+            storageBucket: "cuentos-infantiles-2026.firebasestorage.app",
+            messagingSenderId: "454293856709",
+            appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
+            measurementId: "G-GSLT5XHTPV"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let storyPages = [];
+        let currentPage = 0;
+
+        async function initReader() {
+            const storyId = localStorage.getItem('currentStoryId');
+            if (!storyId) { window.location.href = 'dashboard.html'; return; }
+
+            try {
+                const doc = await db.collection("stories").doc(storyId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const sentences = data.content.split('. ');
+
+                    // Imágenes por defecto si son cuentos antiguos
+                    const charImg = data.characterImg || getRelImg(data.character);
+                    const placeImg = data.placeImg || "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800";
+
+                    storyPages = [
+                        { title: data.title, body: sentences[0] + '.', img: charImg },
+                        { title: "El viaje continúa...", body: sentences[1] || "Una aventura emocionante llena de sorpresas.", img: placeImg },
+                        { title: "Un final feliz", body: sentences[2] || "Y así, la magia nunca terminó.", img: charImg }
+                    ];
+
+                    document.getElementById('totalNum').innerText = storyPages.length;
+                    updateUI();
+                }
+            } catch (e) {
+                console.error(e);
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        function getRelImg(char) {
+            if (char === 'Robot') return "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&w=800";
+            if (char === 'Unicornio') return "https://images.unsplash.com/photo-1550747528-cdb45925b3f7?auto=format&w=800";
+            return "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&w=800";
+        }
+
+        function updateUI() {
+            const p = storyPages[currentPage];
+            document.getElementById('storyTitle').innerText = p.title;
+            document.getElementById('storyBody').innerText = p.body;
+            document.getElementById('storyImg').src = p.img;
+            document.getElementById('currNum').innerText = currentPage + 1;
+            document.getElementById('prevPage').disabled = currentPage === 0;
+            document.getElementById('nextPage').disabled = currentPage === storyPages.length - 1;
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            updateUI();
+        }
+
+        initReader();
+    </script>
+</body>
+
+</html>

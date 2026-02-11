@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Story Creator Kids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .story-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .story-thumb {
+            width: 100%;
+            height: 180px;
+            background: #eee;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .create-btn-large {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: none;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .create-btn-large:hover {
+            transform: scale(1.02);
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .create-btn-large {
+                padding: 1.5rem;
+                font-size: 1.2rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container" style="max-width: 1000px;">
+        <nav class="nav-bar">
+            <h2 style="font-weight: 600; color: var(--primary);">Story Creator Kids</h2>
+            <div class="user-profile">
+                <span id="displayUserName">Cargando...</span>
+                <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
+                    onclick="firebase.auth().signOut()" style="cursor: pointer;" title="Cerrar sesión">
+            </div>
+        </nav>
+
+        <button class="create-btn-large" onclick="window.location.href='create-story.html'">
+            ✨ Crear nueva historia mágica
+        </button>
+
+        <div class="dashboard-grid" id="storiesGrid">
+            <!-- Los cuentos se cargarán dinámicamente aquí -->
+        </div>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7vi4r6ahe-sZf8bFW0u1zCB54JkHPDFw",
+            authDomain: "cuentos-infantiles-2026.firebaseapp.com",
+            projectId: "cuentos-infantiles-2026",
+            storageBucket: "cuentos-infantiles-2026.firebasestorage.app",
+            messagingSenderId: "454293856709",
+            appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
+            measurementId: "G-GSLT5XHTPV"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('displayUserName').innerText = `Hola, ${user.email.split('@')[0]}`;
+                loadStories(user.uid);
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function loadStories(userId) {
+            const grid = document.getElementById('storiesGrid');
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">Abriendo tu biblioteca de cuentos...</p>';
+
+            try {
+                const snapshot = await db.collection("stories")
+                    .where("userId", "==", userId)
+                    .orderBy("createdAt", "desc")
+                    .get();
+
+                grid.innerHTML = '';
+
+                if (snapshot.empty) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300" 
+                                 style="width: 120px; border-radius: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+                            <p style="color: var(--text-muted);">Tu biblioteca está vacía. ¡Crea tu primer cuento mágico!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const story = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'story-card';
+                    card.onclick = () => {
+                        localStorage.setItem('currentStoryId', doc.id);
+                        window.location.href = 'story-reader.html';
+                    };
+
+                    // Prioridad: 1. Imagen guardada en el cuento, 2. Lugar predefinido, 3. Imagen genérica
+                    let imgUrl = story.placeImg || 'https://images.unsplash.com/photo-1618331835717-801e976710b2?auto=format&fit=crop&w=400';
+
+                    // Fallback para cuentos antiguos sin placeImg
+                    if (!story.placeImg) {
+                        if (story.place === 'Castillo') imgUrl = 'https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&q=80&w=400';
+                        if (story.place === 'Espacio') imgUrl = 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400';
+                        if (story.place === 'Bosque') imgUrl = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400';
+                    }
+
+                    card.innerHTML = `
+                        <img src="${imgUrl}" class="story-thumb" alt="Story">
+                        <div style="padding: 0.2rem;">
+                            <h3 style="margin-bottom: 0.25rem;">${story.title}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">${story.character} • ${story.place}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error cargando cuentos:", error);
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444;">Error al cargar la biblioteca.</p>';
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Story Creator Kids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .user-list {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .user-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            gap: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: background 0.2s;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .user-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-verified {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-action {
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-reject {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .user-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .user-avatar {
+                margin: 0 auto;
+            }
+
+            .actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="admin-container">
+        <header class="admin-header">
+            <div>
+                <a href="index.html"
+                    style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; font-weight: 600;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Volver al Portal
+                </a>
+                <h1 style="font-size: 1.8rem;">Control de Guardianes</h1>
+                <p style="color: var(--text-muted);">Gestiona los accesos mágicos de Firebase</p>
+            </div>
+            <div id="adminAuthArea"
+                style="background: white; padding: 0.8rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 0.5rem; align-items: center;">
+                <input type="password" id="adminPass" placeholder="Clave Mágica"
+                    style="padding: 0.6rem; border: 1px solid #eee; border-radius: 0.5rem; outline: none; width: 140px;">
+                <button class="btn-action" style="background: var(--primary); color: white; padding: 0.6rem 1.2rem;"
+                    onclick="checkAdminAccess()">Abrir</button>
+            </div>
+            <button id="logoutBtn" class="btn-action" style="background: #fee2e2; color: #ef4444; display: none;"
+                onclick="firebase.auth().signOut().then(() => window.location.href='login.html')">Cerrar Sesión</button>
+        </header>
+
+        <div id="adminContent" style="display: none;">
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Niños Pendientes</h3>
+                    <p id="statPending">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Aventureros Totales</h3>
+                    <p id="statTotal">-</p>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Solicitudes en Espera</h2>
+            <div class="user-list" id="usersList">
+                <p style="padding: 2rem; text-align: center;">Escaneando el reino en busca de niños...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7vi4r6ahe-sZf8bFW0u1zCB54JkHPDFw",
+            authDomain: "cuentos-infantiles-2026.firebaseapp.com",
+            projectId: "cuentos-infantiles-2026",
+            storageBucket: "cuentos-infantiles-2026.firebasestorage.app",
+            messagingSenderId: "454293856709",
+            appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
+            measurementId: "G-GSLT5XHTPV"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Control de Acceso Admin
+        function checkAdminAccess() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === '2026') { // Clave temporal sugerida
+                document.getElementById('adminAuthArea').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'block';
+                loadUsers();
+            } else {
+                alert('Clave incorrecta del Guardián Mayor.');
+            }
+        }
+
+        async function loadUsers() {
+            const list = document.getElementById('usersList');
+            try {
+                // Escuchar cambios en tiempo real
+                db.collection("users").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+                    list.innerHTML = '';
+                    let pendingCount = 0;
+                    let totalCount = 0;
+
+                    snapshot.forEach((doc) => {
+                        const user = doc.data();
+                        totalCount++;
+
+                        if (user.status === 'pendiente') {
+                            pendingCount++;
+                            const item = document.createElement('div');
+                            item.className = 'user-item';
+
+                            const verifiedBadge = user.emailVerified ?
+                                '<span class="badge badge-verified">Email Verificado</span>' :
+                                '<span class="badge badge-pending">E-mail Pendiente</span>';
+
+                            item.innerHTML = `
+                                <img src="${user.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + user.username}" class="user-avatar">
+                                <div class="user-info">
+                                    <h4>${user.username} ${verifiedBadge}</h4>
+                                    <p>${user.email}</p>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-action btn-approve" onclick="updateStatus('${doc.id}', 'aprobado', '${user.username}')">Aprobar</button>
+                                    <button class="btn-action btn-reject" onclick="deleteUser('${doc.id}', '${user.username}')">Rechazar</button>
+                                </div>
+                            `;
+                            list.appendChild(item);
+                        }
+                    });
+
+                    document.getElementById('statPending').innerText = pendingCount;
+                    document.getElementById('statTotal').innerText = totalCount;
+
+                    if (pendingCount === 0) {
+                        list.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">No hay niños esperando acceso en este momento. ✨</div>';
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<p style="color:red; padding:2rem;">Error al conectar con la base de datos.</p>';
+            }
+        }
+
+        async function updateStatus(uid, newStatus, name) {
+            try {
+                await db.collection("users").doc(uid).update({ status: newStatus });
+                alert(`¡${name} ha sido aprobado! Ya puede entrar a su biblioteca.`);
+            } catch (e) {
+                alert("Error al aprobar: " + e.message);
+            }
+        }
+
+        async function deleteUser(uid, name) {
+            if (confirm(`¿Deseas rechazar el acceso de ${name}?`)) {
+                try {
+                    await db.collection("users").doc(uid).delete();
+                } catch (e) {
+                    alert("Error al eliminar: " + e.message);
+                }
+            }
+        }
+
+        // loadUsers(); // Se activa solo tras checkAdminAccess()
+    </script>
+</body>
+
+</html>

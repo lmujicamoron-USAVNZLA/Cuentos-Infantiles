@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación - Story Creator Kids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .verify-card {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--primary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            background: #fef3c7;
+            color: #d97706;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <div class="register-card verify-card">
+            <header class="header">
+                <div class="icon-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M22 17.002a6.002 6.002 0 0 1-11.713 1.783L10.24 17l-1.64-1.64a4 4 0 1 1 5.66-5.66l1.25 1.25a2 2 0 0 0 2.83 0l2.21-2.21a6.002 6.002 0 0 1 1.45 8.262ZM2 10.5V4a2 2 0 0 1 2-2h4M2 14v6a2 2 0 0 0 2 2h4M16 2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                </div>
+                <h1>Casi listo, <span id="userName">Aventurero</span></h1>
+                <p>Te hemos enviado un correo mágico de verificación.</p>
+            </header>
+
+            <div class="status-badge">
+                ⏳ Esperando aprobación del Administrador
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
+                Por seguridad, un administrador debe revisar tu solicitud antes de que puedas entrar al mundo de los
+                cuentos.
+            </p>
+
+            <button class="submit-btn"
+                style="background: white; color: var(--text-main); border: 1px solid var(--input-border); margin-bottom: 1rem;"
+                onclick="resendEmail()">
+                📧 Re-enviar correo mágico
+            </button>
+
+            <button class="submit-btn"
+                style="background: transparent; color: var(--text-muted); border: none; font-size: 0.9rem;"
+                onclick="window.location.href='index.html'">
+                Volver al inicio
+            </button>
+        </div>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase Real
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7vi4r6ahe-sZf8bFW0u1zCB54JkHPDFw",
+            authDomain: "cuentos-infantiles-2026.firebaseapp.com",
+            projectId: "cuentos-infantiles-2026",
+            storageBucket: "cuentos-infantiles-2026.firebasestorage.app",
+            messagingSenderId: "454293856709",
+            appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
+            measurementId: "G-GSLT5XHTPV"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function resendEmail() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                user.sendEmailVerification().then(() => {
+                    alert("¡Correo re-enviado con éxito! Por favor revisa tu bandeja de entrada.");
+                }).catch(err => {
+                    alert("Error al enviar: " + err.message);
+                });
+            } else {
+                alert("Para re-enviar el correo, intenta registrarte de nuevo o contacta a soporte.");
+            }
+        }
+
+        // Simulación: Obtener el nombre del usuario del registro previo
+        document.getElementById('userName').innerText = localStorage.getItem('lastUser') || 'Aventurero';
+    </script>
+</body>
+
+</html>
