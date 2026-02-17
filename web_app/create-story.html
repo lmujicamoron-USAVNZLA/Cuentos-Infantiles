@@ -20,9 +20,29 @@
             padding: 2rem;
         }
 
+        .min-h-screen-center {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .step {
             display: none;
-            animation: fadeIn 0.5s;
+            width: 100%;
+            animation: slideIn 0.4s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .step.active {
@@ -44,26 +64,53 @@
             padding: 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
 
         .option-card:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.15);
+        }
+
+        .option-card:hover::before {
+            opacity: 1;
         }
 
         .option-card.selected {
             border-color: var(--primary);
             background: white;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+            transform: scale(1.05);
         }
 
         .option-card img {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             margin-bottom: 1rem;
-            border-radius: 50%;
+            border-radius: 1.5rem;
             object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .option-card:hover img {
+            transform: rotate(2deg);
         }
 
         .progress-bar {
@@ -118,6 +165,30 @@
             transform: translateY(-50%);
             color: #94a3b8;
         }
+
+        .btn-action {
+            padding: 0.8rem 2rem;
+            border-radius: 1.2rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-action:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 
@@ -128,7 +199,15 @@
         <div class="blob blob-3"></div>
     </div>
 
-    <main class="creator-container">
+    <main class="creator-container" style="position: relative;">
+        <!-- Badge de Usuario Mágico -->
+        <div id="userBadge"
+            style="position: absolute; top: 0; right: 0; display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.8); padding: 0.5rem 1rem; border-radius: 2rem; backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transform: translateY(-120%); transition: transform 0.5s;">
+            <span id="userNameBadge" style="font-weight: 600; color: var(--primary); font-size: 0.9rem;"></span>
+            <img id="userAvatarBadge" src=""
+                style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid white;">
+        </div>
+
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
@@ -140,108 +219,89 @@
 
         <!-- Paso 1: Personaje -->
         <div class="step active" id="step1">
-            <h2 style="margin-bottom: 1rem; text-align: center;">Elige a tu protagonista</h2>
+            <h2
+                style="margin-bottom: 0.5rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">
+                Elige a tu protagonista</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">¿Quién vivirá esta gran
+                aventura?</p>
 
-            <!-- Buscador de Protagonistas -->
-            <div class="search-container">
-                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3" />
-                </svg>
-                <div style="display: flex; gap: 0.5rem; position: relative;">
-                    <input type="text" id="characterSearch" class="search-input"
-                        placeholder="Cualquier héroe (ej: Superman, Gato...)"
-                        onkeyup="if(event.key === 'Enter') searchMagicCharacter()" oninput="filterCharacters()">
-                    <button class="btn-action"
-                        style="background: var(--primary); color: white; border-radius: 1rem; padding: 0 1.5rem; font-size: 0.8rem; min-width: 90px;"
-                        onclick="searchMagicCharacter()">Magia</button>
+            <!-- Buscador de Protagonistas Premium -->
+            <div class="search-container" style="max-width: 500px;">
+                <div
+                    style="display: flex; gap: 0.75rem; position: relative; background: white; padding: 0.5rem; border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    <div style="position: relative; flex: 1;">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                        <input type="text" id="characterSearch" class="search-input"
+                            style="border: none; background: transparent; box-shadow: none;"
+                            placeholder="Ej: Un gato valiente, un robot..."
+                            onkeyup="if(event.key === 'Enter') searchMagicCharacter()" oninput="filterCharacters()">
+                    </div>
+                    <button id="searchCharBtn" type="button" class="btn-action"
+                        style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
+                        onclick="searchMagicCharacter()">✨ Magia</button>
+
                     <div id="magicLoader"
-                        style="display: none; position: absolute; right: 100px; top: -30px; font-size: 0.8rem; color: var(--primary); font-weight: bold;">
-                        🪄 Conjurando...</div>
+                        style="display: none; position: absolute; left: 0; right: 0; top: -45px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
+                        🪄 Conjurando un nuevo héroe...</div>
                 </div>
             </div>
 
             <div class="options-grid" id="charactersGrid">
-                <div class="option-card" onclick="selectOption(this, 'Personaje')">
-                    <img src="https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&q=80&w=400"
-                        alt="Robot">
-                    <h3>Robot</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Personaje')">
-                    <img src="https://images.unsplash.com/photo-1550747528-cdb45925b3f7?auto=format&fit=crop&q=80&w=400"
-                        alt="Unicornio">
-                    <h3>Unicornio</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Personaje')">
-                    <img src="https://images.unsplash.com/photo-1551103782-8ab07afd45c1?auto=format&fit=crop&q=80&w=400"
-                        alt="Dinosaurio">
-                    <h3>Dinosaurio</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Personaje')">
-                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400"
-                        alt="Hada">
-                    <h3>Hada</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Personaje')">
-                    <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=400"
-                        alt="Dragón">
-                    <h3>Dragón</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Personaje')">
-                    <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400"
-                        alt="Astronauta">
-                    <h3>Astronauta</h3>
-                </div>
+                <!-- Se llenará dinámicamente con la magia del buscador -->
             </div>
         </div>
 
         <!-- Paso 2: Lugar -->
         <div class="step" id="step2">
-            <h2 style="margin-bottom: 1rem; text-align: center;">¿Dónde sucede la magia?</h2>
+            <h2
+                style="margin-bottom: 0.5rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">
+                ¿Dónde sucede la magia?</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Elige el escenario de tu
+                aventura</p>
 
-            <!-- Buscador de Lugares -->
-            <div class="search-container">
-                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3" />
-                </svg>
-                <div style="display: flex; gap: 0.5rem; position: relative;">
-                    <input type="text" id="placeSearch" class="search-input"
-                        placeholder="Cualquier lugar (ej: Marte, Fondo del mar...)"
-                        onkeyup="if(event.key === 'Enter') searchMagicPlace()" oninput="filterPlaces()">
-                    <button class="btn-action place-magic-btn"
-                        style="background: var(--primary); color: white; border-radius: 1rem; padding: 0 1.5rem; font-size: 0.8rem; min-width: 90px;"
-                        onclick="searchMagicPlace()">Magia</button>
+            <!-- Buscador de Lugares Premium -->
+            <div class="search-container" style="max-width: 500px;">
+                <div
+                    style="display: flex; gap: 0.75rem; position: relative; background: white; padding: 0.5rem; border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    <div style="position: relative; flex: 1;">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                        <input type="text" id="placeSearch" class="search-input"
+                            style="border: none; background: transparent; box-shadow: none;"
+                            placeholder="Ej: El espacio, un castillo..."
+                            onkeyup="if(event.key === 'Enter') searchMagicPlace()" oninput="filterPlaces()">
+                    </div>
+                    <button type="button" class="btn-action place-magic-btn"
+                        style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
+                        onclick="searchMagicPlace()">✨ Magia</button>
+
                     <div id="placeMagicLoader"
-                        style="display: none; position: absolute; right: 100px; top: -30px; font-size: 0.8rem; color: var(--primary); font-weight: bold;">
-                        🪄 Creando mundo...</div>
+                        style="display: none; position: absolute; left: 0; right: 0; top: -45px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
+                        🪄 Conjurando un nuevo mundo...</div>
                 </div>
             </div>
 
             <div class="options-grid" id="placesGrid">
-                <div class="option-card" onclick="selectOption(this, 'Lugar')">
-                    <img src="https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&q=80&w=400"
-                        alt="Castillo">
-                    <h3>Castillo</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Lugar')">
-                    <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400"
-                        alt="Espacio">
-                    <h3>Espacio</h3>
-                </div>
-                <div class="option-card" onclick="selectOption(this, 'Lugar')">
-                    <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400"
-                        alt="Bosque">
-                    <h3>Bosque</h3>
-                </div>
+                <!-- Se llenará solo con el buscador mágico para una experiencia más limpia -->
             </div>
         </div>
 
         <!-- Paso 3: Título -->
         <div class="step" id="step3">
-            <h2 style="margin-bottom: 2rem; text-align: center;">Ponle un nombre a tu cuento</h2>
+            <h2
+                style="margin-bottom: 0.5rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">
+                Dale un título a tu cuento</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Un nombre especial para una
+                historia especial</p>
             <div class="input-group"
                 style="max-width: 500px; margin: 0 auto; background: white; padding: 2rem; border-radius: var(--radius);">
                 <label for="storyTitle">Título Mágico</label>
@@ -249,11 +309,34 @@
             </div>
         </div>
 
+        <!-- Paso 4: Revisión (Propuesta) -->
+        <div class="step" id="step4">
+            <h2 style="margin-bottom: 0.5rem; text-align: center;">¡Aquí está tu cuento!</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 1.5rem;">
+                Lee la propuesta mágica. Si te gusta, guárdala en tu biblioteca. <br>
+                Si no, puedes <b style="color:var(--primary);">editar el texto</b> tú mismo o pedir <b
+                    style="color:var(--primary);">otra versión</b>.
+            </p>
+
+            <div style="position: relative; max-width: 650px; margin: 0 auto;">
+                <textarea id="storyPreview" placeholder="Escribiendo magia..."
+                    style="width: 100%; height: 350px; padding: 2rem; border-radius: 1.5rem; border: 2px solid #eef2ff; font-family: 'Quicksand', sans-serif; font-size: 1.2rem; line-height: 1.8; resize: none; background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); transition: all 0.3s; color: #334155; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.03);"></textarea>
+
+                <button onclick="generateStoryPreview()"
+                    style="position: absolute; top: 1rem; right: 1rem; background: white; color: var(--primary); border: 1px solid var(--primary); font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: 1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; display: flex; align-items: center; gap: 0.3rem;"
+                    onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <span>🔄</span> Magia nueva
+                </button>
+            </div>
+        </div>
+
         <div class="actions-nav">
-            <button class="btn-action" style="background: rgba(0,0,0,0.05); color: var(--text-main);"
-                onclick="changeStep(-1)" id="prevBtn" disabled>Atrás</button>
-            <button class="btn-action" style="background: var(--primary); color: white;" onclick="changeStep(1)"
-                id="nextBtn">Siguiente</button>
+            <button type="button" class="btn-action"
+                style="background: rgba(0,0,0,0.1); color: var(--text-main); border: 1px solid rgba(0,0,0,0.05);"
+                onclick="changeStep(-1)" id="prevBtn">Volver</button>
+            <button type="button" class="btn-action"
+                style="background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(99,102,241,0.2);"
+                onclick="changeStep(1)" id="nextBtn">Siguiente</button>
         </div>
 
         <!-- Pantalla de Carga Mágica -->
@@ -280,7 +363,7 @@
         const db = firebase.firestore();
 
         let currentStep = 1;
-        const totalSteps = 3;
+        const totalSteps = 4;
         const selections = {
             Personaje: '',
             Lugar: '',
@@ -327,25 +410,102 @@
             card.className = 'option-card';
             card.onclick = function () { selectOption(this, type); };
 
-            if (type === 'Personaje') {
-                card.innerHTML = `
-                    <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-bottom: 1rem; background: #fdf2f8; border: 4px solid white; box-shadow: 0 8px 15px rgba(99,102,241,0.2);">
-                        <img src="${url}" alt="${name}" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <h3>${name}</h3>
-                `;
-            } else {
-                card.innerHTML = `
-                    <img src="${url}" alt="${name}">
-                    <h3>${name}</h3>
-                `;
-            }
+            // Diseño mejorado: Imagen visible por defecto con fallback de seguridad
+            card.innerHTML = `
+                <div style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden; margin: 0 auto 1rem; background: #fdf2f8; border: 4px solid white; box-shadow: 0 8px 20px rgba(99,102,241,0.15); position: relative; display: flex; align-items: center; justify-content: center;">
+                    <div class="img-loader-text" style="position: absolute; font-size: 1.5rem; animation: pulse 1s infinite; z-index: 1;">✨</div>
+                    <img src="${url}" alt="${name}" 
+                         style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" 
+                         onload="this.previousElementSibling.style.display='none';"
+                         onerror="this.style.display='none'; this.previousElementSibling.innerHTML='⚠️';">
+                </div>
+                <h3>${name}</h3>
+            `;
             return card;
         }
 
-        window.onload = loadCustomAssets;
+        window.onload = function () {
+            // Empezamos siempre limpio para una nueva historia
+            resetCreatorState();
 
-        function selectOption(el, category) {
+            // Identificar Usuario Mágico
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    const badge = document.getElementById('userBadge');
+                    const nameEl = document.getElementById('userNameBadge');
+                    const imgEl = document.getElementById('userAvatarBadge');
+
+                    const name = user.displayName || user.email.split('@')[0];
+                    nameEl.innerText = name;
+
+                    if (user.photoURL) {
+                        imgEl.src = user.photoURL;
+                    } else {
+                        // Avatar Mágico mejorado: Cabello corto para niños
+                        const firstName = name.split(' ')[0].toLowerCase();
+                        const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
+                        const seed = encodeURIComponent(name);
+
+                        let avatarOptions = "radius=50";
+                        if (isGirl) {
+                            // Niña: Pelo largo verificado
+                            avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
+                        } else {
+                            // Niño: Pelo corto verificado
+                            avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
+                        }
+
+                        imgEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
+                    }
+
+                    // Mostrar badge suavemente
+                    setTimeout(() => {
+                        badge.style.top = "1rem";
+                        badge.style.transform = "translateY(0%)";
+                    }, 300);
+                }
+            });
+        };
+
+        function resetCreatorState() {
+            // 1. Limpiar variables
+            selections.Personaje = '';
+            selections.Lugar = '';
+            selections.Titulo = '';
+            selections.PersonajeImg = '';
+            selections.LugarImg = '';
+            currentStep = 1;
+
+            // 2. Limpiar inputs visuales
+            document.getElementById('storyTitle').value = '';
+            document.getElementById('storyPreview').value = '';
+            document.getElementById('characterSearch').value = '';
+            document.getElementById('placeSearch').value = '';
+
+            // 3. Desmarcar tarjetas
+            document.querySelectorAll('.option-card.selected').forEach(card => card.classList.remove('selected'));
+
+            // 4. Reiniciar UI de pasos
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+
+            // 5. Reiniciar botones y progreso
+            document.getElementById('progressFill').style.width = '25%';
+            document.getElementById('prevBtn').disabled = false;
+            document.getElementById('prevBtn').innerText = 'Volver';
+            document.getElementById('nextBtn').innerText = 'Siguiente';
+            document.getElementById('nextBtn').style.background = 'var(--primary)';
+        }
+
+        // MÚSICA ADAPTATIVA
+        const musicThemes = {
+            fantasy: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24915c26b5.mp3?filename=fantasy-magical-background-music-for-videos-123478.mp3", // Magia suave
+            space: "https://cdn.pixabay.com/download/audio/2022/03/23/audio_07b2a04be3.mp3?filename=space-atmospheric-background-106558.mp3", // Ambiente espacial
+            adventure: "https://cdn.pixabay.com/download/audio/2022/05/17/audio_383f982b6b.mp3?filename=adventure-cinematic-110826.mp3", // Épico/Aventura
+            happy: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-kids-loop-13-13233.mp3" // General/Alegre
+        };
+
+        async function selectOption(el, category) {
             const cards = el.parentElement.querySelectorAll('.option-card');
             cards.forEach(c => c.classList.remove('selected'));
             el.classList.add('selected');
@@ -354,261 +514,344 @@
             const imgUrl = el.querySelector('img').src;
             selections[category + 'Img'] = imgUrl;
 
-            // --- AMBIENTE MÁGICO (Inmersión) ---
+            // AMBIENTE MÁGICO (Inmersión solamente, sin avance automático)
             if (category === 'Personaje') {
-                // Activar música si no está sonando
+                const charName = selections.Personaje.toLowerCase();
                 const music = document.getElementById('magicMusic');
-                music.play().catch(e => console.log("Esperando más interacción para música"));
 
-                // Cambiar el "clima" de la app basado en el personaje
-                document.body.style.transition = 'background 2s ease';
+                // Determinar tema musical
+                let selectedTheme = musicThemes.happy;
+                if (charName.match(/hada|princesa|unicornio|mago|bruja|castillo/)) selectedTheme = musicThemes.fantasy;
+                else if (charName.match(/robot|espacio|alien|astronauta|futuro/)) selectedTheme = musicThemes.space;
+                else if (charName.match(/dinosaurio|dragón|león|tigre|aventura/)) selectedTheme = musicThemes.adventure;
+
+                if (music.src !== selectedTheme) {
+                    music.pause();
+                    music.src = selectedTheme;
+                    music.play().catch(() => console.log("Audio waiting for interaction"));
+                }
                 document.body.style.background = `linear-gradient(135deg, #fdf2f8 0%, #e0e7ff 100%)`;
-
-                // Pequeño truco visual: un destello de luz
-                const flash = document.createElement('div');
-                flash.style = 'position:fixed; top:0; left:0; width:100%; height:100%; background:white; opacity:0.3; z-index:999; pointer-events:none; transition:opacity 0.5s;';
-                document.body.appendChild(flash);
-                setTimeout(() => flash.style.opacity = '0', 50);
-                setTimeout(() => flash.remove(), 600);
             }
 
             if (category === 'Lugar') {
                 const placeName = selections.Lugar.toLowerCase();
-                if (placeName.includes('espacio') || placeName.includes('noche') || placeName.includes('cueva')) {
+                if (placeName.includes('espacio') || placeName.includes('noche')) {
                     document.body.style.background = 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)';
                     document.querySelector('main').style.color = 'white';
-                } else {
-                    document.body.style.background = 'linear-gradient(135deg, #fdf2f8 0%, #fff7ed 100%)';
-                    document.querySelector('main').style.color = 'inherit';
                 }
             }
-
-            // Animar botón siguiente
-            const nextBtn = document.getElementById('nextBtn');
-            nextBtn.style.transform = 'scale(1.1)';
-            nextBtn.style.boxShadow = '0 0 20px var(--primary)';
-            setTimeout(() => {
-                nextBtn.style.transform = 'scale(1)';
-                nextBtn.style.boxShadow = 'none';
-            }, 500);
         }
 
         async function changeStep(delta) {
-            if (currentStep + delta < 1 || currentStep + delta > totalSteps) {
-                if (currentStep === totalSteps && delta === 1) {
-                    const title = document.getElementById('storyTitle').value.trim();
-                    if (!title) {
-                        alert("¡Dale un título a tu aventura!");
-                        return;
-                    }
-                    selections.Titulo = title;
+            const nextStep = currentStep + delta;
 
-                    // Guardar en Firebase
-                    try {
-                        const user = firebase.auth().currentUser;
-                        if (!user) {
-                            alert("Por favor incia sesión primero.");
-                            window.location.href = 'login.html';
-                            return;
-                        }
-
-                        const nextBtn = document.getElementById('nextBtn');
-                        const finalLoader = document.getElementById('finalMagicLoader');
-
-                        nextBtn.disabled = true;
-                        finalLoader.style.display = 'flex';
-
-                        // --- GENERADOR DE HISTORIAS CON IA ---
-                        const character = selections.Personaje;
-                        const place = selections.Lugar;
-                        const title = selections.Titulo;
-
-                        // Llamamos a la API de texto de Pollinations (o similar gratuita)
-                        // Si falla, usamos el backup creativo
-                        let storyContent = `Había una vez un ${character} muy especial que vivía en un lugar increíble llamado ${place}. Un día, mientras exploraba, encontró algo que cambiaría su vida para siempre...`;
-
-                        try {
-                            const aiPrompt = `Escribe un cuento infantil corto (máximo 100 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. Debe ser una historia mágica, tierna y con un final feliz.`;
-                            const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(aiPrompt)}`);
-                            if (response.ok) {
-                                storyContent = await response.text();
-                            }
-                        } catch (aiErr) {
-                            console.log("IA de texto cansada, usando magia de respaldo");
-                        }
-
-                        await db.collection("stories").add({
-                            userId: user.uid,
-                            title: title,
-                            character: character,
-                            place: place,
-                            characterImg: selections.PersonajeImg,
-                            placeImg: selections.LugarImg,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            content: storyContent
-                        });
-
-                        finalLoader.querySelector('h2').innerText = "¡Aventura Lista!";
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
-
-                    } catch (error) {
-                        console.error(error);
-                        alert("Error al guardar: " + error.message);
-                        document.getElementById('nextBtn').disabled = false;
-                        document.getElementById('nextBtn').innerHTML = "Siguiente";
-                    }
-                }
+            // --- SALIR HACIA EL DASHBOARD ---
+            if (nextStep < 1) {
+                window.location.href = 'dashboard.html';
                 return;
             }
 
-            // Validar selección antes de avanzar
+            // --- VALIDACIONES MÁGICAS ---
             if (delta === 1) {
                 if (currentStep === 1 && !selections.Personaje) { alert("¡Elige un personaje!"); return; }
                 if (currentStep === 2 && !selections.Lugar) { alert("¡Elige un lugar!"); return; }
+
+                // Transición Título (3) -> Propuesta (4)
+                if (currentStep === 3) {
+                    const title = document.getElementById('storyTitle').value.trim();
+                    if (!title) { alert("¡Dale un título a tu aventura!"); return; }
+                    selections.Titulo = title;
+
+                    // ¡Generar la propuesta mágica!
+                    const success = await generateStoryPreview();
+                    if (!success) return;
+                }
+
+                // Transición Propuesta (4) -> Guardar (Final)
+                if (currentStep === 4) {
+                    await saveFinalStory();
+                    return; // No avanzamos el paso visualmente, guardamos y redirigimos
+                }
             }
 
+            // Cambiar vista activa
             document.getElementById(`step${currentStep}`).classList.remove('active');
-            currentStep += delta;
+            currentStep = nextStep;
             document.getElementById(`step${currentStep}`).classList.add('active');
 
-            // Actualizar botones
-            document.getElementById('prevBtn').disabled = currentStep === 1;
-            document.getElementById('nextBtn').innerText = currentStep === totalSteps ? 'Finalizar' : 'Siguiente';
+            // LIMPIEZA VISUAL (Scroll arriba)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Actualizar interfaz de botones
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Asegurar que el botón siempre esté activo y visible
+            prevBtn.disabled = false;
+            prevBtn.style.display = "block";
+            prevBtn.style.opacity = "1";
+
+            // En el paso 1, el botón dice "Volver" (a la biblioteca). En el resto, "Atrás".
+            prevBtn.innerText = currentStep === 1 ? "Volver" : "Atrás";
+
+            if (currentStep === totalSteps) {
+                // Estamos en la revisión: Botón de "Aprobar"
+                nextBtn.innerHTML = "❤️ ¡Me encanta! (Guardar)";
+                nextBtn.style.background = "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)";
+                nextBtn.style.boxShadow = "0 10px 20px rgba(236, 72, 153, 0.3)";
+                nextBtn.style.transform = "scale(1.05)";
+            } else {
+                nextBtn.innerText = "Siguiente";
+                nextBtn.style.background = "linear-gradient(135deg, var(--primary) 0%, #a855f7 100%)";
+                nextBtn.style.boxShadow = "0 4px 15px rgba(99,102,241,0.2)";
+                nextBtn.style.transform = "scale(1)";
+            }
 
             // Barra de progreso
             document.getElementById('progressFill').style.width = `${(currentStep / totalSteps) * 100}%`;
         }
 
-        // BUSCADOR MÁGICO (Generador Real por IA)
-        async function searchMagicCharacter() {
-            let queryInput = document.getElementById('characterSearch');
-            let query = queryInput.value.trim();
-            if (!query) return;
+        // --- GENERADOR DE BORRADOR (IA) ---
+        async function generateStoryPreview() {
+            const loader = document.getElementById('finalMagicLoader');
+            const loaderText = loader.querySelector('h2');
+            const loaderSub = loader.querySelector('p');
+
+            loaderText.innerText = "Consultando a las hadas...";
+            loaderSub.innerText = "Escribiendo una propuesta para tu historia.";
+            loader.style.display = 'flex';
+
+            const character = selections.Personaje;
+            const place = selections.Lugar;
+            const title = selections.Titulo;
+            const textarea = document.getElementById('storyPreview');
+
+            try {
+                // Backup por si falla la IA
+                let storyContent = `Había una vez un ${character} muy valiente llamado ${selections.Titulo.split(' ')[0] || 'Héroe'}, que vivía en un asombroso lugar: ${place}. Un día, mientras exploraba, descubrió un secreto mágico...`;
+
+                const aiPrompt = `Escribe un cuento infantil muy breve (aprox 80 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. Tono mágico, positivo y divertido.`;
+
+                // Llamada a Pollinations AI (Texto)
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(aiPrompt)}`);
+                if (response.ok) {
+                    const text = await response.text();
+                    if (text && text.length > 20) storyContent = text;
+                }
+
+                textarea.value = storyContent;
+                loader.style.display = 'none';
+                return true;
+
+            } catch (error) {
+                console.error("Error Generando:", error);
+                alert("Las hadas están un poco distraídas. Intenta de nuevo.");
+                loader.style.display = 'none';
+                return false;
+            }
+        }
+
+        // --- GUARDADO FINAL (Aprobación) ---
+        async function saveFinalStory() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert("Sesión expirada. Por favor entra de nuevo.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const loader = document.getElementById('finalMagicLoader');
+            loader.querySelector('h2').innerText = "¡Guardando en la Biblioteca!";
+            loader.querySelector('p').innerText = "Sellando el libro con magia eterna.";
+            loader.style.display = 'flex';
+
+            const finalContent = document.getElementById('storyPreview').value;
+
+            try {
+                // Generar una portada mágica única que combina personaje y lugar
+                const coverPromptRaw = `high quality kids storybook illustration, ${selections.Personaje} in ${selections.Lugar}, magical atmosphere, vibrant colors, 3d render style`;
+                const coverImg = `https://image.pollinations.ai/prompt/${encodeURIComponent(coverPromptRaw)}?width=800&height=400&nologo=true&seed=${Math.floor(Math.random() * 10000)}`;
+
+                await db.collection("stories").add({
+                    userId: user.uid,
+                    title: selections.Titulo,
+                    character: selections.Personaje,
+                    place: selections.Lugar,
+                    characterImg: selections.PersonajeImg,
+                    placeImg: selections.LugarImg,
+                    coverImg: coverImg,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    content: finalContent
+                });
+
+                loader.querySelector('h2').innerText = "¡Historia Guardada! ✨";
+                loader.querySelector('p').innerText = "Volviendo a tu biblioteca...";
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Error al guardar: " + error.message);
+                loader.style.display = 'none';
+            }
+        }
+
+        // --- SISTEMA DE ESPEJO MÁGICO (Live Preview) ---
+        function debounce(func, timeout = 1200) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+
+        const liveSearchCharacter = debounce(() => searchMagicCharacter(true), 1500);
+        const liveSearchPlace = debounce(() => searchMagicPlace(true), 1500);
+
+        async function searchMagicCharacter(isLive = false) {
+            const queryInput = document.getElementById('characterSearch');
+            const query = queryInput.value.trim();
+            if (!query) return; // Empezamos desde la primera letra
 
             const grid = document.getElementById('charactersGrid');
-            const btn = document.querySelector('.search-container button');
             const loader = document.getElementById('magicLoader');
-            const originalBtn = btn.innerHTML;
+            const btn = document.getElementById('searchCharBtn');
 
-            btn.disabled = true;
-            loader.style.display = 'block';
+            if (!isLive) {
+                btn.disabled = true;
+                loader.style.display = 'block';
+            }
 
             try {
-                // IA Generativa para niños
-                const prompt = encodeURIComponent(`cute character ${query}, high quality digital art style for kids, 3d render, white background`);
-                const magicUrl = `https://image.pollinations.ai/prompt/${prompt}?width=400&height=400&nologo=true&seed=${Math.floor(Math.random() * 10000)}`;
+                // Diccionario de traducción para que la IA entienda mejor
+                let term = query.toLowerCase();
+                const dictionary = {
+                    'perro': 'dog', 'gato': 'cat', 'leon': 'lion', 'león': 'lion',
+                    'tigre': 'tiger', 'elefante': 'elephant', 'conejo': 'rabbit',
+                    'pajaro': 'bird', 'pájaro': 'bird', 'oso': 'bear', 'mono': 'monkey',
+                    'jirafa': 'giraffe', 'vaca': 'cow', 'cerdo': 'pig', 'caballo': 'horse'
+                };
+                if (dictionary[term]) term = dictionary[term];
 
-                // Crear la tarjeta primero
-                const newCard = document.createElement('div');
-                newCard.className = 'option-card';
-                newCard.onclick = function () { selectOption(this, 'Personaje'); };
-                newCard.innerHTML = `
-                    <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-bottom: 1rem; background: #fdf2f8; border: 4px solid white; box-shadow: 0 8px 15px rgba(99,102,241,0.2);">
-                        <img src="${magicUrl}" alt="${query}" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <h3>${query.charAt(0).toUpperCase() + query.slice(1)}</h3>
-                `;
+                const name = query.charAt(0).toUpperCase() + query.slice(1);
+                const seed = Math.floor(Math.random() * 1000000);
+                const magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(term + ' cute kid-friendly character, 3d pixar style, white background')}?width=400&height=400&nologo=true&seed=${seed}`;
 
-                // Insertar al inicio de la cuadrícula
-                grid.prepend(newCard);
-
-                // Guardar en el baúl (Persistencia)
-                saveCustomAsset('Personaje', query.charAt(0).toUpperCase() + query.slice(1), magicUrl);
-
-                // Seleccionarlo inmediatamente
-                selectOption(newCard, 'Personaje');
-
-                // Limpiar y mostrar todo
-                queryInput.value = '';
-                filterCharacters();
-
-            } catch (e) {
-                console.error("Error AI:", e);
-                alert("La magia ha fallado un poquito. ¡Intenta de nuevo!");
-            } finally {
-                btn.disabled = false;
-                loader.style.display = 'none';
-            }
-        }
-
-        // BUSCADOR MÁGICO DE LUGARES
-        async function searchMagicPlace() {
-            let queryInput = document.getElementById('placeSearch');
-            let query = queryInput.value.trim();
-            if (!query) return;
-
-            const grid = document.getElementById('placesGrid');
-            const btn = document.querySelector('.place-magic-btn');
-            const loader = document.getElementById('placeMagicLoader');
-
-            btn.disabled = true;
-            loader.style.display = 'block';
-
-            try {
-                // IA para Paisajes
-                const prompt = encodeURIComponent(`magical digital painting of ${query}, fantasy landscape style, vibrant colors, wide view, cinematic lighting, high resolution`);
-                const magicUrl = `https://image.pollinations.ai/prompt/${prompt}?width=400&height=400&nologo=true&seed=${Math.floor(Math.random() * 10000)}`;
-
-                const newCard = document.createElement('div');
-                newCard.className = 'option-card';
-                newCard.onclick = function () { selectOption(this, 'Lugar'); };
-                newCard.innerHTML = `
-                    <img src="${magicUrl}" alt="${query}">
-                    <h3>${query.charAt(0).toUpperCase() + query.slice(1)}</h3>
-                `;
-
-                grid.prepend(newCard);
-
-                // Guardar en el baúl (Persistencia)
-                saveCustomAsset('Lugar', query.charAt(0).toUpperCase() + query.slice(1), magicUrl);
-
-                selectOption(newCard, 'Lugar');
-                queryInput.value = '';
-                filterPlaces();
-
-            } catch (e) {
-                console.error("Error AI Paisaje:", e);
-                alert("El mundo mágico está tardando en aparecer. ¡Intenta de nuevo!");
-            } finally {
-                btn.disabled = false;
-                loader.style.display = 'none';
-            }
-        }
-
-        // Filtrar lugares
-        function filterPlaces() {
-            const input = document.getElementById('placeSearch');
-            const filter = input.value.toLowerCase();
-            const grid = document.getElementById('placesGrid');
-            const cards = grid.getElementsByClassName('option-card');
-
-            for (let i = 0; i < cards.length; i++) {
-                const title = cards[i].getElementsByTagName('h3')[0];
-                const txtValue = title.textContent || title.innerText;
-                if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                    cards[i].style.display = "";
+                let draftCard = document.getElementById('charDraftCard');
+                if (!draftCard) {
+                    draftCard = createAssetCard('Personaje', name, magicUrl);
+                    draftCard.id = 'charDraftCard';
+                    grid.prepend(draftCard);
                 } else {
-                    cards[i].style.display = "none";
+                    draftCard.querySelector('h3').innerText = name;
+                    const img = draftCard.querySelector('img');
+                    const ld = draftCard.querySelector('.img-loader-text');
+
+                    if (ld) {
+                        ld.style.display = 'block';
+                        ld.innerHTML = '✨'; // Resetear a chispas mágicas
+                    }
+                    // OBLIGATORIO: Mostrar la imagen por si estaba en error
+                    img.style.display = 'block';
+                    img.src = magicUrl;
+                }
+
+                // Seleccionarlo automáticamente
+                selectOption(draftCard, 'Personaje');
+                saveCustomAsset('Personaje', name, magicUrl);
+
+            } catch (e) {
+                console.error("Error Magic Mirror:", e);
+            } finally {
+                if (!isLive) {
+                    btn.disabled = false;
+                    loader.style.display = 'none';
                 }
             }
         }
 
-        // Filtrar personajes existentes
+        async function searchMagicPlace(isLive = false) {
+            const queryInput = document.getElementById('placeSearch');
+            const query = queryInput.value.trim();
+            if (!query || query.length < 3) return;
+
+            const grid = document.getElementById('placesGrid');
+            const loader = document.getElementById('placeMagicLoader');
+
+            try {
+                const name = query.charAt(0).toUpperCase() + query.slice(1);
+                const seed = isLive ? 42 : Math.floor(Math.random() * 999999);
+                const magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(query + ', magical landscape, kids book illustration, vibrant colors')}?width=400&height=400&nologo=true&seed=${seed}`;
+
+                let draftCard = document.getElementById('placeDraftCard');
+                if (!draftCard) {
+                    draftCard = createAssetCard('Lugar', name, magicUrl);
+                    draftCard.id = 'placeDraftCard';
+                    grid.prepend(draftCard);
+                } else {
+                    draftCard.querySelector('h3').innerText = name;
+                    const img = draftCard.querySelector('img');
+                    const loaderText = draftCard.querySelector('.img-loader-text');
+
+                    img.style.opacity = '0';
+                    if (loaderText) loaderText.style.display = 'block';
+                    img.src = magicUrl;
+                }
+
+                selectOption(draftCard, 'Lugar');
+                saveCustomAsset('Lugar', name, magicUrl);
+
+            } catch (e) {
+                console.error("Error Espejo Mágico Lugar:", e);
+            } finally {
+                if (!isLive) {
+                    document.querySelector('.place-magic-btn').disabled = false;
+                    loader.style.display = 'none';
+                }
+            }
+        }
+
+        // --- FILTROS Y BUSQUEDAS ---
         function filterCharacters() {
             const input = document.getElementById('characterSearch');
             const filter = input.value.toLowerCase();
             const grid = document.getElementById('charactersGrid');
             const cards = grid.getElementsByClassName('option-card');
 
+            // Lanzar el espejo mágico si hay texto suficiente
+            if (filter.length >= 3) liveSearchCharacter();
+
             for (let i = 0; i < cards.length; i++) {
                 const title = cards[i].getElementsByTagName('h3')[0];
                 const txtValue = title.textContent || title.innerText;
                 if (txtValue.toLowerCase().indexOf(filter) > -1) {
                     cards[i].style.display = "";
                 } else {
-                    cards[i].style.display = "none";
+                    // No ocultar el borrador actual si coincide con lo que se escribe
+                    if (cards[i].id === 'charDraftCard') cards[i].style.display = "";
+                    else cards[i].style.display = "none";
+                }
+            }
+        }
+
+        function filterPlaces() {
+            const input = document.getElementById('placeSearch');
+            const filter = input.value.toLowerCase();
+            const grid = document.getElementById('placesGrid');
+            const cards = grid.getElementsByClassName('option-card');
+
+            if (filter.length >= 3) liveSearchPlace();
+
+            for (let i = 0; i < cards.length; i++) {
+                const title = cards[i].getElementsByTagName('h3')[0];
+                const txtValue = title.textContent || title.innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    cards[i].style.display = "";
+                } else {
+                    if (cards[i].id === 'placeDraftCard') cards[i].style.display = "";
+                    else cards[i].style.display = "none";
                 }
             }
         }

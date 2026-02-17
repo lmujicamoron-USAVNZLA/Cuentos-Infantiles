@@ -55,11 +55,26 @@
 
         .book-page {
             flex: 1;
-            padding: 3rem;
+            padding: 2.5rem;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            /* Evita que el texto largo se corte por arriba */
             position: relative;
+            overflow-y: auto;
+            /* Permite scroll si el texto es muy largo */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+
+        /* Scrollbar estética para Chrome/Safari */
+        .book-page::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .book-page::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 10px;
         }
 
         .page-left {
@@ -73,17 +88,22 @@
 
         .story-image {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            max-height: 100%;
+            object-fit: contain;
+            /* Mejor para no cortar personajes */
             border-radius: 1.5rem;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            margin: auto;
         }
 
         .story-text {
-            font-size: 1.4rem;
-            line-height: 1.8;
+            font-size: 1.25rem;
+            line-height: 1.7;
             color: #334155;
             font-weight: 400;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .story-title-page {
@@ -149,19 +169,21 @@
         @media (max-width: 768px) {
             .book-wrapper {
                 flex-direction: column;
-                height: 85vh;
+                height: 90vh;
+                margin-top: 4rem;
             }
 
             .page-left {
                 border-right: none;
                 border-bottom: 1px solid #eee;
-                height: 40%;
-                padding: 1.5rem;
+                min-height: 250px;
+                padding: 1rem;
             }
 
             .page-right {
-                height: 60%;
+                flex: 1;
                 padding: 1.5rem;
+                overflow-y: auto;
             }
 
             .story-text {
@@ -252,19 +274,60 @@
                 const doc = await db.collection("stories").doc(storyId).get();
                 if (doc.exists) {
                     const data = doc.data();
-                    const sentences = data.content.split('. ');
 
                     // Imágenes por defecto si son cuentos antiguos
                     const charImg = data.characterImg || getRelImg(data.character);
                     const placeImg = data.placeImg || "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800";
 
-                    storyPages = [
-                        { title: data.title, body: sentences[0] + '.', img: charImg },
-                        { title: "El viaje continúa...", body: sentences[1] || "Una aventura emocionante llena de sorpresas.", img: placeImg },
-                        { title: "Un final feliz", body: sentences[2] || "Y así, la magia nunca terminó.", img: charImg }
-                    ];
+                    // --- ESTRATEGIA DE PAGINACIÓN DE LIBRO ---
+                    storyPages = [];
+
+                    // 1. PORTADA MÁGICA
+                    storyPages.push({
+                        type: 'cover',
+                        title: data.title,
+                        body: `Una historia sobre un ${data.character} en ${data.place}`,
+                        img: data.coverImg || placeImg
+                    });
+
+                    // 2. CUERPO DEL CUENTO (Dividir por puntos pero agrupar)
+                    // Limpiamos el texto de saltos de línea raros
+                    let cleanContent = data.content.replace(/(\r\n|\n|\r)/gm, " ");
+
+                    // Dividimos por oraciones completas
+                    let sentences = cleanContent.match(/[^.!?]+[.!?]+/g) || [cleanContent];
+
+                    // Agrupamos oraciones en párrafos de ~2-3 oraciones
+                    let currentChunk = "";
+                    let sentenceCount = 0;
+
+                    sentences.forEach((sentence, index) => {
+                        currentChunk += sentence + " ";
+                        sentenceCount++;
+
+                        // Si llevamos 3 oraciones o es la última, creamos página
+                        if (sentenceCount >= 3 || index === sentences.length - 1) {
+                            storyPages.push({
+                                type: 'story',
+                                title: "", // Sin título en páginas internas, o quizás "Capítulo..."
+                                body: currentChunk.trim(),
+                                img: (storyPages.length % 2 === 0) ? charImg : placeImg // Alternar imágenes
+                            });
+                            currentChunk = "";
+                            sentenceCount = 0;
+                        }
+                    });
+
+                    // 3. CONTRAPORTADA / FIN
+                    storyPages.push({
+                        type: 'end',
+                        title: "Fin",
+                        body: "¡Gracias por leer esta aventura!",
+                        img: charImg
+                    });
 
                     document.getElementById('totalNum').innerText = storyPages.length;
+                    currentPage = 0;
                     updateUI();
                 }
             } catch (e) {
@@ -281,12 +344,59 @@
 
         function updateUI() {
             const p = storyPages[currentPage];
-            document.getElementById('storyTitle').innerText = p.title;
-            document.getElementById('storyBody').innerText = p.body;
-            document.getElementById('storyImg').src = p.img;
+            const titleEl = document.getElementById('storyTitle');
+            const bodyEl = document.getElementById('storyBody');
+            const imgEl = document.getElementById('storyImg');
+
+            // Actualizar Imagen con efecto suave
+            imgEl.style.opacity = '0';
+            setTimeout(() => {
+                imgEl.src = p.img;
+                imgEl.onload = () => { imgEl.style.opacity = '1'; };
+            }, 200);
+
+            // Manejo de Tipos de Página
+            if (p.type === 'cover') {
+                titleEl.style.display = 'block';
+                titleEl.innerText = p.title;
+                titleEl.style.fontSize = '2.5rem';
+                bodyEl.innerText = p.body;
+                bodyEl.style.fontStyle = 'italic';
+                bodyEl.style.textAlign = 'center';
+            } else if (p.type === 'story') {
+                titleEl.style.display = 'none'; // Ocultar título en páginas de lectura
+                bodyEl.innerText = p.body;
+                bodyEl.style.fontStyle = 'normal';
+                bodyEl.style.textAlign = 'left';
+            } else if (p.type === 'end') {
+                titleEl.style.display = 'block';
+                titleEl.innerText = "Fin";
+                bodyEl.innerText = "¡Qué gran historia! ¿Leemos otra?";
+                bodyEl.style.fontStyle = 'normal';
+                bodyEl.style.textAlign = 'center';
+            }
+
+            // Actualizar número de página
             document.getElementById('currNum').innerText = currentPage + 1;
+
+            // Estados de botones
             document.getElementById('prevPage').disabled = currentPage === 0;
-            document.getElementById('nextPage').disabled = currentPage === storyPages.length - 1;
+            const nextBtn = document.getElementById('nextPage');
+
+            // Si es la última página, el botón "Siguiente" podría ser "Cerrar"
+            if (currentPage === storyPages.length - 1) {
+                nextBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                `;
+                nextBtn.onclick = () => window.location.href = 'dashboard.html';
+                nextBtn.style.background = '#ef4444'; // Rojo para salir
+            } else {
+                nextBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                `;
+                nextBtn.onclick = () => changePage(1);
+                nextBtn.style.background = 'var(--primary)';
+            }
         }
 
         function changePage(delta) {

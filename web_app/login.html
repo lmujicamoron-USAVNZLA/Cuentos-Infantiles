@@ -9,6 +9,53 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Fondo Mágico Incrustado */
+        body {
+            background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Blobs animados con mezcla para dar efecto etéreo sobre la imagen */
+        .background-blobs {
+            opacity: 0.6;
+            mix-blend-mode: overlay;
+        }
+
+        /* Tarjeta con efecto Glassmorphism (Vidrio) */
+        .register-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 2rem;
+            overflow: hidden;
+            /* Importante para que la imagen respete los bordes */
+            padding-top: 0;
+            /* Eliminamos padding superior para que la imagen toque el borde */
+        }
+
+        /* Banner de Marca Full Width */
+        .brand-logo-container {
+            width: 100%;
+            height: 220px;
+            /* Altura fija para el banner */
+            background: white;
+            position: relative;
+        }
+
+        .brand-logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Cubrir todo el espacio sin deformar */
+            object-position: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,20 +66,15 @@
     </div>
 
     <main class="container">
-        <!-- Imagen de Referencia de Marca (Siguiendo el código Flutter) -->
-        <div
-            style="display: flex; justify-content: center; width: 100%; margin-bottom: -2rem; z-index: 10; position: relative;">
-            <div
-                style="width: 366px; height: 221px; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: white;">
-                <img src="assets/images/HistoryCreatorKids.png"
-                    style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="History Creator Kids"
-                    onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#6366f1; font-family:sans-serif; font-weight:bold; font-size:1.5rem; text-align:center; padding:1.5rem;\'><div style=\'line-height:1.2\'>History Creator Kids ✨<br><small style=\'font-size:0.75rem; font-weight:normal; opacity:0.6;\'>Instrucción: Guarda tu logo enviado como HistoryCreatorKids.png en assets/images/</small></div></div>'">
+        <section class="register-card">
+            <!-- Imagen de Referencia de Marca como Banner -->
+            <div class="brand-logo-container">
+                <img src="assets/images/HistoryCreatorKids.png" alt="History Creator Kids"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#6366f1; font-family:sans-serif; font-weight:bold; font-size:1.5rem; text-align:center; padding:1.5rem; background:#f0f9ff;\'><div style=\'line-height:1.2\'>History Creator Kids ✨<br><small style=\'font-size:0.75rem; font-weight:normal; opacity:0.6;\'>Instrucción: Guarda tu logo enviado como HistoryCreatorKids.png en assets/images/</small></div></div>'">
             </div>
-        </div>
 
-        <section class="register-card" style="padding-top: 3rem;">
-            <header class="header">
-                <h1>¡Hola de nuevo!</h1>
+            <header class="header" style="margin-top: 2rem;">
+                <h1 style="color: #4f46e5; font-weight: 600; margin-bottom: 0.5rem;">¡Hola de nuevo!</h1>
                 <p>Ingresa para continuar tu aventura mágica</p>
             </header>
 

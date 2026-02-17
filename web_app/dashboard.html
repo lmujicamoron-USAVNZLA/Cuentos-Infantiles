@@ -114,7 +114,7 @@
             <h2 style="font-weight: 600; color: var(--primary);">Story Creator Kids</h2>
             <div class="user-profile">
                 <span id="displayUserName">Cargando...</span>
-                <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
+                <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
                     onclick="firebase.auth().signOut()" style="cursor: pointer;" title="Cerrar sesión">
             </div>
         </nav>
@@ -146,12 +146,51 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        firebase.auth().onAuthStateChanged((user) => {
+        // ELEMENTOS UI
+        const displayNameEl = document.getElementById('displayUserName');
+        const userAvatarEl = document.getElementById('userAvatar');
+        const libraryGrid = document.getElementById('storiesGrid'); // Renamed from storiesGrid to libraryGrid for consistency with the snippet, but kept the ID.
+
+        // LOGOUT
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        // CONTROL DE SESIÓN
+        firebase.auth().onAuthStateChanged(user => {
             if (user) {
-                document.getElementById('displayUserName').innerText = `Hola, ${user.email.split('@')[0]}`;
+                // 1. Obtener Nombre para mostrar
+                const name = user.displayName || user.email.split('@')[0];
+                displayNameEl.innerText = `Hola, ${name}`; // Added "Hola, " back for a friendly greeting.
+
+                // 2. Avatar Mágico Inteligente
+                if (user.photoURL) {
+                    userAvatarEl.src = user.photoURL;
+                } else {
+                    // Detección "Mágica" de Género por terminación (Simple pero efectiva para niños)
+                    const firstName = name.split(' ')[0].toLowerCase();
+                    const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
+
+                    // Configuración DiceBear
+                    const seed = encodeURIComponent(name);
+
+                    let avatarOptions = "radius=50";
+                    if (isGirl) {
+                        // Niña: Pelo largo verificado
+                        avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
+                    } else {
+                        // Niño: Pelo corto verificado
+                        avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
+                    }
+
+                    userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
+                }
+
                 loadStories(user.uid);
             } else {
-                window.location.href = 'login.html';
+                window.location.href = 'login.html'; // Kept original 'login.html' as the snippet's 'index.html' might be a typo or specific to a different flow.
             }
         });
 
@@ -165,51 +204,74 @@
                     .orderBy("createdAt", "desc")
                     .get();
 
-                grid.innerHTML = '';
+                renderStories(snapshot, grid);
 
-                if (snapshot.empty) {
-                    grid.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300" 
-                                 style="width: 120px; border-radius: 1rem; margin-bottom: 1rem; opacity: 0.7;">
-                            <p style="color: var(--text-muted);">Tu biblioteca está vacía. ¡Crea tu primer cuento mágico!</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                snapshot.forEach(doc => {
-                    const story = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'story-card';
-                    card.onclick = () => {
-                        localStorage.setItem('currentStoryId', doc.id);
-                        window.location.href = 'story-reader.html';
-                    };
-
-                    // Prioridad: 1. Imagen guardada en el cuento, 2. Lugar predefinido, 3. Imagen genérica
-                    let imgUrl = story.placeImg || 'https://images.unsplash.com/photo-1618331835717-801e976710b2?auto=format&fit=crop&w=400';
-
-                    // Fallback para cuentos antiguos sin placeImg
-                    if (!story.placeImg) {
-                        if (story.place === 'Castillo') imgUrl = 'https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&q=80&w=400';
-                        if (story.place === 'Espacio') imgUrl = 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400';
-                        if (story.place === 'Bosque') imgUrl = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400';
-                    }
-
-                    card.innerHTML = `
-                        <img src="${imgUrl}" class="story-thumb" alt="Story">
-                        <div style="padding: 0.2rem;">
-                            <h3 style="margin-bottom: 0.25rem;">${story.title}</h3>
-                            <p style="color: var(--text-muted); font-size: 0.85rem;">${story.character} • ${story.place}</p>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
             } catch (error) {
                 console.error("Error cargando cuentos:", error);
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444;">Error al cargar la biblioteca.</p>';
+
+                // Intento de recuperación: Consulta simple sin ordenamiento (por si falta el índice)
+                if (error.code === 'failed-precondition' || error.message.includes('index')) {
+                    try {
+                        console.log("Intentando carga sin ordenamiento...");
+                        const snapshot = await db.collection("stories")
+                            .where("userId", "==", userId)
+                            .get();
+
+                        renderStories(snapshot, grid);
+
+                        // Avisar discretamente
+                        const warning = document.createElement('div');
+                        warning.style = "grid-column: 1/-1; text-align: center; color: #f59e0b; font-size: 0.8rem; margin-top: 1rem;";
+                        warning.innerText = "Nota: Los cuentos pueden no estar ordenados por fecha (Falta índice en Firebase).";
+                        grid.appendChild(warning);
+                        return;
+                    } catch (retryError) {
+                        console.error("Fallo también el reintento:", retryError);
+                    }
+                }
+
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                    <p style="color: #ef4444; font-weight: bold;">Error al cargar la biblioteca mágina.</p>
+                    <p style="color: #666; font-size: 0.9rem;">Los duendes dicen: "${error.message}"</p>
+                </div>`;
             }
+        }
+
+        function renderStories(snapshot, grid) {
+            grid.innerHTML = '';
+
+            if (snapshot.empty) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300" 
+                                style="width: 120px; border-radius: 1rem; margin-bottom: 1rem; opacity: 0.7;">
+                        <p style="color: var(--text-muted);">Tu biblioteca está vacía. ¡Crea tu primer cuento mágico!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const story = doc.data();
+                const card = document.createElement('div');
+                card.className = 'story-card';
+                card.onclick = () => {
+                    localStorage.setItem('currentStoryId', doc.id);
+                    window.location.href = 'story-reader.html';
+                };
+
+                // Prioridad total para la identidad del cuento: 1. Portada, 2. Protagonista, 3. Lugar, 4. Backup
+                let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
+
+                card.innerHTML = `
+                    <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
+                    <div style="padding: 0.2rem;">
+                        <h3 style="margin-bottom: 0.25rem;">${story.title}</h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">${story.character} • ${story.place}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
     </script>
 </body>
