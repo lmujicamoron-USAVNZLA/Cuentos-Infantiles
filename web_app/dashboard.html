@@ -801,6 +801,29 @@
             { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=400", tags: "paisaje playa mar arena oceano palmeras vacaciones sol azul verano olas" }
         ];
 
+        // Biblioteca curada - Iconos de alta calidad
+        const curatedImages = {
+            'superman': 'https://em-content.zobj.net/source/twitter/376/superhero_1f9b8.png',
+            'batman': 'https://em-content.zobj.net/source/twitter/376/bat_1f987.png',
+            'spiderman': 'https://em-content.zobj.net/source/twitter/376/spider_1f577-fe0f.png',
+            'ironman': 'https://em-content.zobj.net/source/twitter/376/mechanical-arm_1f9be.png',
+            'capitán américa': 'https://em-content.zobj.net/source/twitter/376/shield_1f6e1-fe0f.png',
+            'flash': 'https://em-content.zobj.net/source/twitter/376/high-voltage_26a1.png',
+            'robot': 'https://em-content.zobj.net/source/twitter/376/robot_1f916.png',
+            'dragon': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
+            'dragón': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
+            'perro': 'https://em-content.zobj.net/source/twitter/376/dog-face_1f436.png',
+            'gato': 'https://em-content.zobj.net/source/twitter/376/cat-face_1f431.png'
+        };
+
+        // Biblioteca secundaria para fallbacks
+        const characterLibrary = {
+            'superman': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
+            'batman': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
+            'kaliman': 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=400',
+            'héroe': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400'
+        };
+
         function openImageModal(storyId) {
             storyToUpdateImage = storyId;
             selectedImageUrl = null;
@@ -843,9 +866,9 @@
             'sapo': { en: 'frog', cat: 'subject' },
             'rana': { en: 'frog', cat: 'subject' },
             'sapito': { en: 'cute frog', cat: 'subject' },
-            'superman': { en: 'superhero flying', cat: 'subject' },
-            'batman': { en: 'superhero batman', cat: 'subject' },
-            'spiderman': { en: 'superhero spiderman', cat: 'subject' },
+            'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject' },
+            'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject' },
+            'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject' },
             'robot': { en: 'friendly cute robot', cat: 'subject' },
             'princesa': { en: 'princess', cat: 'subject' },
             'principe': { en: 'prince', cat: 'subject' },
@@ -856,6 +879,8 @@
             'ninja': { en: 'ninja', cat: 'subject' },
             'caballero': { en: 'knight', cat: 'subject' },
             'astronauta': { en: 'astronaut', cat: 'subject' },
+            'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject' },
+            'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject' },
             'marciano': { en: 'alien martian', cat: 'subject' },
             'alien': { en: 'alien character', cat: 'subject' },
             'extraterrestre': { en: 'alien creature', cat: 'subject' },
@@ -892,7 +917,24 @@
             'montaña': { en: 'high mountain landscape', cat: 'landscape' },
             'rio': { en: 'running river', cat: 'landscape' },
             'río': { en: 'running river', cat: 'landscape' },
-            'lago': { en: 'peaceful lake', cat: 'landscape' }
+            'río': { en: 'running river', cat: 'landscape' },
+            'lago': { en: 'peaceful lake', cat: 'landscape' },
+            'new york': { en: 'new york city skyline', cat: 'landscape' },
+            'paris': { en: 'paris eiffel tower', cat: 'landscape' },
+            'parís': { en: 'paris eiffel tower', cat: 'landscape' },
+            'londres': { en: 'london city big ben', cat: 'landscape' },
+            'roma': { en: 'rome colosseum', cat: 'landscape' },
+            'egipto': { en: 'egypt pyramids', cat: 'landscape' },
+            'japón': { en: 'japan mount fuji', cat: 'landscape' },
+            'auto': { en: 'modern colorful car', cat: 'landscape' },
+            'carro': { en: 'modern colorful car', cat: 'landscape' },
+            'avion': { en: 'airplane flying', cat: 'landscape' },
+            'avión': { en: 'airplane flying', cat: 'landscape' },
+            'barco': { en: 'sailing boat', cat: 'landscape' },
+            'bicicleta': { en: 'colorful bicycle', cat: 'landscape' },
+            'tren': { en: 'toy train', cat: 'landscape' },
+            'camion': { en: 'big truck', cat: 'landscape' },
+            'camión': { en: 'big truck', cat: 'landscape' }
         };
 
         function renderGallery(images) {
@@ -912,15 +954,25 @@
 
                 const imgElement = item.querySelector('img');
                 imgElement.onerror = () => {
-                    // Fallback dinámico inteligente basado en el tipo de término
                     const query = img.tags || 'magic';
-                    const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(query.toLowerCase()));
-                    const category = entry ? entry[1].cat : 'landscape';
+                    const cleanQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al )+/, '').trim();
 
-                    if (category === 'landscape') {
-                        imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(query)}?lock=${Math.floor(Math.random() * 1000)}`;
+                    // Prioridad de Fallback: 1. Curated -> 2. AI Dictionary -> 3. Generic
+                    if (curatedImages[cleanQuery]) {
+                        imgElement.src = curatedImages[cleanQuery];
+                    } else if (characterLibrary[cleanQuery]) {
+                        imgElement.src = characterLibrary[cleanQuery];
                     } else {
-                        imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(query)}&backgroundColor=ffd5dc`;
+                        const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(cleanQuery));
+                        const category = entry ? entry[1].cat : 'landscape';
+
+                        if (category === 'landscape') {
+                            const tags = cleanQuery.replace(/\s+/g, ',');
+                            imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 1000)}`;
+                        } else {
+                            const uniqueSeed = encodeURIComponent(cleanQuery) + '_' + Math.floor(Math.random() * 999);
+                            imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
+                        }
                     }
                 };
                 grid.appendChild(item);
@@ -949,11 +1001,11 @@
 
             const sortedKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
             for (let k of sortedKeys) {
-                const regex = new RegExp(`\\b${k}\\b`, 'i');
+                const regex = new RegExp(`\\b${k}\\b`, 'gi');
                 if (regex.test(translated)) {
-                    translated = masterDictionary[k].en;
+                    translated = translated.replace(regex, masterDictionary[k].en);
                     currentCategory = masterDictionary[k].cat;
-                    break;
+                    // No hacemos break para permitir traducir varias palabras (ej: "dragon fly")
                 }
             }
 
@@ -961,7 +1013,12 @@
                 ? "magical colorful landscape setting, whimsical children's book style, dreamy vibrant colors, high quality"
                 : "child-friendly storybook character illustration, cute cartoon style, colorful and vibrant, simple design, white background";
 
-            for (let i = 0; i < 8; i++) {
+            // PRIORIDAD: Curada
+            if (curatedImages[cleanedQuery]) {
+                searchResults.push({ url: curatedImages[cleanedQuery], tags: query });
+            }
+
+            for (let i = searchResults.length; i < 8; i++) {
                 const seed = Math.floor(Math.random() * 999999);
                 searchResults.push({
                     url: `https://image.pollinations.ai/prompt/${encodeURIComponent(translated + ' ' + typeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`,
@@ -978,7 +1035,8 @@
         function toggleGalleryClearBtn() {
             const input = document.getElementById('gallerySearch');
             const btn = document.getElementById('clearGallerySearch');
-            if (input.value.length > 0) btn.style.display = 'flex';
+            // Usamos trim() para que el botón no desaparezca si hay espacios
+            if (input.value.trim().length > 0) btn.style.display = 'flex';
             else btn.style.display = 'none';
         }
 

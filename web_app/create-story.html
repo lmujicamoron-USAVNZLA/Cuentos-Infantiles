@@ -302,7 +302,7 @@
                         onclick="searchMagicCharacter()">✨ Magia</button>
 
                     <div id="magicLoader"
-                        style="display: none; position: absolute; left: 0; right: 0; top: -45px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
+                        style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
                         🪄 Conjurando un nuevo héroe...</div>
                 </div>
             </div>
@@ -344,7 +344,7 @@
                         onclick="searchMagicPlace()">✨ Magia</button>
 
                     <div id="placeMagicLoader"
-                        style="display: none; position: absolute; left: 0; right: 0; top: -45px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
+                        style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
                         🪄 Conjurando un nuevo mundo...</div>
                 </div>
             </div>
@@ -510,9 +510,9 @@
             'sapo': { en: 'frog', cat: 'subject' },
             'rana': { en: 'frog', cat: 'subject' },
             'sapito': { en: 'cute frog', cat: 'subject' },
-            'superman': { en: 'superhero flying', cat: 'subject' },
-            'batman': { en: 'superhero batman', cat: 'subject' },
-            'spiderman': { en: 'superhero spiderman', cat: 'subject' },
+            'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject' },
+            'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject' },
+            'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject' },
             'robot': { en: 'friendly cute robot', cat: 'subject' },
             'princesa': { en: 'princess', cat: 'subject' },
             'principe': { en: 'prince', cat: 'subject' },
@@ -523,6 +523,8 @@
             'ninja': { en: 'ninja', cat: 'subject' },
             'caballero': { en: 'knight', cat: 'subject' },
             'astronauta': { en: 'astronaut', cat: 'subject' },
+            'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject' },
+            'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject' },
             'marciano': { en: 'alien martian', cat: 'subject' },
             'alien': { en: 'alien character', cat: 'subject' },
             'extraterrestre': { en: 'alien creature', cat: 'subject' },
@@ -559,7 +561,24 @@
             'montaña': { en: 'high mountain landscape', cat: 'landscape' },
             'rio': { en: 'running river', cat: 'landscape' },
             'río': { en: 'running river', cat: 'landscape' },
-            'lago': { en: 'peaceful lake', cat: 'landscape' }
+            'lago': { en: 'peaceful lake', cat: 'landscape' },
+            'new york': { en: 'new york city skyline', cat: 'landscape' },
+            'paris': { en: 'paris eiffel tower', cat: 'landscape' },
+            'parís': { en: 'paris eiffel tower', cat: 'landscape' },
+            'londres': { en: 'london city big ben', cat: 'landscape' },
+            'roma': { en: 'rome colosseum', cat: 'landscape' },
+            'egipto': { en: 'egypt pyramids', cat: 'landscape' },
+            'japón': { en: 'japan mount fuji', cat: 'landscape' },
+            // OBJETOS COMUNES (Para evitar que salgan como personas)
+            'auto': { en: 'modern colorful car', cat: 'landscape' },
+            'carro': { en: 'modern colorful car', cat: 'landscape' },
+            'avion': { en: 'airplane flying', cat: 'landscape' },
+            'avión': { en: 'airplane flying', cat: 'landscape' },
+            'barco': { en: 'sailing boat', cat: 'landscape' },
+            'bicicleta': { en: 'colorful bicycle', cat: 'landscape' },
+            'tren': { en: 'toy train', cat: 'landscape' },
+            'camion': { en: 'big truck', cat: 'landscape' },
+            'camión': { en: 'big truck', cat: 'landscape' }
         };
 
         const characterLibrary = {
@@ -592,7 +611,8 @@
         function handleImageError(img, name, type) {
             const skip = ['un', 'una', 'el', 'la', 'super', 'súper', 'muy'];
             const words = name.toLowerCase().split(' ').filter(w => w.length > 2 && !skip.includes(w));
-            const mainTerm = words[0] || 'hero';
+            // Usar el nombre COMPLETO (limpio) para el fallback, no solo la primera palabra
+            const mainTerm = words.join(' ') || 'hero';
 
             if (!img.dataset.retried) {
                 img.dataset.retried = "1";
@@ -615,7 +635,9 @@
 
                     if (category === 'landscape') {
                         // Fallback de Paisaje/Objeto: LoremFlickr (Imagen Real)
-                        img.src = `https://loremflickr.com/512/512/${encodeURIComponent(mainTerm)}?lock=${Math.floor(Math.random() * 1000)}`;
+                        // Tip: Usar comas para múltiples tags en LoremFlickr mejora resultados
+                        const tags = mainTerm.replace(/\s+/g, ',');
+                        img.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 1000)}`;
                     } else {
                         // Fallback de Sujeto: DiceBear (Avatar)
                         img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${mainTerm}&backgroundColor=ffd5dc`;
@@ -780,7 +802,13 @@
 
             // --- VALIDACIONES MÁGICAS ---
             if (delta === 1) {
-                if (currentStep === 1 && !selections.Personaje) { alert("¡Elige un personaje!"); return; }
+                if (currentStep === 1) {
+                    const charQuery = document.getElementById('characterSearch').value.trim();
+                    if (!charQuery || !selections.Personaje) {
+                        alert("¡Escribe y busca un personaje antes de continuar! ✨");
+                        return;
+                    }
+                }
                 if (currentStep === 2 && !selections.Lugar) { alert("¡Elige un lugar!"); return; }
 
                 // Transición Título (3) -> Propuesta (4)
@@ -1031,7 +1059,9 @@
                 if (curatedKey) {
                     magicUrl = curatedImages[curatedKey];
                 } else {
-                    let translatedQuery = cleanedCharQuery;
+                    // Limpieza de query: Quitar preposiciones y símbolos (igual que en lugares)
+                    let cleanedQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al )+/, '').replace(/[`'"]/g, '').trim();
+                    let translatedQuery = cleanedQuery;
                     let currentCategory = 'subject';
 
                     // Búsqueda inteligente en el Master Dictionary con Word Boundaries
@@ -1041,7 +1071,7 @@
                         if (regex.test(translatedQuery)) {
                             translatedQuery = translatedQuery.replace(regex, masterDictionary[key].en);
                             currentCategory = masterDictionary[key].cat;
-                            break;
+                            // Removemos el break para permitir múltiples traducciones en la misma frase
                         }
                     }
 
@@ -1050,7 +1080,8 @@
                     if (currentCategory === 'landscape') {
                         qualityKeywords = "whimsical children's book landscape illustration, magical colorful setting, dreamy vibrant colors, high detail, clear for kids";
                     } else {
-                        qualityKeywords = "child-friendly storybook character illustration, cute cartoon style, colorful and vibrant, simple design, white background, friendly, full body";
+                        // Mejorado: Añadimos "distinctive features" para capturar mejor los detalles del diccionario
+                        qualityKeywords = "child-friendly storybook character illustration, distinctive features, cute cartoon style, colorful and vibrant, simple design, white background, friendly, full body";
                     }
 
                     magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ' ' + qualityKeywords)}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
@@ -1091,11 +1122,16 @@
             } catch (e) {
                 console.error("Error Magic Mirror:", e);
             } finally {
-                if (loader) {
-                    // Ocultar suavemente después de un momento para confirmar carga
-                    setTimeout(() => { loader.style.display = 'none'; }, 2000);
-                }
+                // Limpieza total del estado de carga
                 if (!isLive && btn) btn.disabled = false;
+                if (loader) {
+                    // Si es búsqueda manual (Magia), ocultar en 1s. Si es live, casi inmediato.
+                    const delay = isLive ? 300 : 1000;
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        loader.classList.remove('pulse'); // Detener animación
+                    }, delay);
+                }
             }
         }
 
@@ -1106,31 +1142,45 @@
 
             const grid = document.getElementById('placesGrid');
             const loader = document.getElementById('placeMagicLoader');
+            const btn = document.querySelector('.place-magic-btn');
+
+            if (loader) loader.style.display = 'block';
+            if (!isLive && btn) btn.disabled = true;
 
             try {
                 // Limpieza de query: Quitar preposiciones y símbolos
                 let cleanedQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al )+/, '').replace(/[`'"]/g, '').trim();
+                const queryLower = cleanedQuery;
 
                 const name = cleanedQuery.charAt(0).toUpperCase() + cleanedQuery.slice(1);
-                const seed = Math.floor(Math.random() * 999999);
-                // Prompt Suave para Lugares: Estilo acuarela o libro de cuentos
-                const placeKeywords = "whimsical children's book illustration, magical colorful setting, dreamy vibrant colors, high detail illustration, clear and safe for kids";
 
-                // Traducción rápida para lugares comunes
-                let translatedPlace = cleanedQuery;
-                let currentCategory = 'landscape';
+                // PRIORIDAD 1: Curadas (Igual que en personajes)
+                let curatedKey = Object.keys(curatedImages).find(key => {
+                    const regex = new RegExp(`\\b${key.replace('-', '\\-')}\\b`, 'i');
+                    return regex.test(queryLower);
+                });
 
-                const sortedDictKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
-                for (let key of sortedDictKeys) {
-                    const regex = new RegExp(`\\b${key}\\b`, 'gi');
-                    if (regex.test(translatedPlace)) {
-                        translatedPlace = translatedPlace.replace(regex, masterDictionary[key].en);
-                        currentCategory = masterDictionary[key].cat;
-                        break;
+                let magicUrl;
+                if (curatedKey) {
+                    magicUrl = curatedImages[curatedKey];
+                } else {
+                    const seed = Math.floor(Math.random() * 999999);
+                    const placeKeywords = "whimsical children's book illustration, magical colorful setting, dreamy vibrant colors, high detail illustration, clear and safe for kids";
+
+                    let translatedPlace = cleanedQuery;
+                    let currentCategory = 'landscape';
+
+                    const sortedDictKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
+                    for (let key of sortedDictKeys) {
+                        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+                        if (regex.test(translatedPlace)) {
+                            translatedPlace = translatedPlace.replace(regex, masterDictionary[key].en);
+                            currentCategory = masterDictionary[key].cat;
+                        }
                     }
-                }
 
-                const magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' ' + placeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`;
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' ' + placeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`;
+                }
 
                 let draftCard = document.getElementById('placeDraftCard');
                 if (!draftCard) {
@@ -1165,9 +1215,12 @@
             } catch (e) {
                 console.error("Error Espejo Mágico Lugar:", e);
             } finally {
-                if (!isLive) {
-                    document.querySelector('.place-magic-btn').disabled = false;
-                    loader.style.display = 'none';
+                if (!isLive && btn) btn.disabled = false;
+                if (loader) {
+                    const delay = isLive ? 300 : 1000;
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, delay);
                 }
             }
         }
@@ -1179,7 +1232,16 @@
             const grid = document.getElementById('charactersGrid');
             const cards = grid.getElementsByClassName('option-card');
 
-            // Lanzar el espejo mágico si hay texto suficiente (Desde 2 letras para más reactividad)
+            if (filter.length === 0) {
+                const draft = document.getElementById('charDraftCard');
+                if (draft) draft.style.display = "none";
+                return;
+            } else {
+                // Si hay texto, asegurar que el borrador sea visible si existe
+                const draft = document.getElementById('charDraftCard');
+                if (draft) draft.style.display = "";
+            }
+
             if (filter.length >= 2) liveSearchCharacter();
 
             for (let i = 0; i < cards.length; i++) {
@@ -1188,9 +1250,7 @@
                 if (txtValue.toLowerCase().indexOf(filter) > -1) {
                     cards[i].style.display = "";
                 } else {
-                    // No ocultar el borrador actual si coincide con lo que se escribe
-                    if (cards[i].id === 'charDraftCard') cards[i].style.display = "";
-                    else cards[i].style.display = "none";
+                    cards[i].style.display = "none";
                 }
             }
         }
@@ -1199,7 +1259,8 @@
         function toggleClearBtn(id) {
             const input = document.getElementById(id);
             const btn = document.getElementById('clear-' + id);
-            if (input.value.length > 0) btn.classList.add('visible');
+            // Aseguramos que se use el valor actual del input (con o sin espacios)
+            if (input.value.trim().length > 0) btn.classList.add('visible');
             else btn.classList.remove('visible');
         }
 
@@ -1241,6 +1302,13 @@
             const filter = input.value.toLowerCase();
             const grid = document.getElementById('placesGrid');
             const cards = grid.getElementsByClassName('option-card');
+
+            // Si el campo está vacío, ocultar el borrador inmediatamente
+            if (filter.length === 0) {
+                const draft = document.getElementById('placeDraftCard');
+                if (draft) draft.style.display = "none";
+                return;
+            }
 
             if (filter.length >= 3) liveSearchPlace();
 
