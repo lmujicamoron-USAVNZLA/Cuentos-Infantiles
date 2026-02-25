@@ -99,6 +99,281 @@
             height: 40px;
             border-radius: 50%;
         }
+
+        .story-thumb {
+            width: 100%;
+            height: 180px;
+            background: #eee;
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            object-fit: cover;
+        }
+
+        .action-btn {
+            position: absolute;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.15);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn.delete {
+            top: 0.75rem;
+            right: 0.75rem;
+            color: #ef4444;
+        }
+
+        .action-btn.export {
+            top: 0.75rem;
+            right: 3.5rem;
+            color: var(--primary);
+        }
+
+        .action-btn.edit {
+            top: 0.75rem;
+            right: 6.25rem;
+            color: #f59e0b;
+        }
+
+        .action-btn.image {
+            top: 0.75rem;
+            right: 9rem;
+            color: #10b981;
+        }
+
+        .action-btn.delete:hover,
+        .action-btn.export:hover,
+        .action-btn.edit:hover,
+        .action-btn.image:hover {
+            color: white;
+        }
+
+        .story-thumb {
+            width: 100%;
+            height: 180px;
+            background: #eee;
+            border-radius: 1rem;
+            margin-bottom: 0.5rem;
+            object-fit: cover;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: flex-start;
+            /* Evita que se corten los botones */
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+            padding: 5vh 0;
+            /* Padding relativo para mayor margen */
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn-cancel {
+            background: #cbd5e1;
+            /* Gris más oscuro y visible */
+            color: #1e293b;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #94a3b8;
+        }
+
+        .modal-btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .modal-btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Estilos para el Modal de Edición */
+        #editStoryText {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 2px solid #eef2ff;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            margin-top: 1rem;
+            outline: none;
+        }
+
+        #editStoryText:focus {
+            border-color: var(--primary);
+        }
+
+        /* Estilos de la Galería Mágica Corregidos */
+        .image-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            /* Más flexible */
+            gap: 1rem;
+            margin-top: 1.5rem;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 1rem;
+        }
+
+        .gallery-item {
+            width: 100%;
+            height: 120px;
+            /* Altura fija para evitar solapamientos */
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+            overflow: hidden;
+            position: relative;
+            background: #f1f5f9;
+            /* Fondo de carga */
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            /* Evitar espacios extra */
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item.selected {
+            border: 5px solid var(--primary) !important;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 1) !important;
+            transform: scale(1.05) translateY(-5px);
+            z-index: 5;
+        }
+
+        /* Indicador de carga para galería */
+        #galleryLoader {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+
+        .magic-spinner {
+            font-size: 3rem;
+            animation: rotate 2s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .gallery-item.selected::after {
+            content: "✨";
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--primary);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            color: white;
+        }
     </style>
 </head>
 
@@ -107,6 +382,76 @@
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <!-- Modal de Confirmación Eliminación -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">🗑️ ¿Eliminar cuento?</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Esta acción no se puede deshacer. El cuento
+                desaparecerá de tu biblioteca para siempre.</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">⬅️ Volver</button>
+                <button class="modal-btn modal-btn-delete" onclick="executeDelete()">🗑️ Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">✍️ Editar Cuento</h3>
+            <div class="input-group" style="margin-bottom: 0.5rem;">
+                <label for="editStoryTitle">Título</label>
+                <input type="text" id="editStoryTitle"
+                    style="width: 100%; padding: 0.8rem; border-radius: 0.8rem; border: 1px solid #ddd;">
+            </div>
+            <textarea id="editStoryText" placeholder="Escribe aquí tu cuento mágico..."></textarea>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeEditModal()">⬅️ Volver</button>
+                <button class="modal-btn modal-btn-primary" onclick="saveEditedStory()">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cambio de Imagen -->
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">🎨 Galería Mágica Rebosante</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Selecciona una nueva ilustración. ¡Hay más de 20
+                opciones!</p>
+
+            <div
+                style="margin-top: 1rem; display: flex; gap: 0.75rem; background: #f8fafc; padding: 0.5rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; position: relative; align-items: center;">
+                <input type="text" id="gallerySearch"
+                    placeholder="Busca lo que imagines (ej. superman, robot, playa)..."
+                    onkeyup="if(event.key === 'Enter') filterGallery()" oninput="toggleGalleryClearBtn()"
+                    style="flex: 1; border: none; background: transparent; padding: 0.5rem 1rem; outline: none; font-size: 1rem;">
+                <button id="clearGallerySearch" onclick="clearGallerySearch()"
+                    style="background: #cbd5e1; border: none; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; font-size: 0.8rem; margin-right: 0.5rem;">✕</button>
+                <button onclick="filterGallery()"
+                    style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0.6rem 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
+                    onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨
+                    Magia</button>
+            </div>
+
+            <div class="image-gallery-grid" id="galleryGrid" style="margin-top: 1.5rem; min-height: 200px;">
+                <!-- Se cargará mediante JS -->
+            </div>
+            <div id="galleryLoader">
+                <div class="magic-spinner">🪄</div>
+                <p style="color: var(--primary); font-weight: 600; margin-top: 1rem;">Buscando en el cofre mágico...</p>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 2rem; flex-direction: row-reverse; gap: 1rem;">
+                <button class="modal-btn modal-btn-primary" id="confirmImageBtn"
+                    style="opacity: 0.5; cursor: not-allowed; flex: 2; font-size: 1.1rem; padding: 1rem;"
+                    onclick="saveNewImage()" disabled>✨ ¡Usar esta Imagen!</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeImageModal()" style="flex: 1;">⬅️
+                    Volver</button>
+            </div>
+        </div>
     </div>
 
     <main class="container" style="max-width: 1000px;">
@@ -132,6 +477,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- jsPDF para exportación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -264,14 +611,423 @@
                 let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
 
                 card.innerHTML = `
+                    <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${doc.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
+                    <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${doc.id}')" title="Descargar PDF">📥</button>
+                    <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${doc.id}')" title="Editar">✍️</button>
+                    <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${doc.id}')" title="Imagen">🎨</button>
                     <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
                     <div style="padding: 0.2rem;">
-                        <h3 style="margin-bottom: 0.25rem;">${story.title}</h3>
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">${story.character} • ${story.place}</p>
+                        <h3 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: var(--text-main);">${story.title}</h3>
+                        <p style="color: var(--text-muted); font-size: 0.8rem;">${story.character} en ${story.place}</p>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+        }
+
+        // --- FUNCIONES DE ELIMINACIÓN ---
+        let storyToDelete = null;
+
+        function confirmDelete(storyId, storyTitle) {
+            storyToDelete = storyId;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            storyToDelete = null;
+        }
+
+        async function executeDelete() {
+            if (!storyToDelete) return;
+
+            const deleteBtn = document.querySelector('.modal-btn-delete');
+            const originalText = deleteBtn.innerHTML;
+            deleteBtn.innerHTML = '⏳ Eliminando...';
+            deleteBtn.disabled = true;
+
+            try {
+                await db.collection('stories').doc(storyToDelete).delete();
+                closeDeleteModal();
+                deleteBtn.innerHTML = originalText;
+                deleteBtn.disabled = false;
+                // Recargar la biblioteca con el usuario actual
+                const user = firebase.auth().currentUser;
+                if (user) loadStories(user.uid);
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                deleteBtn.innerHTML = originalText;
+                deleteBtn.disabled = false;
+
+                let errorMsg = '❌ Error al eliminar el cuento.';
+                if (error.code === 'permission-denied') {
+                    errorMsg += ' No tienes permisos para eliminar este cuento.';
+                } else if (error.code === 'unavailable') {
+                    errorMsg += ' Verifica tu conexión a internet.';
+                } else {
+                    errorMsg += ` (${error.message})`;
+                }
+
+                alert(errorMsg);
+            }
+        }
+
+        // --- EXPORTAR A PDF ---
+        async function exportToPDF(storyId) {
+            try {
+                const docSnap = await db.collection('stories').doc(storyId).get();
+                if (!docSnap.exists) return;
+                const story = docSnap.data();
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                const margin = 20;
+                const pageWidth = pdf.internal.pageSize.getWidth();
+
+                // Título
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(22);
+                pdf.setTextColor(79, 70, 229); // Color Primary
+                pdf.text(story.title, margin, 30);
+
+                // Info
+                pdf.setFontSize(12);
+                pdf.setFont("helvetica", "italic");
+                pdf.setTextColor(100, 116, 139);
+                pdf.text(`Una aventura de ${story.character} en ${story.place}`, margin, 40);
+
+                // Línea divisoria
+                pdf.setDrawColor(226, 232, 240);
+                pdf.line(margin, 45, pageWidth - margin, 45);
+
+                // Contenido
+                pdf.setFont("helvetica", "normal");
+                pdf.setTextColor(51, 65, 85);
+                pdf.setFontSize(14);
+
+                const splitText = pdf.splitTextToSize(story.content, pageWidth - (margin * 2));
+                pdf.text(splitText, margin, 60);
+
+                // Pie de página
+                pdf.setFontSize(10);
+                pdf.setTextColor(148, 163, 184);
+                pdf.text("Creado con Story Creator Kids ✨", margin, pdf.internal.pageSize.getHeight() - 10);
+
+                pdf.save(`${story.title.replace(/\s+/g, '_')}_Cuento.pdf`);
+
+            } catch (error) {
+                console.error("Error exportando PDF:", error);
+                alert("Hubo un error al generar el PDF mágino.");
+            }
+        }
+
+        // --- FUNCIONES DE EDICIÓN ---
+        let storyToEdit = null;
+
+        async function openEditModal(storyId) {
+            storyToEdit = storyId;
+            try {
+                const docSnap = await db.collection('stories').doc(storyId).get();
+                if (!docSnap.exists) return;
+                const data = docSnap.data();
+
+                document.getElementById('editStoryTitle').value = data.title;
+                document.getElementById('editStoryText').value = data.content;
+                document.getElementById('editModal').classList.add('active');
+            } catch (error) {
+                console.error("Error abriendo editor:", error);
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            storyToEdit = null;
+        }
+
+        async function saveEditedStory() {
+            if (!storyToEdit) return;
+
+            const newTitle = document.getElementById('editStoryTitle').value.trim();
+            const newContent = document.getElementById('editStoryText').value.trim();
+
+            if (!newTitle || !newContent) {
+                alert("El título y el contenido no pueden estar vacíos.");
+                return;
+            }
+
+            try {
+                await db.collection('stories').doc(storyToEdit).update({
+                    title: newTitle,
+                    content: newContent
+                });
+                closeEditModal();
+                const user = firebase.auth().currentUser;
+                if (user) loadStories(user.uid);
+            } catch (error) {
+                console.error("Error guardando edición:", error);
+                alert("Hubo un error al guardar los cambios.");
+            }
+        }
+
+        // --- FUNCIONES DE CAMBIO DE IMAGEN CON GALERÍA ---
+        let storyToUpdateImage = null;
+        let selectedImageUrl = null;
+
+        const magicImages = [
+            // Aventura
+            { url: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400", tags: "aventura libro lectura bosque cuentos magia historia pajaro hoja papel leer escrito autor literatura" },
+            { url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400", tags: "aventura castillo magia palacio fortaleza rey reina princesa principe caballero dragon torre medieval" },
+            { url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=400", tags: "aventura montaña naturaleza aire libre pico nieve azul frio altura viaje excursion" },
+            { url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=400", tags: "aventura selva jungla explorador verde plantas lianas safari bosque tropical amazonas" },
+            // Animales
+            { url: "https://images.unsplash.com/photo-1550747528-cdb45925b3f7?auto=format&fit=crop&q=80&w=400", tags: "animal unicornio blanco fantasia caballo cuerno magico brillo arcoiris mitologico" },
+            { url: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&q=80&w=400", tags: "animal robot perro tecnologia cibernetico metal futuro juguete raro maquina androide" },
+            { url: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=400", tags: "animal perro cachorro mascota can tierno peludo oido orejas fiel amigo guau" },
+            { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=400", tags: "animal gato minino mascota felino orejas bigotes gatito miau ronroneo casa" },
+            // Fantasía
+            { url: "https://images.unsplash.com/photo-1516331138075-f3ad16d49f25?auto=format&fit=crop&q=80&w=400", tags: "fantasia estrellas brillante noche cielo luz polvo hadas centelleo universo" },
+            { url: "https://images.unsplash.com/photo-1519074063912-211c5f66be0f?auto=format&fit=crop&q=80&w=400", tags: "fantasia hada bosque magia peque volando alas criatura bosque encantado" },
+            { url: "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?auto=format&fit=crop&q=80&w=400", tags: "fantasia cristal castillo brillante diamante joya luz palacio reluciente" },
+            { url: "https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=400", tags: "fantasia mundo magico surrealista sueño arte colores imaginacion viaje" },
+            // Espacio
+            { url: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400", tags: "espacio tierra planeta nasa astronauta naves estrellas galaxia orbita mundo cohete" },
+            { url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=400", tags: "espacio galaxia azul cosmos estrellas infinito universo red sistema solar" },
+            { url: "https://images.unsplash.com/photo-1447433589675-4aaa56a4010a?auto=format&fit=crop&q=80&w=400", tags: "espacio estrellas nebulosa polvo gas colores vacio profundo" },
+            { url: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bac4?auto=format&fit=crop&q=80&w=400", tags: "espacio luna noche crater astronauta bandera satelite blanco negro" },
+            // Naturaleza / Paisajes
+            { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400", tags: "paisaje bosque verde arboles bosque madera sol rayos luz pinos paz" },
+            { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=400", tags: "paisaje rio agua montañas lago canoa paz reflejo naturaleza" },
+            { url: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&q=80&w=400", tags: "paisaje casa campo flores granja jardin verde cielo granero pradera" },
+            { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=400", tags: "paisaje playa mar arena oceano palmeras vacaciones sol azul verano olas" }
+        ];
+
+        function openImageModal(storyId) {
+            storyToUpdateImage = storyId;
+            selectedImageUrl = null;
+            document.getElementById('gallerySearch').value = '';
+
+            renderGallery(magicImages);
+
+            const confirmBtn = document.getElementById('confirmImageBtn');
+            confirmBtn.style.opacity = '0.5';
+            confirmBtn.style.cursor = 'not-allowed';
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = 'Usar Imagen ✨'; // Reset text
+
+            document.getElementById('imageModal').classList.add('active');
+        }
+
+        // DICCIONARIO MAESTRO: Unificación total de términos y categorías
+        const masterDictionary = {
+            // CATEGORÍA: SUJETOS (Personajes, Animales) -> Fallback: DiceBear
+            'perro': { en: 'dog', cat: 'subject' },
+            'gato': { en: 'cat', cat: 'subject' },
+            'leon': { en: 'lion', cat: 'subject' },
+            'león': { en: 'lion', cat: 'subject' },
+            'tigre': { en: 'tiger', cat: 'subject' },
+            'elefante': { en: 'elephant', cat: 'subject' },
+            'conejo': { en: 'rabbit', cat: 'subject' },
+            'pajaro': { en: 'bird', cat: 'subject' },
+            'pájaro': { en: 'bird', cat: 'subject' },
+            'oso': { en: 'bear', cat: 'subject' },
+            'mono': { en: 'monkey', cat: 'subject' },
+            'jirafa': { en: 'giraffe', cat: 'subject' },
+            'vaca': { en: 'cow', cat: 'subject' },
+            'cerdo': { en: 'pig', cat: 'subject' },
+            'caballo': { en: 'horse', cat: 'subject' },
+            'raton': { en: 'mouse', cat: 'subject' },
+            'ratón': { en: 'mouse', cat: 'subject' },
+            'dinosaurio': { en: 'dinosaur', cat: 'subject' },
+            'dragon': { en: 'dragon', cat: 'subject' },
+            'dragón': { en: 'dragon', cat: 'subject' },
+            'sapo': { en: 'frog', cat: 'subject' },
+            'rana': { en: 'frog', cat: 'subject' },
+            'sapito': { en: 'cute frog', cat: 'subject' },
+            'superman': { en: 'superhero flying', cat: 'subject' },
+            'batman': { en: 'superhero batman', cat: 'subject' },
+            'spiderman': { en: 'superhero spiderman', cat: 'subject' },
+            'robot': { en: 'friendly cute robot', cat: 'subject' },
+            'princesa': { en: 'princess', cat: 'subject' },
+            'principe': { en: 'prince', cat: 'subject' },
+            'príncipe': { en: 'prince', cat: 'subject' },
+            'hada': { en: 'fairy', cat: 'subject' },
+            'mago': { en: 'wizard', cat: 'subject' },
+            'pirata': { en: 'pirate', cat: 'subject' },
+            'ninja': { en: 'ninja', cat: 'subject' },
+            'caballero': { en: 'knight', cat: 'subject' },
+            'astronauta': { en: 'astronaut', cat: 'subject' },
+            'marciano': { en: 'alien martian', cat: 'subject' },
+            'alien': { en: 'alien character', cat: 'subject' },
+            'extraterrestre': { en: 'alien creature', cat: 'subject' },
+            'bombero': { en: 'firefighter', cat: 'subject' },
+            'policia': { en: 'police officer', cat: 'subject' },
+            'policía': { en: 'police officer', cat: 'subject' },
+            // CATEGORÍA: PAISAJES / OBJETOS -> Fallback: LoremFlickr
+            'bosque': { en: 'enchanted forest', cat: 'landscape' },
+            'playa': { en: 'tropical beach', cat: 'landscape' },
+            'mar': { en: 'deep blue sea', cat: 'landscape' },
+            'espacio': { en: 'outer space stars', cat: 'landscape' },
+            'zoologico': { en: 'zoo animals', cat: 'landscape' },
+            'zoo': { en: 'zoo background', cat: 'landscape' },
+            'hospital': { en: 'medical hospital', cat: 'landscape' },
+            'escuela': { en: 'school building', cat: 'landscape' },
+            'colegio': { en: 'school building', cat: 'landscape' },
+            'rusia': { en: 'russia red square', cat: 'landscape' },
+            'china': { en: 'great wall china', cat: 'landscape' },
+            'mexico': { en: 'mexico landscape', cat: 'landscape' },
+            'méxico': { en: 'mexico landscape', cat: 'landscape' },
+            'parque de diversiones': { en: 'amusement park', cat: 'landscape' },
+            'parque de atracciones': { en: 'amusement park', cat: 'landscape' },
+            'parque': { en: 'beautiful park', cat: 'landscape' },
+            'feria': { en: 'carnival fair', cat: 'landscape' },
+            'selva': { en: 'tropical jungle', cat: 'landscape' },
+            'castillo': { en: 'magic castle', cat: 'landscape' },
+            'ciudad': { en: 'colorful city', cat: 'landscape' },
+            'nieve': { en: 'snowy landscape', cat: 'landscape' },
+            'volcan': { en: 'erupting volcano', cat: 'landscape' },
+            'volcán': { en: 'erupting volcano', cat: 'landscape' },
+            'cohete': { en: 'rocket ship', cat: 'landscape' },
+            'isla': { en: 'tropical island', cat: 'landscape' },
+            'desierto': { en: 'sand desert', cat: 'landscape' },
+            'montaña': { en: 'high mountain landscape', cat: 'landscape' },
+            'rio': { en: 'running river', cat: 'landscape' },
+            'río': { en: 'running river', cat: 'landscape' },
+            'lago': { en: 'peaceful lake', cat: 'landscape' }
+        };
+
+        function renderGallery(images) {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            if (images.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #94a3b8;">No encontramos esa magia... ¡Intenta otra palabra!</p>';
+                return;
+            }
+
+            images.forEach(img => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `<img src="${img.url}" alt="Opción Mágica" loading="lazy">`;
+                item.onclick = () => selectImage(img.url, item);
+
+                const imgElement = item.querySelector('img');
+                imgElement.onerror = () => {
+                    // Fallback dinámico inteligente basado en el tipo de término
+                    const query = img.tags || 'magic';
+                    const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(query.toLowerCase()));
+                    const category = entry ? entry[1].cat : 'landscape';
+
+                    if (category === 'landscape') {
+                        imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(query)}?lock=${Math.floor(Math.random() * 1000)}`;
+                    } else {
+                        imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(query)}&backgroundColor=ffd5dc`;
+                    }
+                };
+                grid.appendChild(item);
+            });
+        }
+
+        async function filterGallery() {
+            const queryInput = document.getElementById('gallerySearch');
+            const query = queryInput.value.toLowerCase().trim();
+            if (!query) {
+                renderGallery(magicImages);
+                return;
+            }
+
+            const grid = document.getElementById('galleryGrid');
+            const loader = document.getElementById('galleryLoader');
+
+            grid.innerHTML = '';
+            loader.style.display = 'block';
+
+            const searchResults = [];
+            // Limpieza de query: Quitar preposiciones y símbolos (igual que en el creador)
+            let cleanedQuery = query.replace(/^(en |de |un |una |la |el |al )+/, '').replace(/[`'"]/g, '').trim();
+            let translated = cleanedQuery;
+            let currentCategory = 'landscape';
+
+            const sortedKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
+            for (let k of sortedKeys) {
+                const regex = new RegExp(`\\b${k}\\b`, 'i');
+                if (regex.test(translated)) {
+                    translated = masterDictionary[k].en;
+                    currentCategory = masterDictionary[k].cat;
+                    break;
+                }
+            }
+
+            const typeKeywords = currentCategory === 'landscape'
+                ? "magical colorful landscape setting, whimsical children's book style, dreamy vibrant colors, high quality"
+                : "child-friendly storybook character illustration, cute cartoon style, colorful and vibrant, simple design, white background";
+
+            for (let i = 0; i < 8; i++) {
+                const seed = Math.floor(Math.random() * 999999);
+                searchResults.push({
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(translated + ' ' + typeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`,
+                    tags: query
+                });
+            }
+
+            setTimeout(() => {
+                loader.style.display = 'none';
+                renderGallery(searchResults);
+            }, 600);
+        }
+
+        function toggleGalleryClearBtn() {
+            const input = document.getElementById('gallerySearch');
+            const btn = document.getElementById('clearGallerySearch');
+            if (input.value.length > 0) btn.style.display = 'flex';
+            else btn.style.display = 'none';
+        }
+
+        function clearGallerySearch() {
+            const input = document.getElementById('gallerySearch');
+            input.value = '';
+            toggleGalleryClearBtn();
+            input.focus();
+            renderGallery(magicImages);
+        }
+
+        function selectImage(url, element) {
+            selectedImageUrl = url;
+            document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('selected'));
+            element.classList.add('selected');
+
+            const btn = document.getElementById('confirmImageBtn');
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            btn.disabled = false;
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('active');
+            storyToUpdateImage = null;
+            selectedImageUrl = null;
+        }
+
+        async function saveNewImage() {
+            if (!storyToUpdateImage || !selectedImageUrl) return;
+
+            const btn = document.getElementById('confirmImageBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '🪄 Hechizando...';
+            btn.disabled = true;
+
+            try {
+                await db.collection('stories').doc(storyToUpdateImage).update({
+                    coverImg: selectedImageUrl
+                });
+                closeImageModal();
+                const user = firebase.auth().currentUser;
+                if (user) loadStories(user.uid);
+            } catch (error) {
+                console.error("Error actualizando imagen:", error);
+                alert("Hubo un error al actualizar la imagen.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

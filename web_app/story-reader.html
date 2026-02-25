@@ -213,6 +213,36 @@
         <span>Volver a Biblioteca</span>
     </div>
 
+    <!-- ELEMENTOS ESCÉNICOS -->
+    <audio id="pageTurnSfx" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgMusic" loop preload="auto"></audio>
+    <canvas id="magicCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50;"></canvas>
+
+    <!-- BOTONES DE CONTROL SUPERIOR -->
+    <div style="position: absolute; top: 2rem; right: 2rem; z-index: 100; display: flex; gap: 1rem;">
+        <!-- BOTÓN DE MÚSICA -->
+        <button class="nav-btn-circle" id="musicBtn" onclick="toggleMusic()" title="Música Mágica"
+            style="background: #10b981;">
+            <svg id="musicIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+            </svg>
+        </button>
+        <!-- BOTÓN DE NARRACIÓN (TTS) -->
+        <button class="nav-btn-circle" id="speakBtn" onclick="toggleSpeech()" title="Escuchar cuento">
+            <svg id="speakerIcon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            </svg>
+        </button>
+    </div>
+
     <main class="reader-container">
         <div class="book-wrapper">
             <div class="book-page page-left">
@@ -265,6 +295,171 @@
 
         let storyPages = [];
         let currentPage = 0;
+        let isSpeaking = false;
+        let isMusicPlaying = false;
+        const synth = window.speechSynthesis;
+
+        const musicThemes = {
+            fantasy: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24915c26b5.mp3?filename=fantasy-magical-background-music-for-videos-123478.mp3",
+            space: "https://cdn.pixabay.com/download/audio/2022/03/23/audio_07b2a04be3.mp3?filename=space-atmospheric-background-106558.mp3",
+            adventure: "https://cdn.pixabay.com/download/audio/2022/05/17/audio_383f982b6b.mp3?filename=adventure-cinematic-110826.mp3",
+            happy: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-kids-loop-13-13233.mp3",
+            forest: "https://cdn.pixabay.com/download/audio/2023/05/08/audio_03d9370642.mp3?filename=nature-forest-birds-150257.mp3",
+            mystery: "https://cdn.pixabay.com/download/audio/2022/10/30/audio_5179043c7b.mp3?filename=mysterious-forest-125432.mp3",
+            water: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb6442654c.mp3?filename=underwater-ambience-6201.mp3"
+        };
+
+        // --- SISTEMA DE MÚSICA MÁGICA ---
+        function toggleMusic() {
+            const music = document.getElementById('bgMusic');
+            const btn = document.getElementById('musicBtn');
+            const icon = document.getElementById('musicIcon');
+
+            if (isMusicPlaying) {
+                music.pause();
+                isMusicPlaying = false;
+                btn.style.background = '#64748b'; // Gris cuando apagado
+            } else {
+                music.play().catch(e => console.log("User interaction required"));
+                isMusicPlaying = true;
+                btn.style.background = '#10b981'; // Verde cuando encendido
+            }
+        }
+
+        // --- SISTEMA DE VOZ MÁGICA (TTS) ---
+        function toggleSpeech() {
+            if (isSpeaking) {
+                synth.cancel();
+                isSpeaking = false;
+                updateSpeakerIcon(false);
+            } else {
+                readCurrentPage();
+            }
+        }
+
+        function readCurrentPage() {
+            const p = storyPages[currentPage];
+            let textToRead = "";
+
+            if (p.type === 'cover') {
+                textToRead = `Hoy leeremos: ${p.title}. ${p.body}`;
+            } else if (p.type === 'story') {
+                textToRead = p.body;
+            } else if (p.type === 'end') {
+                textToRead = `Fin. ${p.body}`;
+            }
+
+            if (!textToRead) return;
+
+            synth.cancel(); // Detener cualquier lectura previa
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'es-ES';
+
+            // Intentar buscar una voz más amigable si está disponible
+            const voices = synth.getVoices();
+            const spanishVoice = voices.find(v => v.lang.startsWith('es') && v.name.includes('Google')) ||
+                voices.find(v => v.lang.startsWith('es'));
+            if (spanishVoice) utterance.voice = spanishVoice;
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                updateSpeakerIcon(true);
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                updateSpeakerIcon(false);
+            };
+
+            utterance.onerror = () => {
+                isSpeaking = false;
+                updateSpeakerIcon(false);
+            };
+
+            synth.speak(utterance);
+        }
+
+        function updateSpeakerIcon(active) {
+            const icon = document.getElementById('speakerIcon');
+            const btn = document.getElementById('speakBtn');
+
+            if (active) {
+                btn.style.boxShadow = "0 0 20px rgba(236, 72, 153, 0.6)";
+                btn.style.background = "#ec4899";
+                icon.innerHTML = `
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <path d="M9 9l-5 5H2v-4h2l5 5z" />
+                    <path d="M11 5v14l-5-5H2v-4h4l5-5z" />
+                `; // Simplificado, mejor usar un icono de "stop" o "mute"
+                icon.innerHTML = `
+                    <rect x="6" y="6" width="12" height="12" fill="currentColor" />
+                `;
+            } else {
+                btn.style.boxShadow = "0 10px 20px rgba(99, 102, 241, 0.3)";
+                btn.style.background = "var(--primary)";
+                icon.innerHTML = `
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                `;
+            }
+        }
+
+        // --- SISTEMA DE PARTÍCULAS MÁGICAS ---
+        const canvas = document.getElementById('magicCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 4 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = `hsl(${Math.random() * 60 + 280}, 100%, 70%)`; // Púrpuras/Rosas mágicos
+                this.life = 1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.02;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createMagicDust(x, y) {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
 
         async function initReader() {
             const storyId = localStorage.getItem('currentStoryId');
@@ -287,7 +482,7 @@
                         type: 'cover',
                         title: data.title,
                         body: `Una historia sobre un ${data.character} en ${data.place}`,
-                        img: data.coverImg || placeImg
+                        img: data.coverImg || charImg  // Usar imagen del protagonista en portada
                     });
 
                     // 2. CUERPO DEL CUENTO (Dividir por puntos pero agrupar)
@@ -311,7 +506,7 @@
                                 type: 'story',
                                 title: "", // Sin título en páginas internas, o quizás "Capítulo..."
                                 body: currentChunk.trim(),
-                                img: (storyPages.length % 2 === 0) ? charImg : placeImg // Alternar imágenes
+                                img: (storyPages.length % 2 !== 0) ? charImg : placeImg // Mantener protagonista en la primera pág de texto
                             });
                             currentChunk = "";
                             sentenceCount = 0;
@@ -328,6 +523,19 @@
 
                     document.getElementById('totalNum').innerText = storyPages.length;
                     currentPage = 0;
+
+                    // --- Cargar y Reproducir Música del Cuento ---
+                    const musicTheme = data.musicTheme || 'happy';
+                    const music = document.getElementById('bgMusic');
+                    music.src = musicThemes[musicTheme];
+                    // Intentar auto-play (muchos navegadores lo bloquean hasta el primer clic)
+                    music.play().then(() => {
+                        isMusicPlaying = true;
+                    }).catch(() => {
+                        isMusicPlaying = false;
+                        document.getElementById('musicBtn').style.background = '#64748b';
+                    });
+
                     updateUI();
                 }
             } catch (e) {
@@ -348,12 +556,16 @@
             const bodyEl = document.getElementById('storyBody');
             const imgEl = document.getElementById('storyImg');
 
-            // Actualizar Imagen con efecto suave
-            imgEl.style.opacity = '0';
-            setTimeout(() => {
-                imgEl.src = p.img;
-                imgEl.onload = () => { imgEl.style.opacity = '1'; };
-            }, 200);
+            // Actualizar Imagen con efecto suave solo si cambia
+            if (imgEl.getAttribute('src') !== p.img) {
+                imgEl.style.opacity = '0';
+                setTimeout(() => {
+                    imgEl.src = p.img;
+                    imgEl.onload = () => { imgEl.style.opacity = '1'; };
+                }, 200);
+            } else {
+                imgEl.style.opacity = '1'; // Asegurar que sea visible
+            }
 
             // Manejo de Tipos de Página
             if (p.type === 'cover') {
@@ -401,6 +613,22 @@
 
         function changePage(delta) {
             currentPage += delta;
+
+            // Efecto de Sonido
+            const sfx = document.getElementById('pageTurnSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(e => console.log("Audio interaction required"));
+
+            // Efecto de Partículas (En el centro del libro)
+            createMagicDust(window.innerWidth / 2, window.innerHeight / 2);
+
+            if (isSpeaking) {
+                synth.cancel();
+                isSpeaking = false;
+                updateSpeakerIcon(false);
+                // Opcional: Auto-leer al cambiar de página si ya estaba hablando
+                setTimeout(() => readCurrentPage(), 500);
+            }
             updateUI();
         }
 

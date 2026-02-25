@@ -189,6 +189,59 @@
         .btn-action:active {
             transform: scale(0.98);
         }
+
+        .clear-btn {
+            position: absolute;
+            right: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: none;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .clear-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .clear-btn:hover {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        /* Efecto de Flasheo Mágico */
+        @keyframes magicFlash {
+            0% {
+                filter: brightness(1) blur(0);
+                transform: scale(1);
+            }
+
+            30% {
+                filter: brightness(1.8) blur(2px);
+                transform: scale(1.02);
+            }
+
+            100% {
+                filter: brightness(1) blur(0);
+                transform: scale(1);
+            }
+        }
+
+        .flash-active {
+            animation: magicFlash 0.4s ease-out;
+        }
     </style>
 </head>
 
@@ -237,9 +290,12 @@
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                         <input type="text" id="characterSearch" class="search-input"
-                            style="border: none; background: transparent; box-shadow: none;"
+                            style="border: none; background: transparent; box-shadow: none; padding-right: 3rem;"
                             placeholder="Ej: Un gato valiente, un robot..."
-                            onkeyup="if(event.key === 'Enter') searchMagicCharacter()" oninput="filterCharacters()">
+                            onkeyup="if(event.key === 'Enter') searchMagicCharacter()"
+                            oninput="filterCharacters(); toggleClearBtn('characterSearch')">
+                        <button type="button" class="clear-btn" id="clear-characterSearch"
+                            onclick="clearSearch('characterSearch')">✕</button>
                     </div>
                     <button id="searchCharBtn" type="button" class="btn-action"
                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
@@ -276,9 +332,12 @@
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                         <input type="text" id="placeSearch" class="search-input"
-                            style="border: none; background: transparent; box-shadow: none;"
+                            style="border: none; background: transparent; box-shadow: none; padding-right: 3rem;"
                             placeholder="Ej: El espacio, un castillo..."
-                            onkeyup="if(event.key === 'Enter') searchMagicPlace()" oninput="filterPlaces()">
+                            onkeyup="if(event.key === 'Enter') searchMagicPlace()"
+                            oninput="filterPlaces(); toggleClearBtn('placeSearch')">
+                        <button type="button" class="clear-btn" id="clear-placeSearch"
+                            onclick="clearSearch('placeSearch')">✕</button>
                     </div>
                     <button type="button" class="btn-action place-magic-btn"
                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
@@ -335,7 +394,7 @@
                 style="background: rgba(0,0,0,0.1); color: var(--text-main); border: 1px solid rgba(0,0,0,0.05);"
                 onclick="changeStep(-1)" id="prevBtn">Volver</button>
             <button type="button" class="btn-action"
-                style="background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(99,102,241,0.2);"
+                style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);"
                 onclick="changeStep(1)" id="nextBtn">Siguiente</button>
         </div>
 
@@ -413,15 +472,160 @@
             // Diseño mejorado: Imagen visible por defecto con fallback de seguridad
             card.innerHTML = `
                 <div style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden; margin: 0 auto 1rem; background: #fdf2f8; border: 4px solid white; box-shadow: 0 8px 20px rgba(99,102,241,0.15); position: relative; display: flex; align-items: center; justify-content: center;">
-                    <div class="img-loader-text" style="position: absolute; font-size: 1.5rem; animation: pulse 1s infinite; z-index: 1;">✨</div>
+                    <div class="img-loader-text" style="position: absolute; font-size: 2.5rem; animation: pulse 1s infinite; z-index: 1; color: #8b5cf6;">✨</div>
                     <img src="${url}" alt="${name}" 
-                         style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" 
-                         onload="this.previousElementSibling.style.display='none';"
-                         onerror="this.style.display='none'; this.previousElementSibling.innerHTML='⚠️';">
+                         style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; display: block; transition: opacity 0.8s ease-in-out;" 
+                         onload="this.previousElementSibling.style.display='none'; this.style.opacity='1'; selections['${type}Img'] = this.src;"
+                         onerror="handleImageError(this, '${name}', '${type}')">
                 </div>
                 <h3>${name}</h3>
             `;
             return card;
+        }
+
+        // Biblioteca de Imágenes de Respaldo para Personajes Comunes
+        // DICCIONARIO MAESTRO: Unificación total de términos y categorías
+        const masterDictionary = {
+            // CATEGORÍA: SUJETOS (Personajes, Animales) -> Fallback: DiceBear
+            'perro': { en: 'dog', cat: 'subject' },
+            'gato': { en: 'cat', cat: 'subject' },
+            'leon': { en: 'lion', cat: 'subject' },
+            'león': { en: 'lion', cat: 'subject' },
+            'tigre': { en: 'tiger', cat: 'subject' },
+            'elefante': { en: 'elephant', cat: 'subject' },
+            'conejo': { en: 'rabbit', cat: 'subject' },
+            'pajaro': { en: 'bird', cat: 'subject' },
+            'pájaro': { en: 'bird', cat: 'subject' },
+            'oso': { en: 'bear', cat: 'subject' },
+            'mono': { en: 'monkey', cat: 'subject' },
+            'jirafa': { en: 'giraffe', cat: 'subject' },
+            'vaca': { en: 'cow', cat: 'subject' },
+            'cerdo': { en: 'pig', cat: 'subject' },
+            'caballo': { en: 'horse', cat: 'subject' },
+            'raton': { en: 'mouse', cat: 'subject' },
+            'ratón': { en: 'mouse', cat: 'subject' },
+            'dinosaurio': { en: 'dinosaur', cat: 'subject' },
+            'dragon': { en: 'dragon', cat: 'subject' },
+            'dragón': { en: 'dragon', cat: 'subject' },
+            'sapo': { en: 'frog', cat: 'subject' },
+            'rana': { en: 'frog', cat: 'subject' },
+            'sapito': { en: 'cute frog', cat: 'subject' },
+            'superman': { en: 'superhero flying', cat: 'subject' },
+            'batman': { en: 'superhero batman', cat: 'subject' },
+            'spiderman': { en: 'superhero spiderman', cat: 'subject' },
+            'robot': { en: 'friendly cute robot', cat: 'subject' },
+            'princesa': { en: 'princess', cat: 'subject' },
+            'principe': { en: 'prince', cat: 'subject' },
+            'príncipe': { en: 'prince', cat: 'subject' },
+            'hada': { en: 'fairy', cat: 'subject' },
+            'mago': { en: 'wizard', cat: 'subject' },
+            'pirata': { en: 'pirate', cat: 'subject' },
+            'ninja': { en: 'ninja', cat: 'subject' },
+            'caballero': { en: 'knight', cat: 'subject' },
+            'astronauta': { en: 'astronaut', cat: 'subject' },
+            'marciano': { en: 'alien martian', cat: 'subject' },
+            'alien': { en: 'alien character', cat: 'subject' },
+            'extraterrestre': { en: 'alien creature', cat: 'subject' },
+            'bombero': { en: 'firefighter', cat: 'subject' },
+            'policia': { en: 'police officer', cat: 'subject' },
+            'policía': { en: 'police officer', cat: 'subject' },
+            // CATEGORÍA: PAISAJES / OBJETOS -> Fallback: LoremFlickr
+            'bosque': { en: 'enchanted forest', cat: 'landscape' },
+            'playa': { en: 'tropical beach', cat: 'landscape' },
+            'mar': { en: 'deep blue sea', cat: 'landscape' },
+            'espacio': { en: 'outer space stars', cat: 'landscape' },
+            'zoologico': { en: 'zoo animals', cat: 'landscape' },
+            'zoo': { en: 'zoo background', cat: 'landscape' },
+            'hospital': { en: 'medical hospital', cat: 'landscape' },
+            'escuela': { en: 'school building', cat: 'landscape' },
+            'colegio': { en: 'school building', cat: 'landscape' },
+            'rusia': { en: 'russia red square', cat: 'landscape' },
+            'china': { en: 'great wall china', cat: 'landscape' },
+            'mexico': { en: 'mexico landscape', cat: 'landscape' },
+            'méxico': { en: 'mexico landscape', cat: 'landscape' },
+            'parque de diversiones': { en: 'amusement park', cat: 'landscape' },
+            'parque de atracciones': { en: 'amusement park', cat: 'landscape' },
+            'parque': { en: 'beautiful park', cat: 'landscape' },
+            'feria': { en: 'carnival fair', cat: 'landscape' },
+            'selva': { en: 'tropical jungle', cat: 'landscape' },
+            'castillo': { en: 'magic castle', cat: 'landscape' },
+            'ciudad': { en: 'colorful city', cat: 'landscape' },
+            'nieve': { en: 'snowy landscape', cat: 'landscape' },
+            'volcan': { en: 'erupting volcano', cat: 'landscape' },
+            'volcán': { en: 'erupting volcano', cat: 'landscape' },
+            'cohete': { en: 'rocket ship', cat: 'landscape' },
+            'isla': { en: 'tropical island', cat: 'landscape' },
+            'desierto': { en: 'sand desert', cat: 'landscape' },
+            'montaña': { en: 'high mountain landscape', cat: 'landscape' },
+            'rio': { en: 'running river', cat: 'landscape' },
+            'río': { en: 'running river', cat: 'landscape' },
+            'lago': { en: 'peaceful lake', cat: 'landscape' }
+        };
+
+        const characterLibrary = {
+            'superman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=superman-hero&backgroundColor=dc2626&scale=90',
+            'batman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=batman-dark&backgroundColor=1e293b&scale=90',
+            'spiderman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiderman-web&backgroundColor=dc2626&scale=90',
+            'robot': 'https://api.dicebear.com/7.x/bottts/svg?seed=robot-tech&backgroundColor=94a3b8&scale=90',
+            'perro': 'https://api.dicebear.com/7.x/adventurer/svg?seed=happy-dog&backgroundColor=fbbf24&scale=90',
+            'gato': 'https://api.dicebear.com/7.x/adventurer/svg?seed=cute-cat&backgroundColor=f97316&scale=90',
+            'leon': 'https://api.dicebear.com/7.x/adventurer/svg?seed=brave-lion&backgroundColor=fbbf24&scale=90',
+            'sapo': 'https://images.unsplash.com/photo-1590005354167-6da97870c91d?auto=format&fit=crop&q=80&w=400',
+            'rana': 'https://images.unsplash.com/photo-1590005354167-6da97870c91d?auto=format&fit=crop&q=80&w=400',
+            'dinosaurio': 'https://api.dicebear.com/7.x/adventurer/svg?seed=dino-rex&backgroundColor=84cc16&scale=90',
+            'dragon': 'https://api.dicebear.com/7.x/adventurer/svg?seed=fire-dragon&backgroundColor=dc2626&scale=90',
+            'princesa': 'https://api.dicebear.com/7.x/adventurer/svg?seed=princess-royal&backgroundColor=ec4899&scale=90',
+            'pirata': 'https://api.dicebear.com/7.x/adventurer/svg?seed=pirate-captain&backgroundColor=0891b2&scale=90',
+            'mago': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wizard-magic&backgroundColor=8b5cf6&scale=90',
+            'ninja': 'https://api.dicebear.com/7.x/adventurer/svg?seed=ninja-shadow&backgroundColor=1e293b&scale=90',
+            'bosque': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400',
+            'castillo': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400',
+            'espacio': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400',
+            'playa': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=400',
+            'mar': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=400',
+            'nieve': 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&q=80&w=400',
+            'isla': 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?auto=format&fit=crop&q=80&w=400',
+            'zoologico': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=400',
+            'zoo': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=400'
+        };
+
+        function handleImageError(img, name, type) {
+            const skip = ['un', 'una', 'el', 'la', 'super', 'súper', 'muy'];
+            const words = name.toLowerCase().split(' ').filter(w => w.length > 2 && !skip.includes(w));
+            const mainTerm = words[0] || 'hero';
+
+            if (!img.dataset.retried) {
+                img.dataset.retried = "1";
+                // Intento 2: Refrescar con semilla distinta
+                img.src = img.src.split('?')[0] + `?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+            } else if (img.dataset.retried === "1") {
+                img.dataset.retried = "2";
+
+                // Intento 3: Buscar en la biblioteca compartida (Palabra exacta)
+                const libraryKey = Object.keys(characterLibrary).find(key => {
+                    const regex = new RegExp(`\\b${key}\\b`, 'i');
+                    return regex.test(name.toLowerCase());
+                });
+                if (libraryKey) {
+                    img.src = characterLibrary[libraryKey];
+                } else {
+                    // Verificamos categoría en el Master Dictionary para decidir el fallback
+                    const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(name.toLowerCase()));
+                    const category = entry ? entry[1].cat : (type === 'Lugar' ? 'landscape' : 'subject');
+
+                    if (category === 'landscape') {
+                        // Fallback de Paisaje/Objeto: LoremFlickr (Imagen Real)
+                        img.src = `https://loremflickr.com/512/512/${encodeURIComponent(mainTerm)}?lock=${Math.floor(Math.random() * 1000)}`;
+                    } else {
+                        // Fallback de Sujeto: DiceBear (Avatar)
+                        img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${mainTerm}&backgroundColor=ffd5dc`;
+                    }
+                }
+            } else {
+                img.style.display = 'none';
+                img.previousElementSibling.style.display = 'block';
+                img.previousElementSibling.innerHTML = '✨';
+            }
         }
 
         window.onload = function () {
@@ -497,12 +701,17 @@
             document.getElementById('nextBtn').style.background = 'var(--primary)';
         }
 
-        // MÚSICA ADAPTATIVA
+        // MÚSICA ADAPTATIVA AMPLIADA
         const musicThemes = {
-            fantasy: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24915c26b5.mp3?filename=fantasy-magical-background-music-for-videos-123478.mp3", // Magia suave
-            space: "https://cdn.pixabay.com/download/audio/2022/03/23/audio_07b2a04be3.mp3?filename=space-atmospheric-background-106558.mp3", // Ambiente espacial
-            adventure: "https://cdn.pixabay.com/download/audio/2022/05/17/audio_383f982b6b.mp3?filename=adventure-cinematic-110826.mp3", // Épico/Aventura
-            happy: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-kids-loop-13-13233.mp3" // General/Alegre
+            fantasy: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24915c26b5.mp3?filename=fantasy-magical-background-music-for-videos-123478.mp3",
+            space: "https://cdn.pixabay.com/download/audio/2022/03/23/audio_07b2a04be3.mp3?filename=space-atmospheric-background-106558.mp3",
+            adventure: "https://cdn.pixabay.com/download/audio/2022/05/17/audio_383f982b6b.mp3?filename=adventure-cinematic-110826.mp3",
+            happy: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-kids-loop-13-13233.mp3",
+            forest: "https://cdn.pixabay.com/download/audio/2023/05/08/audio_03d9370642.mp3?filename=nature-forest-birds-150257.mp3",
+            mystery: "https://cdn.pixabay.com/download/audio/2022/10/30/audio_5179043c7b.mp3?filename=mysterious-forest-125432.mp3",
+            water: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb6442654c.mp3?filename=underwater-ambience-6201.mp3",
+            party: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-kids-loop-13-13233.mp3",
+            festival: "https://cdn.pixabay.com/download/audio/2022/05/17/audio_383f982b6b.mp3?filename=adventure-cinematic-110826.mp3"
         };
 
         async function selectOption(el, category) {
@@ -514,31 +723,49 @@
             const imgUrl = el.querySelector('img').src;
             selections[category + 'Img'] = imgUrl;
 
-            // AMBIENTE MÁGICO (Inmersión solamente, sin avance automático)
-            if (category === 'Personaje') {
-                const charName = selections.Personaje.toLowerCase();
-                const music = document.getElementById('magicMusic');
+            // AMBIENTE MÁGICO REACCIONA A AMBOS
+            updateAmbientMusic();
+        }
 
-                // Determinar tema musical
-                let selectedTheme = musicThemes.happy;
-                if (charName.match(/hada|princesa|unicornio|mago|bruja|castillo/)) selectedTheme = musicThemes.fantasy;
-                else if (charName.match(/robot|espacio|alien|astronauta|futuro/)) selectedTheme = musicThemes.space;
-                else if (charName.match(/dinosaurio|dragón|león|tigre|aventura/)) selectedTheme = musicThemes.adventure;
+        function updateAmbientMusic() {
+            const charName = (selections.Personaje || '').toLowerCase();
+            const placeName = (selections.Lugar || '').toLowerCase();
+            const music = document.getElementById('magicMusic');
 
-                if (music.src !== selectedTheme) {
-                    music.pause();
-                    music.src = selectedTheme;
-                    music.play().catch(() => console.log("Audio waiting for interaction"));
-                }
-                document.body.style.background = `linear-gradient(135deg, #fdf2f8 0%, #e0e7ff 100%)`;
+            let selectedThemeKey = 'happy';
+
+            // Detección combinada de temas
+            if (placeName.match(/bosque|selva|árbol|naturaleza/)) {
+                selectedThemeKey = 'forest';
+            } else if (placeName.match(/cueva|noche|misterio|oscuro|mansión/)) {
+                selectedThemeKey = 'mystery';
+            } else if (placeName.match(/mar|océano|agua|peces|submarino/)) {
+                selectedThemeKey = 'water';
+            } else if (charName.match(/hada|princesa|unicornio|mago|bruja|castillo/)) {
+                selectedThemeKey = 'fantasy';
+            } else if (charName.match(/robot|espacio|alien|astronauta|futuro/) || placeName.match(/marte|luna|planeta|espacio/)) {
+                selectedThemeKey = 'space';
+            } else if (charName.match(/celebración|fiesta|cumpleaños|parque|feria|carnaval|diversión/) || placeName.match(/parque|feria|carnaval|festival/)) {
+                selectedThemeKey = 'party';
+            } else if (charName.match(/dinosaurio|dragón|león|tigre|aventura|superman|batman|spiderman|pirata|ninja|caballero/)) {
+                selectedThemeKey = 'adventure';
             }
 
-            if (category === 'Lugar') {
-                const placeName = selections.Lugar.toLowerCase();
-                if (placeName.includes('espacio') || placeName.includes('noche')) {
-                    document.body.style.background = 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)';
-                    document.querySelector('main').style.color = 'white';
-                }
+            const selectedTheme = musicThemes[selectedThemeKey];
+
+            if (music.src !== selectedTheme) {
+                music.pause();
+                music.src = selectedTheme;
+                // Guardar el tema en las selecciones para el guardado final
+                selections.musicTheme = selectedThemeKey;
+                music.play().catch(() => console.log("Audio waiting for interaction"));
+            }
+
+            // Cambios Visuales
+            if (placeName.match(/espacio|noche|cueva/)) {
+                document.body.style.background = 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)';
+            } else {
+                document.body.style.background = `linear-gradient(135deg, #fdf2f8 0%, #e0e7ff 100%)`;
             }
         }
 
@@ -668,9 +895,8 @@
             const finalContent = document.getElementById('storyPreview').value;
 
             try {
-                // Generar una portada mágica única que combina personaje y lugar
-                const coverPromptRaw = `high quality kids storybook illustration, ${selections.Personaje} in ${selections.Lugar}, magical atmosphere, vibrant colors, 3d render style`;
-                const coverImg = `https://image.pollinations.ai/prompt/${encodeURIComponent(coverPromptRaw)}?width=800&height=400&nologo=true&seed=${Math.floor(Math.random() * 10000)}`;
+                // Usar la imagen elegida del protagonista como portada por defecto para que coincida con la tarjeta
+                const coverImg = selections.PersonajeImg;
 
                 await db.collection("stories").add({
                     userId: user.uid,
@@ -680,6 +906,7 @@
                     characterImg: selections.PersonajeImg,
                     placeImg: selections.LugarImg,
                     coverImg: coverImg,
+                    musicTheme: selections.musicTheme || 'happy',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     content: finalContent
                 });
@@ -707,8 +934,72 @@
             };
         }
 
-        const liveSearchCharacter = debounce(() => searchMagicCharacter(true), 1500);
-        const liveSearchPlace = debounce(() => searchMagicPlace(true), 1500);
+        const liveSearchCharacter = debounce(() => searchMagicCharacter(true), 800);
+        const liveSearchPlace = debounce(() => searchMagicPlace(true), 800);
+
+        // Biblioteca curada - Emojis SVG de alta calidad (Twemoji)
+        // Gratuitos, instantáneos, universales y perfectos para niños
+        const curatedImages = {
+            // Superhéroes - Ampliado con más héroes populares
+            'superman': 'https://em-content.zobj.net/source/twitter/376/superhero_1f9b8.png',
+            'batman': 'https://em-content.zobj.net/source/twitter/376/bat_1f987.png',
+            'spiderman': 'https://em-content.zobj.net/source/twitter/376/spider_1f577-fe0f.png',
+            'spider-man': 'https://em-content.zobj.net/source/twitter/376/spider-web_1f578-fe0f.png',
+            'ironman': 'https://em-content.zobj.net/source/twitter/376/mechanical-arm_1f9be.png',
+            'iron man': 'https://em-content.zobj.net/source/twitter/376/mechanical-arm_1f9be.png',
+            'thor': 'https://em-content.zobj.net/source/twitter/376/hammer_1f528.png',
+            'hulk': 'https://em-content.zobj.net/source/twitter/376/flexed-biceps_1f4aa.png',
+            'capitan america': 'https://em-content.zobj.net/source/twitter/376/shield_1f6e1-fe0f.png',
+            'capitán américa': 'https://em-content.zobj.net/source/twitter/376/shield_1f6e1-fe0f.png',
+            'wonder woman': 'https://em-content.zobj.net/source/twitter/376/woman-superhero_1f9b8-200d-2640-fe0f.png',
+            'mujer maravilla': 'https://em-content.zobj.net/source/twitter/376/woman-superhero_1f9b8-200d-2640-fe0f.png',
+            'flash': 'https://em-content.zobj.net/source/twitter/376/high-voltage_26a1.png',
+            'aquaman': 'https://em-content.zobj.net/source/twitter/376/water-wave_1f30a.png',
+
+            // Animales - Ampliado
+            'perro': 'https://em-content.zobj.net/source/twitter/376/dog-face_1f436.png',
+            'gato': 'https://em-content.zobj.net/source/twitter/376/cat-face_1f431.png',
+            'leon': 'https://em-content.zobj.net/source/twitter/376/lion_1f981.png',
+            'tigre': 'https://em-content.zobj.net/source/twitter/376/tiger-face_1f42f.png',
+            'oso': 'https://em-content.zobj.net/source/twitter/376/bear_1f43b.png',
+            'conejo': 'https://em-content.zobj.net/source/twitter/376/rabbit-face_1f430.png',
+            'elefante': 'https://em-content.zobj.net/source/twitter/376/elephant_1f418.png',
+            'mono': 'https://em-content.zobj.net/source/twitter/376/monkey-face_1f435.png',
+            'dinosaurio': 'https://em-content.zobj.net/source/twitter/376/t-rex_1f996.png',
+            'dragon': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
+            'pajaro': 'https://em-content.zobj.net/source/twitter/376/bird_1f426.png',
+            'pájaro': 'https://em-content.zobj.net/source/twitter/376/bird_1f426.png',
+            'pez': 'https://em-content.zobj.net/source/twitter/376/fish_1f41f.png',
+            'tortuga': 'https://em-content.zobj.net/source/twitter/376/turtle_1f422.png',
+            'caballo': 'https://em-content.zobj.net/source/twitter/376/horse-face_1f434.png',
+            'vaca': 'https://em-content.zobj.net/source/twitter/376/cow-face_1f42e.png',
+            'cerdo': 'https://em-content.zobj.net/source/twitter/376/pig-face_1f437.png',
+            'oveja': 'https://em-content.zobj.net/source/twitter/376/ewe_1f411.png',
+            'jirafa': 'https://em-content.zobj.net/source/twitter/376/giraffe_1f992.png',
+            'zorro': 'https://em-content.zobj.net/source/twitter/376/fox_1f98a.png',
+            'lobo': 'https://em-content.zobj.net/source/twitter/376/wolf_1f43a.png',
+            'raton': 'https://em-content.zobj.net/source/twitter/376/mouse-face_1f42d.png',
+            'ratón': 'https://em-content.zobj.net/source/twitter/376/mouse-face_1f42d.png',
+
+            // Robots y tecnología
+            'robot': 'https://em-content.zobj.net/source/twitter/376/robot_1f916.png',
+            'astronauta': 'https://em-content.zobj.net/source/twitter/376/astronaut_1f9d1-200d-1f680.png',
+            'alien': 'https://em-content.zobj.net/source/twitter/376/alien_1f47d.png',
+
+            // Personajes de cuentos
+            'princesa': 'https://em-content.zobj.net/source/twitter/376/princess_1f478.png',
+            'principe': 'https://em-content.zobj.net/source/twitter/376/prince_1f934.png',
+            'príncipe': 'https://em-content.zobj.net/source/twitter/376/prince_1f934.png',
+            'pirata': 'https://em-content.zobj.net/source/twitter/376/pirate-flag_1f3f4-200d-2620-fe0f.png',
+            'mago': 'https://em-content.zobj.net/source/twitter/376/mage_1f9d9.png',
+            'ninja': 'https://em-content.zobj.net/source/twitter/376/ninja_1f977.png',
+            'hada': 'https://em-content.zobj.net/source/twitter/376/fairy_1f9da.png',
+            'vampiro': 'https://em-content.zobj.net/source/twitter/376/vampire_1f9db.png',
+            'zombie': 'https://em-content.zobj.net/source/twitter/376/zombie_1f9df.png',
+            'caballero': 'https://em-content.zobj.net/source/twitter/376/crossed-swords_2694-fe0f.png',
+            'rey': 'https://em-content.zobj.net/source/twitter/376/crown_1f451.png',
+            'reina': 'https://em-content.zobj.net/source/twitter/376/crown_1f451.png'
+        };
 
         async function searchMagicCharacter(isLive = false) {
             const queryInput = document.getElementById('characterSearch');
@@ -719,32 +1010,60 @@
             const loader = document.getElementById('magicLoader');
             const btn = document.getElementById('searchCharBtn');
 
-            if (!isLive) {
-                btn.disabled = true;
-                loader.style.display = 'block';
-            }
+            if (loader) loader.style.display = 'block';
+            if (!isLive && btn) btn.disabled = true;
 
             try {
-                // Diccionario de traducción para que la IA entienda mejor
-                let term = query.toLowerCase();
-                const dictionary = {
-                    'perro': 'dog', 'gato': 'cat', 'leon': 'lion', 'león': 'lion',
-                    'tigre': 'tiger', 'elefante': 'elephant', 'conejo': 'rabbit',
-                    'pajaro': 'bird', 'pájaro': 'bird', 'oso': 'bear', 'mono': 'monkey',
-                    'jirafa': 'giraffe', 'vaca': 'cow', 'cerdo': 'pig', 'caballo': 'horse'
-                };
-                if (dictionary[term]) term = dictionary[term];
-
                 const name = query.charAt(0).toUpperCase() + query.slice(1);
-                const seed = Math.floor(Math.random() * 1000000);
-                const magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(term + ' cute kid-friendly character, 3d pixar style, white background')}?width=400&height=400&nologo=true&seed=${seed}`;
+                const queryLower = query.toLowerCase();
+
+                // PRIORIDAD 1: Verificar si existe en la biblioteca curada
+                // Buscar coincidencias exactas o palabras completas para mayor precisión
+                let curatedKey = Object.keys(curatedImages).find(key => {
+                    // Coincidencia exacta
+                    if (key === queryLower) return true;
+                    // Coincidencia de palabra completa (ej. "spider" en "spider-man")
+                    const regex = new RegExp(`\\b${key.replace('-', '\\-')}\\b`, 'i');
+                    return regex.test(queryLower);
+                });
+
+                let magicUrl;
+                if (curatedKey) {
+                    magicUrl = curatedImages[curatedKey];
+                } else {
+                    let translatedQuery = cleanedCharQuery;
+                    let currentCategory = 'subject';
+
+                    // Búsqueda inteligente en el Master Dictionary con Word Boundaries
+                    const sortedDictKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
+                    for (let key of sortedDictKeys) {
+                        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+                        if (regex.test(translatedQuery)) {
+                            translatedQuery = translatedQuery.replace(regex, masterDictionary[key].en);
+                            currentCategory = masterDictionary[key].cat;
+                            break;
+                        }
+                    }
+
+                    // Prompt Engineering especializado por categoría
+                    let qualityKeywords;
+                    if (currentCategory === 'landscape') {
+                        qualityKeywords = "whimsical children's book landscape illustration, magical colorful setting, dreamy vibrant colors, high detail, clear for kids";
+                    } else {
+                        qualityKeywords = "child-friendly storybook character illustration, cute cartoon style, colorful and vibrant, simple design, white background, friendly, full body";
+                    }
+
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ' ' + qualityKeywords)}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
+                }
 
                 let draftCard = document.getElementById('charDraftCard');
                 if (!draftCard) {
                     draftCard = createAssetCard('Personaje', name, magicUrl);
                     draftCard.id = 'charDraftCard';
+                    draftCard.style.border = '2px solid #8b5cf6'; // Borde mágico
                     grid.prepend(draftCard);
                 } else {
+                    draftCard.style.border = '2px solid #8b5cf6';
                     draftCard.querySelector('h3').innerText = name;
                     const img = draftCard.querySelector('img');
                     const ld = draftCard.querySelector('.img-loader-text');
@@ -753,9 +1072,16 @@
                         ld.style.display = 'block';
                         ld.innerHTML = '✨'; // Resetear a chispas mágicas
                     }
-                    // OBLIGATORIO: Mostrar la imagen por si estaba en error
+                    // LIMPIEZA INMEDIATA: Ocultar imagen anterior para evitar confusión
+                    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Transparente 1x1
+                    img.style.opacity = '0';
                     img.style.display = 'block';
-                    img.src = magicUrl;
+                    delete img.dataset.retried;
+
+                    // Pequeño delay para asegurar que el navegador registre el cambio de src
+                    setTimeout(() => {
+                        img.src = magicUrl;
+                    }, 50);
                 }
 
                 // Seleccionarlo automáticamente
@@ -765,10 +1091,11 @@
             } catch (e) {
                 console.error("Error Magic Mirror:", e);
             } finally {
-                if (!isLive) {
-                    btn.disabled = false;
-                    loader.style.display = 'none';
+                if (loader) {
+                    // Ocultar suavemente después de un momento para confirmar carga
+                    setTimeout(() => { loader.style.display = 'none'; }, 2000);
                 }
+                if (!isLive && btn) btn.disabled = false;
             }
         }
 
@@ -781,23 +1108,55 @@
             const loader = document.getElementById('placeMagicLoader');
 
             try {
-                const name = query.charAt(0).toUpperCase() + query.slice(1);
-                const seed = isLive ? 42 : Math.floor(Math.random() * 999999);
-                const magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(query + ', magical landscape, kids book illustration, vibrant colors')}?width=400&height=400&nologo=true&seed=${seed}`;
+                // Limpieza de query: Quitar preposiciones y símbolos
+                let cleanedQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al )+/, '').replace(/[`'"]/g, '').trim();
+
+                const name = cleanedQuery.charAt(0).toUpperCase() + cleanedQuery.slice(1);
+                const seed = Math.floor(Math.random() * 999999);
+                // Prompt Suave para Lugares: Estilo acuarela o libro de cuentos
+                const placeKeywords = "whimsical children's book illustration, magical colorful setting, dreamy vibrant colors, high detail illustration, clear and safe for kids";
+
+                // Traducción rápida para lugares comunes
+                let translatedPlace = cleanedQuery;
+                let currentCategory = 'landscape';
+
+                const sortedDictKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
+                for (let key of sortedDictKeys) {
+                    const regex = new RegExp(`\\b${key}\\b`, 'gi');
+                    if (regex.test(translatedPlace)) {
+                        translatedPlace = translatedPlace.replace(regex, masterDictionary[key].en);
+                        currentCategory = masterDictionary[key].cat;
+                        break;
+                    }
+                }
+
+                const magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' ' + placeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`;
 
                 let draftCard = document.getElementById('placeDraftCard');
                 if (!draftCard) {
                     draftCard = createAssetCard('Lugar', name, magicUrl);
                     draftCard.id = 'placeDraftCard';
+                    draftCard.style.border = '2px solid #8b5cf6';
                     grid.prepend(draftCard);
                 } else {
+                    draftCard.style.border = '2px solid #8b5cf6';
                     draftCard.querySelector('h3').innerText = name;
                     const img = draftCard.querySelector('img');
-                    const loaderText = draftCard.querySelector('.img-loader-text');
+                    const lt = draftCard.querySelector('.img-loader-text');
 
+                    if (lt) {
+                        lt.style.display = 'block';
+                        lt.innerHTML = '✨';
+                    }
+                    // LIMPIEZA INMEDIATA: Ocultar imagen anterior
+                    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                     img.style.opacity = '0';
-                    if (loaderText) loaderText.style.display = 'block';
-                    img.src = magicUrl;
+                    img.style.display = 'block';
+                    delete img.dataset.retried;
+
+                    setTimeout(() => {
+                        img.src = magicUrl;
+                    }, 50);
                 }
 
                 selectOption(draftCard, 'Lugar');
@@ -820,8 +1179,8 @@
             const grid = document.getElementById('charactersGrid');
             const cards = grid.getElementsByClassName('option-card');
 
-            // Lanzar el espejo mágico si hay texto suficiente
-            if (filter.length >= 3) liveSearchCharacter();
+            // Lanzar el espejo mágico si hay texto suficiente (Desde 2 letras para más reactividad)
+            if (filter.length >= 2) liveSearchCharacter();
 
             for (let i = 0; i < cards.length; i++) {
                 const title = cards[i].getElementsByTagName('h3')[0];
@@ -834,6 +1193,47 @@
                     else cards[i].style.display = "none";
                 }
             }
+        }
+
+        // --- FUNCIONES DE LIMPIEZA ---
+        function toggleClearBtn(id) {
+            const input = document.getElementById(id);
+            const btn = document.getElementById('clear-' + id);
+            if (input.value.length > 0) btn.classList.add('visible');
+            else btn.classList.remove('visible');
+        }
+
+        function clearSearch(id) {
+            const input = document.getElementById(id);
+            input.value = '';
+            input.focus();
+
+            // DETENER MÚSICA MÁGICA
+            if (magicMusic) {
+                magicMusic.pause();
+                magicMusic.currentTime = 0;
+            }
+
+            const container = input.closest('.search-container');
+
+            // Aplicar flasheo mágico al contenedor
+            if (container) {
+                container.classList.remove('flash-active');
+                void container.offsetWidth; // Forzar reflujo
+                container.classList.add('flash-active');
+            }
+
+            input.value = '';
+            toggleClearBtn(id);
+            input.focus();
+
+            // Eliminar la tarjeta de borrador actual para empezar de cero
+            const draftId = id === 'characterSearch' ? 'charDraftCard' : 'placeDraftCard';
+            const draftCard = document.getElementById(draftId);
+            if (draftCard) draftCard.remove();
+
+            if (id === 'characterSearch') filterCharacters();
+            else filterPlaces();
         }
 
         function filterPlaces() {

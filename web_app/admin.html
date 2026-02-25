@@ -104,6 +104,74 @@
             color: #166534;
         }
 
+        .badge-approved {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 1rem;
+            border: 1px solid #ddd;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 0.4rem;
+            border-radius: 1rem;
+            border: 1px solid #eee;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.7rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-revoke {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-revoke:hover {
+            background: #fcd34d;
+        }
+
         .badge-pending {
             background: #fef3c7;
             color: #92400e;
@@ -196,7 +264,17 @@
                 </div>
             </div>
 
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Solicitudes en Espera</h2>
+            <div class="search-container">
+                <input type="text" id="userSearch" class="search-input" placeholder="Buscar por nombre o email..."
+                    oninput="applyFilters()">
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="setFilter('all', this)">Todos</button>
+                    <button class="tab-btn" onclick="setFilter('pendiente', this)">Pendientes</button>
+                    <button class="tab-btn" onclick="setFilter('aprobado', this)">Aprobados</button>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;" id="listTitle">Todos los Guardianes</h2>
             <div class="user-list" id="usersList">
                 <p style="padding: 2rem; text-align: center;">Escaneando el reino en busca de niños...</p>
             </div>
@@ -238,49 +316,106 @@
             try {
                 // Escuchar cambios en tiempo real
                 db.collection("users").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-                    list.innerHTML = '';
+                    allUsers = [];
                     let pendingCount = 0;
                     let totalCount = 0;
 
                     snapshot.forEach((doc) => {
                         const user = doc.data();
+                        user.id = doc.id;
+                        allUsers.push(user);
                         totalCount++;
-
-                        if (user.status === 'pendiente') {
-                            pendingCount++;
-                            const item = document.createElement('div');
-                            item.className = 'user-item';
-
-                            const verifiedBadge = user.emailVerified ?
-                                '<span class="badge badge-verified">Email Verificado</span>' :
-                                '<span class="badge badge-pending">E-mail Pendiente</span>';
-
-                            item.innerHTML = `
-                                <img src="${user.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + user.username}" class="user-avatar">
-                                <div class="user-info">
-                                    <h4>${user.username} ${verifiedBadge}</h4>
-                                    <p>${user.email}</p>
-                                </div>
-                                <div class="actions">
-                                    <button class="btn-action btn-approve" onclick="updateStatus('${doc.id}', 'aprobado', '${user.username}')">Aprobar</button>
-                                    <button class="btn-action btn-reject" onclick="deleteUser('${doc.id}', '${user.username}')">Rechazar</button>
-                                </div>
-                            `;
-                            list.appendChild(item);
-                        }
+                        if (user.status === 'pendiente') pendingCount++;
                     });
 
                     document.getElementById('statPending').innerText = pendingCount;
                     document.getElementById('statTotal').innerText = totalCount;
 
-                    if (pendingCount === 0) {
-                        list.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">No hay niños esperando acceso en este momento. ✨</div>';
-                    }
+                    applyFilters();
                 });
             } catch (e) {
                 console.error(e);
                 list.innerHTML = '<p style="color:red; padding:2rem;">Error al conectar con la base de datos.</p>';
             }
+        }
+
+        let allUsers = [];
+        let currentFilter = 'all';
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const titles = {
+                'all': 'Todos los Guardianes',
+                'pendiente': 'Solicitudes en Espera',
+                'aprobado': 'Guardianes Aprobados'
+            };
+            document.getElementById('listTitle').innerText = titles[filter];
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const list = document.getElementById('usersList');
+            const search = document.getElementById('userSearch').value.toLowerCase();
+
+            const filtered = allUsers.filter(user => {
+                const matchesFilter = currentFilter === 'all' || user.status === currentFilter;
+                const matchesSearch = (user.username || '').toLowerCase().includes(search) ||
+                    (user.email || '').toLowerCase().includes(search);
+                return matchesFilter && matchesSearch;
+            });
+
+            renderUserList(filtered, list);
+        }
+
+        function renderUserList(users, container) {
+            container.innerHTML = '';
+
+            if (users.length === 0) {
+                container.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">No se encontraron guardianes. ✨</div>';
+                return;
+            }
+
+            users.forEach(user => {
+                const item = document.createElement('div');
+                item.className = 'user-item';
+
+                const verifiedBadge = user.emailVerified ?
+                    '<span class="badge badge-verified">Email Verificado</span>' :
+                    '<span class="badge badge-pending">E-mail Pendiente</span>';
+
+                const statusBadge = user.status === 'aprobado' ?
+                    '<span class="badge badge-approved">Aprobado</span>' :
+                    '<span class="badge badge-pending">Pendiente</span>';
+
+                let actionBtns = '';
+                if (user.status === 'pendiente') {
+                    actionBtns = `
+                        <button class="btn-action btn-approve" onclick="updateStatus('${user.id}', 'aprobado', '${user.username}')">Aprobar</button>
+                        <button class="btn-action btn-reject" onclick="deleteUser('${user.id}', '${user.username}')">Rechazar</button>
+                    `;
+                } else {
+                    actionBtns = `
+                        <button class="btn-action btn-revoke" onclick="updateStatus('${user.id}', 'pendiente', '${user.username}')">Revocar</button>
+                        <button class="btn-action btn-reject" onclick="deleteUser('${user.id}', '${user.username}')">Eliminar</button>
+                    `;
+                }
+
+                item.innerHTML = `
+                    <img src="${user.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + user.username}" class="user-avatar">
+                    <div class="user-info">
+                        <h4>${user.username} ${verifiedBadge} ${statusBadge}</h4>
+                        <p>${user.email}</p>
+                    </div>
+                    <div class="actions">
+                        ${actionBtns}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
         }
 
         async function updateStatus(uid, newStatus, name) {
