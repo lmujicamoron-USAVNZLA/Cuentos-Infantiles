@@ -942,7 +942,8 @@
             'bicicleta': { en: 'colorful bicycle', cat: 'landscape' },
             'tren': { en: 'toy train', cat: 'landscape' },
             'camion': { en: 'big truck', cat: 'landscape' },
-            'camión': { en: 'big truck', cat: 'landscape' }
+            'camión': { en: 'big truck', cat: 'landscape' },
+            'gallo': { en: 'colorful rooster', cat: 'subject' }
         };
 
         function renderGallery(images) {
@@ -1002,11 +1003,15 @@
             grid.innerHTML = '';
             loader.style.display = 'block';
 
-            const searchResults = [];
-            // Limpieza de query: Quitar preposiciones y símbolos (igual que en el creador)
+            // 1. FILTRAR IMÁGENES LOCALES (magicImages)
+            const localResults = magicImages.filter(img =>
+                img.tags.toLowerCase().includes(query)
+            );
+
+            // 2. GENERAR RESULTADOS IA
             let cleanedQuery = query.replace(/^(en |de |un |una |la |el |al )+/, '').replace(/[`'"]/g, '').trim();
             let translated = cleanedQuery;
-            let currentCategory = 'landscape';
+            let currentCategory = 'subject'; // Por defecto para animales/personas
 
             const sortedKeys = Object.keys(masterDictionary).sort((a, b) => b.length - a.length);
             for (let k of sortedKeys) {
@@ -1014,30 +1019,35 @@
                 if (regex.test(translated)) {
                     translated = translated.replace(regex, masterDictionary[k].en);
                     currentCategory = masterDictionary[k].cat;
-                    // No hacemos break para permitir traducir varias palabras (ej: "dragon fly")
                 }
             }
 
             const typeKeywords = currentCategory === 'landscape'
                 ? "magical colorful landscape setting, whimsical children's book style, dreamy vibrant colors, high quality"
-                : "child-friendly storybook character illustration, cute cartoon style, colorful and vibrant, simple design, white background";
+                : "child-friendly storybook character illustration, distinctive features, cute cartoon style, colorful and vibrant, simple design, white background";
 
-            // PRIORIDAD: Curada
+            const aiResults = [];
+
+            // PRIORIDAD: Curada (Si aplica al query)
             if (curatedImages[cleanedQuery]) {
-                searchResults.push({ url: curatedImages[cleanedQuery], tags: query });
+                aiResults.push({ url: curatedImages[cleanedQuery], tags: query });
             }
 
-            for (let i = searchResults.length; i < 8; i++) {
+            // Generar 6-8 imágenes IA para completar la experiencia
+            for (let i = aiResults.length; i < 8; i++) {
                 const seed = Math.floor(Math.random() * 999999);
-                searchResults.push({
+                aiResults.push({
                     url: `https://image.pollinations.ai/prompt/${encodeURIComponent(translated + ' ' + typeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`,
                     tags: query
                 });
             }
 
+            // Mezclar resultados locales al principio para que se note el "buscador"
+            const finalResults = [...localResults, ...aiResults];
+
             setTimeout(() => {
                 loader.style.display = 'none';
-                renderGallery(searchResults);
+                renderGallery(finalResults);
             }, 600);
         }
 
