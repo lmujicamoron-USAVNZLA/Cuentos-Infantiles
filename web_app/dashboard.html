@@ -810,6 +810,9 @@
             'capitán américa': 'https://em-content.zobj.net/source/twitter/376/shield_1f6e1-fe0f.png',
             'flash': 'https://em-content.zobj.net/source/twitter/376/high-voltage_26a1.png',
             'robot': 'https://em-content.zobj.net/source/twitter/376/robot_1f916.png',
+            'kaliman': 'https://em-content.zobj.net/source/twitter/376/man-in-turban_1f473-200d-2642-fe0f.png',
+            'disneylandia': 'https://em-content.zobj.net/source/twitter/376/castle_1f3f0.png',
+            'disney': 'https://em-content.zobj.net/source/twitter/376/castle_1f3f0.png',
             'dragon': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
             'dragón': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
             'perro': 'https://em-content.zobj.net/source/twitter/376/dog-face_1f436.png',
@@ -821,7 +824,9 @@
             'superman': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
             'batman': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
             'kaliman': 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=400',
-            'héroe': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400'
+            'héroe': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
+            'disneylandia': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=400',
+            'disney landia': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=400'
         };
 
         function openImageModal(storyId) {
@@ -919,6 +924,9 @@
             'río': { en: 'running river', cat: 'landscape' },
             'río': { en: 'running river', cat: 'landscape' },
             'lago': { en: 'peaceful lake', cat: 'landscape' },
+            'disneylandia': { en: 'magical theme park castle, disney style', cat: 'landscape' },
+            'disney landia': { en: 'magical theme park castle, disney style', cat: 'landscape' },
+            'disney': { en: 'magical amusement park', cat: 'landscape' },
             'new york': { en: 'new york city skyline', cat: 'landscape' },
             'paris': { en: 'paris eiffel tower', cat: 'landscape' },
             'parís': { en: 'paris eiffel tower', cat: 'landscape' },
@@ -968,9 +976,10 @@
 
                         if (category === 'landscape') {
                             const tags = cleanQuery.replace(/\s+/g, ',');
-                            imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 1000)}`;
+                            imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 999999)}`;
                         } else {
-                            const uniqueSeed = encodeURIComponent(cleanQuery) + '_' + Math.floor(Math.random() * 999);
+                            // DIVERSIFICACIÓN REAL: Usamos un seed único para CADA imagen
+                            const uniqueSeed = encodeURIComponent(cleanQuery) + '_' + Math.floor(Math.random() * 999999) + '_' + Date.now();
                             imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
                         }
                     }
