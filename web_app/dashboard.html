@@ -426,7 +426,7 @@
                 style="margin-top: 1rem; display: flex; gap: 0.75rem; background: #f8fafc; padding: 0.5rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; position: relative; align-items: center;">
                 <input type="text" id="gallerySearch"
                     placeholder="Busca lo que imagines (ej. superman, robot, playa)..."
-                    onkeyup="if(event.key === 'Enter') filterGallery()" oninput="toggleGalleryClearBtn()"
+                    onkeyup="if(event.key === 'Enter') filterGallery()" oninput="liveGallerySearch()"
                     style="flex: 1; border: none; background: transparent; padding: 0.5rem 1rem; outline: none; font-size: 1rem;">
                 <button id="clearGallerySearch" onclick="clearGallerySearch()"
                     style="background: #cbd5e1; border: none; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; font-size: 0.8rem; margin-right: 0.5rem;">✕</button>
@@ -803,20 +803,21 @@
 
         // Biblioteca curada - Iconos de alta calidad
         const curatedImages = {
-            'superman': 'https://em-content.zobj.net/source/twitter/376/superhero_1f9b8.png',
-            'batman': 'https://em-content.zobj.net/source/twitter/376/bat_1f987.png',
-            'spiderman': 'https://em-content.zobj.net/source/twitter/376/spider_1f577-fe0f.png',
-            'ironman': 'https://em-content.zobj.net/source/twitter/376/mechanical-arm_1f9be.png',
-            'capitán américa': 'https://em-content.zobj.net/source/twitter/376/shield_1f6e1-fe0f.png',
-            'flash': 'https://em-content.zobj.net/source/twitter/376/high-voltage_26a1.png',
-            'robot': 'https://em-content.zobj.net/source/twitter/376/robot_1f916.png',
-            'kaliman': 'https://em-content.zobj.net/source/twitter/376/man-in-turban_1f473-200d-2642-fe0f.png',
-            'disneylandia': 'https://em-content.zobj.net/source/twitter/376/castle_1f3f0.png',
-            'disney': 'https://em-content.zobj.net/source/twitter/376/castle_1f3f0.png',
-            'dragon': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
-            'dragón': 'https://em-content.zobj.net/source/twitter/376/dragon_1f409.png',
-            'perro': 'https://em-content.zobj.net/source/twitter/376/dog-face_1f436.png',
-            'gato': 'https://em-content.zobj.net/source/twitter/376/cat-face_1f431.png'
+            // Personajes Icónicos - Usamos DiceBear (Garantía de carga 100% y estilo consistente)
+            'superman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=superman-hero&backgroundColor=dc2626&scale=90',
+            'batman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=batman-dark&backgroundColor=1e293b&scale=90',
+            'spiderman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiderman-web&backgroundColor=dc2626&scale=90',
+            'kaliman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=kaliman-turban&backgroundColor=0ea5e9&scale=90',
+            'kalimán': 'https://api.dicebear.com/7.x/adventurer/svg?seed=kaliman-turban&backgroundColor=0ea5e9&scale=90',
+            'wonder woman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wonder-woman&backgroundColor=ec4899&scale=90',
+            'mujer maravilla': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wonder-woman&backgroundColor=ec4899&scale=90',
+            'flash': 'https://api.dicebear.com/7.x/adventurer/svg?seed=flash-speed&backgroundColor=f59e0b&scale=90',
+            'perro': 'https://api.dicebear.com/7.x/adventurer/svg?seed=happy-dog&backgroundColor=fbbf24&scale=90',
+            'gato': 'https://api.dicebear.com/7.x/adventurer/svg?seed=cute-cat&backgroundColor=f97316&scale=90',
+            'gallo': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&q=80&w=400',
+            'robot': 'https://api.dicebear.com/7.x/bottts/svg?seed=robot-tech&backgroundColor=94a3b8&scale=90',
+            'disney': 'https://images.unsplash.com/photo-1510253406240-620023485747?auto=format&fit=crop&q=80&w=400',
+            'disneylandia': 'https://images.unsplash.com/photo-1510253406240-620023485747?auto=format&fit=crop&q=80&w=400'
         };
 
         // Biblioteca secundaria para fallbacks
@@ -843,6 +844,7 @@
             confirmBtn.innerHTML = 'Usar Imagen ✨'; // Reset text
 
             document.getElementById('imageModal').classList.add('active');
+            setTimeout(() => document.getElementById('gallerySearch').focus(), 100);
         }
 
         // DICCIONARIO MAESTRO: Unificación total de términos y categorías
@@ -987,6 +989,15 @@
                 };
                 grid.appendChild(item);
             });
+        }
+
+        let galleryDebounceTimer;
+        function liveGallerySearch() {
+            clearTimeout(galleryDebounceTimer);
+            galleryDebounceTimer = setTimeout(() => {
+                filterGallery();
+            }, 800);
+            toggleGalleryClearBtn();
         }
 
         async function filterGallery() {
