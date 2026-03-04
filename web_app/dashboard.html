@@ -803,31 +803,30 @@
 
         // Biblioteca curada - Iconos de alta calidad
         const curatedImages = {
-            // Personajes Icónicos - Usamos DiceBear (Garantía de carga 100% y estilo consistente)
-            'superman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=superman-hero&backgroundColor=dc2626&scale=90',
-            'batman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=batman-dark&backgroundColor=1e293b&scale=90',
-            'spiderman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiderman-web&backgroundColor=dc2626&scale=90',
-            'kaliman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=kaliman-turban&backgroundColor=0ea5e9&scale=90',
-            'kalimán': 'https://api.dicebear.com/7.x/adventurer/svg?seed=kaliman-turban&backgroundColor=0ea5e9&scale=90',
-            'wonder woman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wonder-woman&backgroundColor=ec4899&scale=90',
-            'mujer maravilla': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wonder-woman&backgroundColor=ec4899&scale=90',
-            'flash': 'https://api.dicebear.com/7.x/adventurer/svg?seed=flash-speed&backgroundColor=f59e0b&scale=90',
-            'perro': 'https://api.dicebear.com/7.x/adventurer/svg?seed=happy-dog&backgroundColor=fbbf24&scale=90',
-            'gato': 'https://api.dicebear.com/7.x/adventurer/svg?seed=cute-cat&backgroundColor=f97316&scale=90',
-            'gallo': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&q=80&w=400',
-            'robot': 'https://api.dicebear.com/7.x/bottts/svg?seed=robot-tech&backgroundColor=94a3b8&scale=90',
-            'disney': 'https://images.unsplash.com/photo-1510253406240-620023485747?auto=format&fit=crop&q=80&w=400',
-            'disneylandia': 'https://images.unsplash.com/photo-1510253406240-620023485747?auto=format&fit=crop&q=80&w=400'
-        };
+            // Personajes Icónicos - Twemoji (SVG de alta calidad y 100% confiables)
+            'superman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8.svg',
+            'batman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f987.svg',
+            'spiderman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f577.svg',
+            'kaliman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
+            'kalimán': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
+            'disney': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
+            'disneylandia': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
+            'flash': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26a1.svg',
 
-        // Biblioteca secundaria para fallbacks
-        const characterLibrary = {
-            'superman': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
-            'batman': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
-            'kaliman': 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=400',
-            'héroe': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=400',
-            'disneylandia': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=400',
-            'disney landia': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=400'
+            // Animales Instantáneos (Evitan el avatar humano)
+            'raton': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
+            'ratón': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
+            'gallo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f413.svg',
+            'perro': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f436.svg',
+            'gato': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f431.svg',
+            'lion': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
+            'león': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
+            'tigre': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42f.svg',
+
+            // Otros Curry
+            'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'princesa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg',
+            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg'
         };
 
         function openImageModal(storyId) {
@@ -945,7 +944,23 @@
             'tren': { en: 'toy train', cat: 'landscape' },
             'camion': { en: 'big truck', cat: 'landscape' },
             'camión': { en: 'big truck', cat: 'landscape' },
-            'gallo': { en: 'colorful rooster', cat: 'subject' }
+            'planeta': { en: 'mysterious planet in space', cat: 'landscape' },
+            'marte': { en: 'red planet mars surface', cat: 'landscape' },
+            'jupiter': { en: 'giant gas planet jupiter', cat: 'landscape' },
+            'júpiter': { en: 'giant gas planet jupiter', cat: 'landscape' },
+            'saturno': { en: 'planet saturn with rings', cat: 'landscape' },
+            'luna': { en: 'moon surface with craters', cat: 'landscape' },
+            'estrella': { en: 'bright shining star in space', cat: 'landscape' },
+            'gallo': { en: 'colorful rooster', cat: 'subject' },
+            'hormiga': { en: 'tiny ant', cat: 'subject', sub: 'animal' },
+            'abeja': { en: 'busy bumblebee', cat: 'subject', sub: 'animal' },
+            'mariposa': { en: 'colorful butterfly', cat: 'subject', sub: 'animal' },
+            'araña': { en: 'friendly spider', cat: 'subject', sub: 'animal' },
+            'arana': { en: 'friendly spider', cat: 'subject', sub: 'animal' },
+            'pinguino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
+            'pingüino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
+            'delfin': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
+            'delfín': { en: 'happy dolphin', cat: 'subject', sub: 'animal' }
         };
 
         function renderGallery(images) {
@@ -957,7 +972,7 @@
                 return;
             }
 
-            images.forEach(img => {
+            images.forEach((img, index) => {
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
                 item.innerHTML = `<img src="${img.url}" alt="Opción Mágica" loading="lazy">`;
@@ -966,24 +981,29 @@
                 const imgElement = item.querySelector('img');
                 imgElement.onerror = () => {
                     const query = img.tags || 'magic';
-                    const cleanQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al )+/, '').trim();
+                    const cleanQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |la |mi |un |el )+/, '').trim();
 
-                    // Prioridad de Fallback: 1. Curated -> 2. AI Dictionary -> 3. Generic
-                    if (curatedImages[cleanQuery]) {
+                    // Prioridad de Fallback: 1. Curated (SOLO PARA LA PRIMERA POSICIÓN) -> 2. AI Dictionary -> 3. Generic
+                    if (curatedImages[cleanQuery] && index === 0) {
                         imgElement.src = curatedImages[cleanQuery];
-                    } else if (characterLibrary[cleanQuery]) {
-                        imgElement.src = characterLibrary[cleanQuery];
                     } else {
                         const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(cleanQuery));
-                        const category = entry ? entry[1].cat : 'landscape';
+                        const category = entry ? entry[1].cat : 'subject';
+                        const subcategory = entry ? entry[1].sub : '';
 
-                        if (category === 'landscape') {
-                            const tags = cleanQuery.replace(/\s+/g, ',');
-                            imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 999999)}`;
+                        if (category === 'landscape' || subcategory === 'animal') {
+                            const tag = (entry && entry[1].en) ? entry[1].en : cleanQuery;
+                            const tags = tag.replace(/\s+/g, ',');
+                            imgElement.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 999999) + index}`;
                         } else {
-                            // DIVERSIFICACIÓN REAL: Usamos un seed único para CADA imagen
-                            const uniqueSeed = encodeURIComponent(cleanQuery) + '_' + Math.floor(Math.random() * 999999) + '_' + Date.now();
-                            imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
+                            // DIVERSIFICACIÓN REAL: Usamos un seed único para CADA imagen usando el index
+                            const uniqueSeed = encodeURIComponent(cleanQuery) + '_' + index + '_' + Math.floor(Math.random() * 9999);
+
+                            if (cleanQuery.includes('robot')) {
+                                imgElement.src = `https://robohash.org/${uniqueSeed}?set=set1&bgset=bg1`;
+                            } else {
+                                imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
+                            }
                         }
                     }
                 };
@@ -1047,8 +1067,10 @@
             // Generar 6-8 imágenes IA para completar la experiencia
             for (let i = aiResults.length; i < 8; i++) {
                 const seed = Math.floor(Math.random() * 999999);
+                const variationIndex = i + 1;
+                const cacheBust = Date.now();
                 aiResults.push({
-                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(translated + ' ' + typeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`,
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(translated + ' variation ' + variationIndex + ', ' + typeKeywords)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`,
                     tags: query
                 });
             }

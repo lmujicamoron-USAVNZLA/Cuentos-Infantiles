@@ -435,11 +435,48 @@
         function saveCustomAsset(type, name, url) {
             const assets = JSON.parse(localStorage.getItem('magicAssets') || '{"Personaje":[], "Lugar":[]}');
 
-            // Si la categoría no existe (versión antigua), la inicializamos
             if (!assets[type]) assets[type] = [];
 
-            assets[type].push({ name, url });
+            // EVITAR DUPLICADOS POR NOMBRE: Si ya existe, actualizamos su URL
+            const existingIndex = assets[type].findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+            if (existingIndex !== -1) {
+                assets[type][existingIndex].url = url;
+            } else {
+                assets[type].push({ name, url });
+            }
+
             localStorage.setItem('magicAssets', JSON.stringify(assets));
+        }
+
+        // --- CARGA DE OPCIONES POR DEFECTO ---
+        function loadDefaultOptions() {
+            const charGrid = document.getElementById('charactersGrid');
+            const placeGrid = document.getElementById('placesGrid');
+
+            // Sugerencias Iniciales de Personajes
+            const defaultChars = [
+                { name: 'Un Gato Valiente', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f431.svg' },
+                { name: 'Un Robot Amigo', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg' },
+                { name: 'Una Princesa Maga', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg' },
+                { name: 'Un Dinosaurio', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f996.svg' }
+            ];
+
+            defaultChars.forEach((c, idx) => {
+                const card = createAssetCard('Personaje', c.name, c.url, idx + 100);
+                charGrid.appendChild(card);
+            });
+
+            // Sugerencias Iniciales de Lugares
+            const defaultPlaces = [
+                { name: 'Un Bosque Encantado', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f332.svg' },
+                { name: 'El Espacio Exterior', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f680.svg' },
+                { name: 'Un Castillo Mágico', url: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg' }
+            ];
+
+            defaultPlaces.forEach((p, idx) => {
+                const card = createAssetCard('Lugar', p.name, p.url, idx + 100);
+                placeGrid.appendChild(card);
+            });
         }
 
         function loadCustomAssets() {
@@ -448,8 +485,8 @@
             // Cargar Personajes (Con verificación de seguridad)
             if (assets.Personaje && Array.isArray(assets.Personaje)) {
                 const charGrid = document.getElementById('charactersGrid');
-                assets.Personaje.forEach(asset => {
-                    const card = createAssetCard('Personaje', asset.name, asset.url);
+                assets.Personaje.forEach((asset, idx) => {
+                    const card = createAssetCard('Personaje', asset.name, asset.url, idx + 1);
                     charGrid.prepend(card);
                 });
             }
@@ -457,14 +494,14 @@
             // Cargar Lugares (Con verificación de seguridad)
             if (assets.Lugar && Array.isArray(assets.Lugar)) {
                 const placeGrid = document.getElementById('placesGrid');
-                assets.Lugar.forEach(asset => {
-                    const card = createAssetCard('Lugar', asset.name, asset.url);
+                assets.Lugar.forEach((asset, idx) => {
+                    const card = createAssetCard('Lugar', asset.name, asset.url, idx + 1);
                     placeGrid.prepend(card);
                 });
             }
         }
 
-        function createAssetCard(type, name, url) {
+        function createAssetCard(type, name, url, index = 1) {
             const card = document.createElement('div');
             card.className = 'option-card';
             card.onclick = function () { selectOption(this, type); };
@@ -476,14 +513,46 @@
                     <img src="${url}" alt="${name}" 
                          style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; display: block; transition: opacity 0.8s ease-in-out;" 
                          onload="this.previousElementSibling.style.display='none'; this.style.opacity='1'; selections['${type}Img'] = this.src;"
-                         onerror="handleImageError(this, '${name}', '${type}')">
+                         onerror="handleImageError(this, '${name}', '${type}', ${index})">
                 </div>
                 <h3>${name}</h3>
             `;
             return card;
         }
 
-        // Biblioteca de Imágenes de Respaldo para Personajes Comunes
+        // --- SISTEMA DE ERRORES INTELIGENTE ---
+        function handleImageError(img, name, type, index) {
+            console.log("Magic Fallback for:", name);
+            const cleanName = name.toLowerCase().replace(/^(un |una |el |la |mi |un |el )+/, '').trim();
+
+            // PRIORIDAD 1: Curated Library (Exact Match) - Solo para el borrador principal (index 0)
+            if (curatedImages[cleanName] && index === 0) {
+                img.src = curatedImages[cleanName];
+                return;
+            }
+
+            // PRIORIDAD 2: Master Dictionary Category Check
+            const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(cleanName));
+            const category = entry ? entry[1].cat : 'subject';
+            const subcategory = entry ? entry[1].sub : '';
+
+            if (category === 'landscape' || subcategory === 'animal') {
+                const tag = (entry && entry[1].en) ? entry[1].en : cleanName;
+                // Para paisajes o animales no registrados en Twemoji, usar LoremFlickr para evitar caras humanas
+                img.src = `https://loremflickr.com/512/512/${encodeURIComponent(tag.replace(/\s+/g, ','))}?lock=${Math.floor(Math.random() * 9999) + index}`;
+            } else {
+                // EVITAR HUMANOS PARA ROBOTS: Seed único por índice
+                const uniqueSeed = encodeURIComponent(cleanName) + "_" + index + "_" + Math.floor(Math.random() * 1000);
+
+                if (cleanName.includes('robot')) {
+                    img.src = `https://robohash.org/${uniqueSeed}?set=set1&bgset=bg1`;
+                } else {
+                    // Si no es un humano explícito, usar Adventure pero con variedad
+                    img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
+                }
+            }
+        }
+
         // DICCIONARIO MAESTRO: Unificación total de términos y categorías
         const masterDictionary = {
             // CATEGORÍA: SUJETOS (Personajes, Animales) -> Fallback: DiceBear
@@ -504,12 +573,22 @@
             'caballo': { en: 'horse', cat: 'subject' },
             'raton': { en: 'mouse', cat: 'subject' },
             'ratón': { en: 'mouse', cat: 'subject' },
+            'gallo': { en: 'colorful rooster', cat: 'subject' },
             'dinosaurio': { en: 'dinosaur', cat: 'subject' },
             'dragon': { en: 'dragon', cat: 'subject' },
             'dragón': { en: 'dragon', cat: 'subject' },
             'sapo': { en: 'frog', cat: 'subject' },
             'rana': { en: 'frog', cat: 'subject' },
             'sapito': { en: 'cute frog', cat: 'subject' },
+            'hormiga': { en: 'tiny ant', cat: 'subject', sub: 'animal' },
+            'abeja': { en: 'busy bumblebee', cat: 'subject', sub: 'animal' },
+            'mariposa': { en: 'colorful butterfly', cat: 'subject', sub: 'animal' },
+            'araña': { en: 'friendly spider', cat: 'subject', sub: 'animal' },
+            'arana': { en: 'friendly spider', cat: 'subject', sub: 'animal' },
+            'pinguino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
+            'pingüino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
+            'delfin': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
+            'delfín': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
             'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject' },
             'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject' },
             'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject' },
@@ -572,7 +651,6 @@
             'roma': { en: 'rome colosseum', cat: 'landscape' },
             'egipto': { en: 'egypt pyramids', cat: 'landscape' },
             'japón': { en: 'japan mount fuji', cat: 'landscape' },
-            // OBJETOS COMUNES (Para evitar que salgan como personas)
             'auto': { en: 'modern colorful car', cat: 'landscape' },
             'carro': { en: 'modern colorful car', cat: 'landscape' },
             'avion': { en: 'airplane flying', cat: 'landscape' },
@@ -582,85 +660,22 @@
             'tren': { en: 'toy train', cat: 'landscape' },
             'camion': { en: 'big truck', cat: 'landscape' },
             'camión': { en: 'big truck', cat: 'landscape' },
+            'planeta': { en: 'mysterious planet in space', cat: 'landscape' },
+            'marte': { en: 'red planet mars surface', cat: 'landscape' },
+            'jupiter': { en: 'giant gas planet jupiter', cat: 'landscape' },
+            'júpiter': { en: 'giant gas planet jupiter', cat: 'landscape' },
+            'saturno': { en: 'planet saturn with rings', cat: 'landscape' },
+            'luna': { en: 'moon surface with craters', cat: 'landscape' },
+            'estrella': { en: 'bright shining star in space', cat: 'landscape' },
             'gallo': { en: 'colorful rooster', cat: 'subject' }
         };
 
-        const characterLibrary = {
-            'superman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=superman-hero&backgroundColor=dc2626&scale=90',
-            'batman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=batman-dark&backgroundColor=1e293b&scale=90',
-            'spiderman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiderman-web&backgroundColor=dc2626&scale=90',
-            'robot': 'https://api.dicebear.com/7.x/bottts/svg?seed=robot-tech&backgroundColor=94a3b8&scale=90',
-            'perro': 'https://api.dicebear.com/7.x/adventurer/svg?seed=happy-dog&backgroundColor=fbbf24&scale=90',
-            'gato': 'https://api.dicebear.com/7.x/adventurer/svg?seed=cute-cat&backgroundColor=f97316&scale=90',
-            'gallo': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&q=80&w=400',
-            'leon': 'https://api.dicebear.com/7.x/adventurer/svg?seed=brave-lion&backgroundColor=fbbf24&scale=90',
-            'sapo': 'https://images.unsplash.com/photo-1590005354167-6da97870c91d?auto=format&fit=crop&q=80&w=400',
-            'rana': 'https://images.unsplash.com/photo-1590005354167-6da97870c91d?auto=format&fit=crop&q=80&w=400',
-            'dinosaurio': 'https://api.dicebear.com/7.x/adventurer/svg?seed=dino-rex&backgroundColor=84cc16&scale=90',
-            'dragon': 'https://api.dicebear.com/7.x/adventurer/svg?seed=fire-dragon&backgroundColor=dc2626&scale=90',
-            'princesa': 'https://api.dicebear.com/7.x/adventurer/svg?seed=princess-royal&backgroundColor=ec4899&scale=90',
-            'pirata': 'https://api.dicebear.com/7.x/adventurer/svg?seed=pirate-captain&backgroundColor=0891b2&scale=90',
-            'mago': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wizard-magic&backgroundColor=8b5cf6&scale=90',
-            'ninja': 'https://api.dicebear.com/7.x/adventurer/svg?seed=ninja-shadow&backgroundColor=1e293b&scale=90',
-            'kaliman': 'https://em-content.zobj.net/source/twitter/376/man-in-turban_1f473-200d-2642-fe0f.png',
-            'disneylandia': 'https://em-content.zobj.net/source/twitter/376/castle_1f3f0.png',
-            'disney landia': 'https://em-content.zobj.net/source/twitter/376/castle_1f3f0.png',
-            'bosque': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400',
-            'castillo': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400',
-            'espacio': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400',
-            'playa': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=400',
-            'mar': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=400',
-            'nieve': 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&q=80&w=400',
-            'isla': 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?auto=format&fit=crop&q=80&w=400',
-            'zoologico': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=400',
-            'zoo': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=400'
-        };
-
-        function handleImageError(img, name, type) {
-            const skip = ['un', 'una', 'el', 'la', 'super', 'súper', 'muy'];
-            const words = name.toLowerCase().split(' ').filter(w => w.length > 2 && !skip.includes(w));
-            // Usar el nombre COMPLETO (limpio) para el fallback, no solo la primera palabra
-            const mainTerm = words.join(' ') || 'hero';
-
-            if (!img.dataset.retried) {
-                img.dataset.retried = "1";
-                // Intento 2: Refrescar con semilla distinta
-                img.src = img.src.split('?')[0] + `?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
-            } else if (img.dataset.retried === "1") {
-                img.dataset.retried = "2";
-
-                // Intento 3: Buscar en la biblioteca compartida (Palabra exacta)
-                const libraryKey = Object.keys(characterLibrary).find(key => {
-                    const regex = new RegExp(`\\b${key}\\b`, 'i');
-                    return regex.test(name.toLowerCase());
-                });
-                if (libraryKey) {
-                    img.src = characterLibrary[libraryKey];
-                } else {
-                    // Verificamos categoría en el Master Dictionary para decidir el fallback
-                    const entry = Object.entries(masterDictionary).find(([k]) => new RegExp(`\\b${k}\\b`, 'i').test(name.toLowerCase()));
-                    const category = entry ? entry[1].cat : (type === 'Lugar' ? 'landscape' : 'subject');
-
-                    if (category === 'landscape') {
-                        // Fallback de Paisaje/Objeto: LoremFlickr (Imagen Real)
-                        // Tip: Usar comas para múltiples tags en LoremFlickr mejora resultados
-                        const tags = mainTerm.replace(/\s+/g, ',');
-                        img.src = `https://loremflickr.com/512/512/${encodeURIComponent(tags)}?lock=${Math.floor(Math.random() * 1000)}`;
-                    } else {
-                        // Fallback de Sujeto: DiceBear (Avatar)
-                        img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${mainTerm}&backgroundColor=ffd5dc`;
-                    }
-                }
-            } else {
-                img.style.display = 'none';
-                img.previousElementSibling.style.display = 'block';
-                img.previousElementSibling.innerHTML = '✨';
-            }
-        }
 
         window.onload = function () {
             // Empezamos siempre limpio para una nueva historia
             resetCreatorState();
+            loadDefaultOptions();
+            loadCustomAssets();
 
             // Identificar Usuario Mágico
             firebase.auth().onAuthStateChanged(user => {
@@ -974,34 +989,26 @@
         const liveSearchPlace = debounce(() => searchMagicPlace(true), 800);
 
         // Biblioteca curada - Emojis SVG de alta calidad (Twemoji)
-        // Gratuitos, instantáneos, universales y perfectos para niños
         const curatedImages = {
-            // Personajes Icónicos - Usamos DiceBear (Garantía de carga 100% y estilo consistente)
-            'superman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=superman-hero&backgroundColor=dc2626&scale=90',
-            'batman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=batman-dark&backgroundColor=1e293b&scale=90',
-            'spiderman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiderman-web&backgroundColor=dc2626&scale=90',
-            'kaliman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=kaliman-turban&backgroundColor=0ea5e9&scale=90',
-            'kalimán': 'https://api.dicebear.com/7.x/adventurer/svg?seed=kaliman-turban&backgroundColor=0ea5e9&scale=90',
-            'wonder woman': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wonder-woman&backgroundColor=ec4899&scale=90',
-            'mujer maravilla': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wonder-woman&backgroundColor=ec4899&scale=90',
-            'flash': 'https://api.dicebear.com/7.x/adventurer/svg?seed=flash-speed&backgroundColor=f59e0b&scale=90',
-
-            // Animales Instantáneos
-            'perro': 'https://api.dicebear.com/7.x/adventurer/svg?seed=happy-dog&backgroundColor=fbbf24&scale=90',
-            'gato': 'https://api.dicebear.com/7.x/adventurer/svg?seed=cute-cat&backgroundColor=f97316&scale=90',
-            'gallo': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&q=80&w=400',
-            'leon': 'https://api.dicebear.com/7.x/adventurer/svg?seed=brave-lion&backgroundColor=fbbf24&scale=90',
-
-            // Lugares y Otros
-            'robot': 'https://api.dicebear.com/7.x/bottts/svg?seed=robot-tech&backgroundColor=94a3b8&scale=90',
-            'astronauta': 'https://api.dicebear.com/7.x/adventurer/svg?seed=astronaut-space&backgroundColor=1e293b&scale=90',
-            'princesa': 'https://api.dicebear.com/7.x/adventurer/svg?seed=princess-royal&backgroundColor=ec4899&scale=90',
-            'pirata': 'https://api.dicebear.com/7.x/adventurer/svg?seed=pirate-captain&backgroundColor=0891b2&scale=90',
-            'mago': 'https://api.dicebear.com/7.x/adventurer/svg?seed=wizard-magic&backgroundColor=8b5cf6&scale=90',
-            'ninja': 'https://api.dicebear.com/7.x/adventurer/svg?seed=ninja-shadow&backgroundColor=1e293b&scale=90',
-            'hada': 'https://api.dicebear.com/7.x/adventurer/svg?seed=fairy-sparkle&backgroundColor=f0abfc&scale=90',
-            'disney': 'https://images.unsplash.com/photo-1510253406240-620023485747?auto=format&fit=crop&q=80&w=400',
-            'disneylandia': 'https://images.unsplash.com/photo-1510253406240-620023485747?auto=format&fit=crop&q=80&w=400'
+            'superman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8.svg',
+            'batman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f987.svg',
+            'spiderman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f577.svg',
+            'kaliman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
+            'kalimán': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
+            'disney': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
+            'disneylandia': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
+            'flash': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26a1.svg',
+            'raton': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
+            'ratón': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
+            'gallo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f413.svg',
+            'perro': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f436.svg',
+            'gato': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f431.svg',
+            'lion': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
+            'león': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
+            'tigre': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42f.svg',
+            'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'princesa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg',
+            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg'
         };
 
         async function searchMagicCharacter(isLive = false) {
@@ -1015,6 +1022,7 @@
 
             if (loader) loader.style.display = 'block';
             if (!isLive && btn) btn.disabled = true;
+            if (!isLive) grid.innerHTML = '';
 
             try {
                 const name = query.charAt(0).toUpperCase() + query.slice(1);
@@ -1059,12 +1067,14 @@
                         qualityKeywords = "child-friendly storybook character illustration, distinctive features, cute cartoon style, colorful and vibrant, simple design, white background, friendly, full body";
                     }
 
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ' ' + qualityKeywords)}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
+                    const seed = Math.floor(Math.random() * 1000000);
+                    const cacheBust = Date.now();
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ' variation 1, ' + qualityKeywords)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
                 }
 
                 let draftCard = document.getElementById('charDraftCard');
                 if (!draftCard) {
-                    draftCard = createAssetCard('Personaje', name, magicUrl);
+                    draftCard = createAssetCard('Personaje', name, magicUrl, 0);
                     draftCard.id = 'charDraftCard';
                     draftCard.style.border = '2px solid #8b5cf6'; // Borde mágico
                     grid.prepend(draftCard);
@@ -1087,6 +1097,9 @@
                     // Pequeño delay para asegurar que el navegador registre el cambio de src
                     setTimeout(() => {
                         img.src = magicUrl;
+                        // Actualizar los atributos para handleImageError
+                        img.alt = name;
+                        // Forzar el index a 0 para el draft card
                     }, 50);
                 }
 
@@ -1128,6 +1141,7 @@
 
             if (loader) loader.style.display = 'block';
             if (!isLive && btn) btn.disabled = true;
+            if (!isLive) grid.innerHTML = '';
 
             try {
                 // Limpieza de query: Quitar preposiciones y símbolos
@@ -1146,7 +1160,6 @@
                 if (curatedKey) {
                     magicUrl = curatedImages[curatedKey];
                 } else {
-                    const seed = Math.floor(Math.random() * 999999);
                     const placeKeywords = "whimsical children's book illustration, magical colorful setting, dreamy vibrant colors, high detail illustration, clear and safe for kids";
 
                     let translatedPlace = cleanedQuery;
@@ -1161,7 +1174,9 @@
                         }
                     }
 
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' ' + placeKeywords)}?width=512&height=512&nologo=true&seed=${seed}`;
+                    const seed = Math.floor(Math.random() * 999999);
+                    const cacheBust = Date.now();
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' variation 1, ' + placeKeywords)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
                 }
 
                 let draftCard = document.getElementById('placeDraftCard');
@@ -1229,6 +1244,14 @@
             for (let i = 0; i < cards.length; i++) {
                 const title = cards[i].getElementsByTagName('h3')[0];
                 const txtValue = title.textContent || title.innerText;
+
+                // PRIORIDAD: Si es el borrador actual (Draft Card), lo mostramos siempre
+                if (cards[i].id === 'charDraftCard') {
+                    cards[i].style.display = "";
+                    continue;
+                }
+
+                // Para el resto (historial/defectos), filtrar por texto
                 if (txtValue.toLowerCase().indexOf(filter) > -1) {
                     cards[i].style.display = "";
                 } else {
@@ -1297,11 +1320,18 @@
             for (let i = 0; i < cards.length; i++) {
                 const title = cards[i].getElementsByTagName('h3')[0];
                 const txtValue = title.textContent || title.innerText;
+
+                // PRIORIDAD: Si es el borrador actual (Draft Card), lo mostramos si hay búsqueda
+                if (cards[i].id === 'placeDraftCard') {
+                    cards[i].style.display = "";
+                    continue;
+                }
+
+                // Para el resto (historial/defectos), filtrar por texto
                 if (txtValue.toLowerCase().indexOf(filter) > -1) {
                     cards[i].style.display = "";
                 } else {
-                    if (cards[i].id === 'placeDraftCard') cards[i].style.display = "";
-                    else cards[i].style.display = "none";
+                    cards[i].style.display = "none";
                 }
             }
         }
