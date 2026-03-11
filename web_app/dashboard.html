@@ -1194,6 +1194,18 @@
         }
     </script>
     <script>
+        // Rastreo de Instalación PWA
+        window.addEventListener('appinstalled', () => {
+            console.log('✨ App Instalada con éxito!');
+            const user = firebase.auth().currentUser;
+            if (user) {
+                firebase.firestore().collection("users").doc(user.uid).update({
+                    pwaInstalled: true,
+                    installedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(err => console.log("Error al registrar instalación:", err));
+            }
+        });
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js');

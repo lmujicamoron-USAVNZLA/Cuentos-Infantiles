@@ -202,9 +202,25 @@
             color: #ef4444;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
             .user-item {
                 grid-template-columns: 1fr;
+                padding: 1.5rem;
                 text-align: center;
             }
 
@@ -214,7 +230,35 @@
 
             .actions {
                 justify-content: center;
+                width: 100%;
             }
+
+            .btn-action {
+                flex: 1;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .filter-tabs {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .tab-btn {
+                flex: 1;
+                font-size: 0.8rem;
+            }
+        }
+
+        .pwa-badge {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
     </style>
 </head>
@@ -255,12 +299,20 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Niños Pendientes</h3>
-                    <p id="statPending">-</p>
+                    <h3>Guardianes Totales</h3>
+                    <p id="statTotal">-</p>
                 </div>
                 <div class="stat-card">
-                    <h3>Aventureros Totales</h3>
-                    <p id="statTotal">-</p>
+                    <h3>App Instalada 📱</h3>
+                    <p id="statApp">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Cuentos Creados ✨</h3>
+                    <p id="statStories">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>En Espera ⏳</h3>
+                    <p id="statPending">-</p>
                 </div>
             </div>
 
@@ -391,6 +443,9 @@
                     '<span class="badge badge-approved">Aprobado</span>' :
                     '<span class="badge badge-pending">Pendiente</span>';
 
+                const pwaBadge = user.pwaInstalled ?
+                    '<span class="badge pwa-badge">📱 App</span>' : '';
+
                 let actionBtns = '';
                 if (user.status === 'pendiente') {
                     actionBtns = `
@@ -407,7 +462,7 @@
                 item.innerHTML = `
                     <img src="${user.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + user.username}" class="user-avatar">
                     <div class="user-info">
-                        <h4>${user.username} ${verifiedBadge} ${statusBadge}</h4>
+                        <h4>${user.username} ${verifiedBadge} ${statusBadge} ${pwaBadge}</h4>
                         <p>${user.email}</p>
                     </div>
                     <div class="actions">
