@@ -12,16 +12,16 @@
     <style>
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .story-card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -37,10 +37,10 @@
 
         .story-thumb {
             width: 100%;
-            height: 180px;
+            height: 130px;
             background: #eee;
-            border-radius: 1rem;
-            margin-bottom: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
             object-fit: cover;
         }
 
@@ -48,15 +48,15 @@
             grid-column: 1 / -1;
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             color: white;
-            padding: 2rem;
+            padding: 1.2rem;
             border-radius: var(--radius);
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.3s;
             border: none;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 15px rgba(99, 102, 241, 0.2);
         }
 
         .create-btn-large:hover {
@@ -67,7 +67,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
@@ -87,32 +87,33 @@
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
             background: var(--card-bg);
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem;
             border-radius: 2rem;
             backdrop-filter: blur(8px);
+            font-size: 0.9rem;
         }
 
         .user-profile img {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
         }
 
         .story-thumb {
             width: 100%;
-            height: 180px;
+            height: 130px;
             background: #eee;
-            border-radius: 1rem;
-            margin-bottom: 0.75rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
             object-fit: cover;
         }
 
         .action-btn {
             position: absolute;
-            width: 34px;
-            height: 34px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             border: none;
             display: flex;
@@ -121,7 +122,7 @@
             cursor: pointer;
             transition: all 0.2s;
             background: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
+            font-size: 0.85rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             z-index: 10;
         }
@@ -134,26 +135,26 @@
         }
 
         .action-btn.delete {
-            top: 0.75rem;
-            right: 0.75rem;
+            top: 0.5rem;
+            right: 0.5rem;
             color: #ef4444;
         }
 
         .action-btn.export {
-            top: 0.75rem;
-            right: 3.5rem;
+            top: 0.5rem;
+            right: 2.5rem;
             color: var(--primary);
         }
 
         .action-btn.edit {
-            top: 0.75rem;
-            right: 6.25rem;
+            top: 0.5rem;
+            right: 4.5rem;
             color: #f59e0b;
         }
 
         .action-btn.image {
-            top: 0.75rem;
-            right: 9rem;
+            top: 0.5rem;
+            right: 6.5rem;
             color: #10b981;
         }
 
@@ -166,9 +167,9 @@
 
         .story-thumb {
             width: 100%;
-            height: 180px;
+            height: 130px;
             background: #eee;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             margin-bottom: 0.5rem;
             object-fit: cover;
         }
@@ -456,7 +457,7 @@
 
     <main class="container" style="max-width: 1000px;">
         <nav class="nav-bar">
-            <h2 style="font-weight: 600; color: var(--primary);">Story Creator Kids</h2>
+            <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem;">Story Creator Kids</h2>
             <div class="user-profile">
                 <span id="displayUserName">Cargando...</span>
                 <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
@@ -608,19 +609,19 @@
                 };
 
                 // Prioridad total para la identidad del cuento: 1. Portada, 2. Protagonista, 3. Lugar, 4. Backup
-                let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
+                let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1512418490979-92798ccc13b0?auto=format&fit=crop&q=80&w=400';
 
-                card.innerHTML = `
-                    <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${doc.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
-                    <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${doc.id}')" title="Descargar PDF">📥</button>
-                    <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${doc.id}')" title="Editar">✍️</button>
-                    <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${doc.id}')" title="Imagen">🎨</button>
-                    <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
-                    <div style="padding: 0.2rem;">
-                        <h3 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: var(--text-main);">${story.title}</h3>
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">${story.character} en ${story.place}</p>
-                    </div>
-                `;
+                    card.innerHTML = `
+                        <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${doc.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
+                        <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${doc.id}')" title="Descargar PDF">📥</button>
+                        <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${doc.id}')" title="Editar">✍️</button>
+                        <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${doc.id}')" title="Imagen">🎨</button>
+                        <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
+                        <div style="padding: 0.1rem;">
+                            <h3 style="margin-bottom: 0.2rem; font-size: 1rem; color: var(--text-main); line-height: 1.2;">${story.title}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.75rem;">${story.character} en ${story.place}</p>
+                        </div>
+                    `;
                 grid.appendChild(card);
             });
         }
@@ -826,7 +827,12 @@
             // Otros Curry
             'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
             'princesa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg',
-            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg'
+            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg',
+            'robocop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'robotcop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'parque': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
+            'montaña': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26f0.svg',
+            'castillo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg'
         };
 
         function openImageModal(storyId) {
@@ -885,6 +891,8 @@
             'ninja': { en: 'ninja', cat: 'subject' },
             'caballero': { en: 'knight', cat: 'subject' },
             'astronauta': { en: 'astronaut', cat: 'subject' },
+            'robocop': { en: 'robocop robot police officer', cat: 'subject' },
+            'robotcop': { en: 'robocop robot police officer', cat: 'subject' },
             'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject' },
             'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject' },
             'marciano': { en: 'alien martian', cat: 'subject' },
@@ -976,7 +984,10 @@
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
                 item.innerHTML = `<img src="${img.url}" alt="Opción Mágica" loading="lazy">`;
-                item.onclick = () => selectImage(img.url, item);
+                item.onclick = function() {
+                    const finalUrl = this.querySelector('img').src;
+                    selectImage(finalUrl, item);
+                };
 
                 const imgElement = item.querySelector('img');
                 imgElement.onerror = () => {
@@ -1054,8 +1065,8 @@
             }
 
             const typeKeywords = currentCategory === 'landscape'
-                ? "magical colorful landscape setting, whimsical children's book style, dreamy vibrant colors, high quality"
-                : "child-friendly storybook character illustration, distinctive features, cute cartoon style, colorful and vibrant, simple design, white background";
+                ? "stunning digital 2D illustration, fairytale children's book style, whimsical and magical, no people, no real photos"
+                : "hyper-detailed 2D cartoon illustration, storybook style, vibrant colors, clean lines, white background, no real photos";
 
             const aiResults = [];
 
@@ -1118,23 +1129,44 @@
         }
 
         async function saveNewImage() {
-            if (!storyToUpdateImage || !selectedImageUrl) return;
+            if (!storyToUpdateImage) {
+                alert("❌ Error: No se encontró el ID del cuento.");
+                return;
+            }
+            if (!selectedImageUrl) {
+                alert("🎨 Por favor, selecciona una imagen primero.");
+                return;
+            }
 
             const btn = document.getElementById('confirmImageBtn');
             const originalText = btn.innerHTML;
             btn.innerHTML = '🪄 Hechizando...';
             btn.disabled = true;
 
+            console.log("Intentando guardar imagen para:", storyToUpdateImage);
+            console.log("Nueva URL:", selectedImageUrl);
+
             try {
+                // ACTUALIZAR TODOS LOS CAMPOS DE IMAGEN: Evita conflictos de prioridad
                 await db.collection('stories').doc(storyToUpdateImage).update({
-                    coverImg: selectedImageUrl
+                    coverImg: selectedImageUrl,
+                    characterImg: selectedImageUrl,
+                    placeImg: selectedImageUrl
                 });
+                
+                console.log("¡Magia guardada exitosamente en Firestore!");
+                alert("✨ ¡Imagen actualizada con éxito!"); 
+                
                 closeImageModal();
+                
+                // Forzar recarga de la biblioteca
                 const user = firebase.auth().currentUser;
-                if (user) loadStories(user.uid);
+                if (user) {
+                    await loadStories(user.uid);
+                }
             } catch (error) {
                 console.error("Error actualizando imagen:", error);
-                alert("Hubo un error al actualizar la imagen.");
+                alert("Hubo un error al actualizar la imagen: " + error.message);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }

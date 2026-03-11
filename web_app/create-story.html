@@ -242,6 +242,28 @@
         .flash-active {
             animation: magicFlash 0.4s ease-out;
         }
+
+        /* --- MEJORA: SOLO UN RESULTADO EN BÚSQUEDA --- */
+        .options-grid.searching-active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+
+        .options-grid.searching-active .option-card {
+            display: none;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        /* Mostrar solo el Draft Card activo */
+        .options-grid.searching-active #charDraftCard,
+        .options-grid.searching-active #placeDraftCard {
+            display: block !important;
+            animation: slideIn 0.5s ease;
+        }
     </style>
 </head>
 
@@ -509,7 +531,7 @@
             // Diseño mejorado: Imagen visible por defecto con fallback de seguridad
             card.innerHTML = `
                 <div style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden; margin: 0 auto 1rem; background: #fdf2f8; border: 4px solid white; box-shadow: 0 8px 20px rgba(99,102,241,0.15); position: relative; display: flex; align-items: center; justify-content: center;">
-                    <div class="img-loader-text" style="position: absolute; font-size: 2.5rem; animation: pulse 1s infinite; z-index: 1; color: #8b5cf6;">✨</div>
+                    <div class="img-loader-text" style="position: absolute; font-size: 1.2rem; font-weight: bold; color: #8b5cf6; z-index: 1; animation: pulse 1s infinite; text-align: center; width: 80%;">Buscando Magia...</div>
                     <img src="${url}" alt="${name}" 
                          style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; display: block; transition: opacity 0.8s ease-in-out;" 
                          onload="this.previousElementSibling.style.display='none'; this.style.opacity='1'; selections['${type}Img'] = this.src;"
@@ -537,18 +559,20 @@
             const subcategory = entry ? entry[1].sub : '';
 
             if (category === 'landscape' || subcategory === 'animal') {
-                const tag = (entry && entry[1].en) ? entry[1].en : cleanName;
-                // Para paisajes o animales no registrados en Twemoji, usar LoremFlickr para evitar caras humanas
-                img.src = `https://loremflickr.com/512/512/${encodeURIComponent(tag.replace(/\s+/g, ','))}?lock=${Math.floor(Math.random() * 9999) + index}`;
+                // EVITAR LOREMFLICKR (Causa de los gatos aleatorios)
+                // Si la IA falla, usamos un estilo artístico de aventura neutro pero seguro
+                const unique_seed = encodeURIComponent(cleanName) + "_" + Math.floor(Math.random() * 9999);
+                img.src = `https://api.dicebear.com/7.x/initials/svg?seed=${unique_seed}&backgroundColor=c084fc&fontSize=40&chars=✨`;
+                console.log("Fallback: Usando fondo mágico para evitar imágenes erróneas.");
             } else {
                 // EVITAR HUMANOS PARA ROBOTS: Seed único por índice
-                const uniqueSeed = encodeURIComponent(cleanName) + "_" + index + "_" + Math.floor(Math.random() * 1000);
+                const unique_seed = encodeURIComponent(cleanName) + "_" + index + "_" + Math.floor(Math.random() * 1000);
 
                 if (cleanName.includes('robot')) {
-                    img.src = `https://robohash.org/${uniqueSeed}?set=set1&bgset=bg1`;
+                    img.src = `https://robohash.org/${unique_seed}?set=set1&bgset=bg1`;
                 } else {
                     // Si no es un humano explícito, usar Adventure pero con variedad
-                    img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
+                    img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${unique_seed}&backgroundColor=ffd5dc`;
                 }
             }
         }
@@ -602,6 +626,13 @@
             'ninja': { en: 'ninja', cat: 'subject' },
             'caballero': { en: 'knight', cat: 'subject' },
             'astronauta': { en: 'astronaut', cat: 'subject' },
+            'robocop': { en: 'robocop robot police officer', cat: 'subject' },
+            'robotcop': { en: 'robocop robot police officer', cat: 'subject' },
+            'spiderman': { en: 'spiderman superhero', cat: 'subject' },
+            'batman': { en: 'batman superhero', cat: 'subject' },
+            'ironman': { en: 'ironman superhero', cat: 'subject' },
+            'hulk': { en: 'hulk superhero', cat: 'subject' },
+            'capitán américa': { en: 'captain america superhero', cat: 'subject' },
             'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject' },
             'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject' },
             'marciano': { en: 'alien martian', cat: 'subject' },
@@ -629,8 +660,11 @@
             'parque': { en: 'beautiful park', cat: 'landscape' },
             'feria': { en: 'carnival fair', cat: 'landscape' },
             'selva': { en: 'tropical jungle', cat: 'landscape' },
-            'castillo': { en: 'magic castle', cat: 'landscape' },
-            'ciudad': { en: 'colorful city', cat: 'landscape' },
+            'castillo': { en: 'fairytale magic castle with many towers', cat: 'landscape' },
+            'palacio': { en: 'majestic royal palace', cat: 'landscape' },
+            'casa': { en: 'cozy little cottage house', cat: 'landscape' },
+            'cabaña': { en: 'wooden cabin in the forest', cat: 'landscape' },
+            'ciudad': { en: 'colorful whimsical city', cat: 'landscape' },
             'nieve': { en: 'snowy landscape', cat: 'landscape' },
             'volcan': { en: 'erupting volcano', cat: 'landscape' },
             'volcán': { en: 'erupting volcano', cat: 'landscape' },
@@ -672,10 +706,12 @@
 
 
         window.onload = function () {
-            // Empezamos siempre limpio para una nueva historia
+            // Empezamos siempre limpio para una nueva historia (PANTALLA BLANQUEADA)
             resetCreatorState();
-            loadDefaultOptions();
-            loadCustomAssets();
+            
+            // COMENTADO: No cargar opciones por defecto ni historial para evitar confusión vertical
+            // loadDefaultOptions();
+            // loadCustomAssets();
 
             // Identificar Usuario Mágico
             firebase.auth().onAuthStateChanged(user => {
@@ -985,8 +1021,8 @@
             };
         }
 
-        const liveSearchCharacter = debounce(() => searchMagicCharacter(true), 800);
-        const liveSearchPlace = debounce(() => searchMagicPlace(true), 800);
+        const liveSearchCharacter = debounce(() => searchMagicCharacter(true), 400);
+        const liveSearchPlace = debounce(() => searchMagicPlace(true), 400);
 
         // Biblioteca curada - Emojis SVG de alta calidad (Twemoji)
         const curatedImages = {
@@ -1008,7 +1044,37 @@
             'tigre': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42f.svg',
             'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
             'princesa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg',
-            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg'
+            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg',
+            'robocop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'robotcop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            // ESCENARIOS CURADOS (Precisión 100%)
+            'castillo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
+            'bosque': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f332.svg',
+            'playa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3dd.svg',
+            'espacio': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f680.svg',
+            'selva': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f334.svg',
+            'nieve': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2744.svg',
+            'jupiter': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30c.svg',
+            'júpiter': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30c.svg',
+            'marte': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg',
+            'luna': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg',
+            'sol': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg',
+            'planeta': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f310.svg',
+            'parque': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
+            'escuela': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3eb.svg',
+            'hospital': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3e5.svg',
+            'zoologico': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f992.svg',
+            'zoo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f992.svg',
+            'feria': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3a1.svg',
+            'ciudad': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3d9.svg',
+            'montaña': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26f0.svg',
+            'montañas': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3d4.svg',
+            'campo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33e.svg',
+            'rio': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
+            'río': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
+            'casa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3e0.svg',
+            'cascada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30a.svg',
+            'isla': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3dd.svg'
         };
 
         async function searchMagicCharacter(isLive = false) {
@@ -1022,7 +1088,10 @@
 
             if (loader) loader.style.display = 'block';
             if (!isLive && btn) btn.disabled = true;
-            if (!isLive) grid.innerHTML = '';
+            
+            // LIMPIEZA TOTAL: Vaciamos todo en cada búsqueda para que haya SOLO UNA imagen
+            grid.innerHTML = ''; 
+            grid.classList.add('searching-active');
 
             try {
                 const name = query.charAt(0).toUpperCase() + query.slice(1);
@@ -1061,16 +1130,20 @@
                     // Prompt Engineering especializado por categoría
                     let qualityKeywords;
                     if (currentCategory === 'landscape') {
-                        qualityKeywords = "whimsical children's book landscape illustration, magical colorful setting, dreamy vibrant colors, high detail, clear for kids";
+                        qualityKeywords = "stunning 2D fairytale illustration, whimsical storybook background, magical environment, vibrant watercolors and digital art style, empty landscape, no characters, no people, no real life photos, artistic drawing, very high quality, sharp focus on the architecture";
                     } else {
-                        // Mejorado: Añadimos "distinctive features" para capturar mejor los detalles del diccionario
-                        qualityKeywords = "child-friendly storybook character illustration, distinctive features, cute cartoon style, colorful and vibrant, simple design, white background, friendly, full body";
+                        // Promts para personajes: Sujeto al principio + estilo 2D limpio
+                        qualityKeywords = "hyper-detailed 2D cartoon illustration, storybook style, vibrant colors, clean lines, white background, no real photos, no shadows, child-friendly, sharp focus, high resolution";
                     }
 
                     const seed = Math.floor(Math.random() * 1000000);
                     const cacheBust = Date.now();
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ' variation 1, ' + qualityKeywords)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
+                    // IMPORTANTE: Colocar el nombre traducido AL PRINCIPIO para máxima precisión de la IA
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ', ' + qualityKeywords + ', 2D art')}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
                 }
+
+                // BLINDAJE: Guardar URL inmediatamente para evitar guardados vacíos
+                selections.PersonajeImg = magicUrl;
 
                 let draftCard = document.getElementById('charDraftCard');
                 if (!draftCard) {
@@ -1092,6 +1165,7 @@
                     img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Transparente 1x1
                     img.style.opacity = '0';
                     img.style.display = 'block';
+                    img.alt = name;
                     delete img.dataset.retried;
 
                     // Pequeño delay para asegurar que el navegador registre el cambio de src
@@ -1102,6 +1176,9 @@
                         // Forzar el index a 0 para el draft card
                     }, 50);
                 }
+
+                // Activar modo búsqueda en la rejilla
+                grid.classList.add('searching-active');
 
                 // Seleccionarlo automáticamente
                 selectOption(draftCard, 'Personaje');
@@ -1141,11 +1218,15 @@
 
             if (loader) loader.style.display = 'block';
             if (!isLive && btn) btn.disabled = true;
-            if (!isLive) grid.innerHTML = '';
+            
+            // LIMPIEZA TOTAL: Vaciamos todo en cada búsqueda de lugar
+            grid.innerHTML = '';
+            grid.classList.add('searching-active');
 
             try {
                 // Limpieza de query: Quitar preposiciones y símbolos
-                let cleanedQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al )+/, '').replace(/[`'"]/g, '').trim();
+                // Limpieza de query: Quitar preposiciones y símbolos de forma agresiva
+                let cleanedQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al |a |los |las )+/gi, '').replace(/[`'"]/g, '').trim();
                 const queryLower = cleanedQuery;
 
                 const name = cleanedQuery.charAt(0).toUpperCase() + cleanedQuery.slice(1);
@@ -1160,7 +1241,8 @@
                 if (curatedKey) {
                     magicUrl = curatedImages[curatedKey];
                 } else {
-                    const placeKeywords = "whimsical children's book illustration, magical colorful setting, dreamy vibrant colors, high detail illustration, clear and safe for kids";
+                    // PROMPT ULTRA-PRECISO: Sujeto al principio + estilo 2D artístico
+                    const style = "stunning digital 2D illustration, fairytale children's book style, whimsical and magical, vibrant colors, clean sharp lines, no people, no real photos, high quality, panoramic view";
 
                     let translatedPlace = cleanedQuery;
                     let currentCategory = 'landscape';
@@ -1176,8 +1258,12 @@
 
                     const seed = Math.floor(Math.random() * 999999);
                     const cacheBust = Date.now();
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' variation 1, ' + placeKeywords)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' scenario, ' + style)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
                 }
+
+                // BLINDAJE: Guardar URL inmediatamente
+                selections.LugarImg = magicUrl;
+
 
                 let draftCard = document.getElementById('placeDraftCard');
                 if (!draftCard) {
@@ -1203,8 +1289,13 @@
 
                     setTimeout(() => {
                         img.src = magicUrl;
+                        // ASEGURAR SELECCIÓN REAL: Guardar la URL final inmediatamente
+                        selections[type + 'Img'] = magicUrl;
                     }, 50);
                 }
+
+                // Activar modo búsqueda en la rejilla
+                grid.classList.add('searching-active');
 
                 selectOption(draftCard, 'Lugar');
                 saveCustomAsset('Lugar', name, magicUrl);
@@ -1225,39 +1316,19 @@
         // --- FILTROS Y BUSQUEDAS ---
         function filterCharacters() {
             const input = document.getElementById('characterSearch');
-            const filter = input.value.toLowerCase();
+            const filter = input.value.trim().toLowerCase();
             const grid = document.getElementById('charactersGrid');
-            const cards = grid.getElementsByClassName('option-card');
 
             if (filter.length === 0) {
-                const draft = document.getElementById('charDraftCard');
-                if (draft) draft.style.display = "none";
+                grid.classList.remove('searching-active');
+                grid.innerHTML = ''; // Volver a blanquear si no hay búsqueda
                 return;
-            } else {
-                // Si hay texto, asegurar que el borrador sea visible si existe
-                const draft = document.getElementById('charDraftCard');
-                if (draft) draft.style.display = "";
             }
+
+            // Marcar como búsqueda activa para que el CSS tome el control
+            grid.classList.add('searching-active');
 
             if (filter.length >= 2) liveSearchCharacter();
-
-            for (let i = 0; i < cards.length; i++) {
-                const title = cards[i].getElementsByTagName('h3')[0];
-                const txtValue = title.textContent || title.innerText;
-
-                // PRIORIDAD: Si es el borrador actual (Draft Card), lo mostramos siempre
-                if (cards[i].id === 'charDraftCard') {
-                    cards[i].style.display = "";
-                    continue;
-                }
-
-                // Para el resto (historial/defectos), filtrar por texto
-                if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                    cards[i].style.display = "";
-                } else {
-                    cards[i].style.display = "none";
-                }
-            }
         }
 
         // --- FUNCIONES DE LIMPIEZA ---
@@ -1275,25 +1346,25 @@
             input.focus();
 
             // DETENER MÚSICA MÁGICA
-            if (magicMusic) {
+            if (window.magicMusic) {
                 magicMusic.pause();
                 magicMusic.currentTime = 0;
             }
 
             const container = input.closest('.search-container');
-
-            // Aplicar flasheo mágico al contenedor
             if (container) {
                 container.classList.remove('flash-active');
-                void container.offsetWidth; // Forzar reflujo
+                void container.offsetWidth;
                 container.classList.add('flash-active');
             }
 
-            input.value = '';
             toggleClearBtn(id);
-            input.focus();
 
-            // Eliminar la tarjeta de borrador actual para empezar de cero
+            // IMPORTANTE: Quitar clase de búsqueda activa de la rejilla
+            const gridId = id === 'characterSearch' ? 'charactersGrid' : 'placesGrid';
+            const grid = document.getElementById(gridId);
+            if (grid) grid.classList.remove('searching-active');
+
             const draftId = id === 'characterSearch' ? 'charDraftCard' : 'placeDraftCard';
             const draftCard = document.getElementById(draftId);
             if (draftCard) draftCard.remove();
@@ -1304,36 +1375,20 @@
 
         function filterPlaces() {
             const input = document.getElementById('placeSearch');
-            const filter = input.value.toLowerCase();
+            const filter = input.value.trim().toLowerCase();
             const grid = document.getElementById('placesGrid');
-            const cards = grid.getElementsByClassName('option-card');
 
-            // Si el campo está vacío, ocultar el borrador inmediatamente
+            // Si el campo está vacío, restaurar las opciones por defecto
             if (filter.length === 0) {
-                const draft = document.getElementById('placeDraftCard');
-                if (draft) draft.style.display = "none";
+                grid.classList.remove('searching-active');
+                grid.innerHTML = ''; // Blanquear pantalla
                 return;
             }
 
+            // Marcar como búsqueda activa para el CSS
+            grid.classList.add('searching-active');
+
             if (filter.length >= 3) liveSearchPlace();
-
-            for (let i = 0; i < cards.length; i++) {
-                const title = cards[i].getElementsByTagName('h3')[0];
-                const txtValue = title.textContent || title.innerText;
-
-                // PRIORIDAD: Si es el borrador actual (Draft Card), lo mostramos si hay búsqueda
-                if (cards[i].id === 'placeDraftCard') {
-                    cards[i].style.display = "";
-                    continue;
-                }
-
-                // Para el resto (historial/defectos), filtrar por texto
-                if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                    cards[i].style.display = "";
-                } else {
-                    cards[i].style.display = "none";
-                }
-            }
         }
     </script>
 </body>
