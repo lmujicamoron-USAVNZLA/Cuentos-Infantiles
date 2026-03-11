@@ -1,8 +1,7 @@
-{
   "name": "Story Creator Kids",
   "short_name": "HistoryKids",
   "description": "Crea historias mágicas con inteligencia artificial para niños.",
-  "start_url": "/web_app/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
