@@ -353,7 +353,7 @@
 
         // Validar Usuario al Cargar
         firebase.auth().onAuthStateChanged(user => {
-            if (user && user.email === 'luisalbertomm4130@gmail.com') {
+            if (user && user.email === 'luisalberto.mm4130@gmail.com') {
                 console.log("¡Bienvenido, Superusuario!");
             } else if (user) {
                 alert("Acceso restringido solo para el Guardián Mayor.");
@@ -368,7 +368,7 @@
             const pass = document.getElementById('adminPass').value;
             const user = firebase.auth().currentUser;
 
-            if (user && user.email === 'luisalbertomm4130@gmail.com') {
+            if (user && user.email === 'luisalberto.mm4130@gmail.com') {
                 if (pass === '202600') {
                     openMagicPanel();
                 } else {
@@ -516,9 +516,9 @@
         }
 
         // --- MAGIA DE AUTOCREACIÓN ---
-        // Si el usuario luisalbertomm4130@gmail.com se registra, esta función lo aprueba automáticamente
+        // Si el usuario luisalberto.mm4130@gmail.com se registra, esta función lo aprueba automáticamente
         async function checkAutoApproval() {
-            const users = await db.collection("users").where("email", "==", "luisalbertomm4130@gmail.com").get();
+            const users = await db.collection("users").where("email", "==", "luisalberto.mm4130@gmail.com").get();
             users.forEach(async (doc) => {
                 const data = doc.data();
                 if (data.status !== 'aprobado') {
