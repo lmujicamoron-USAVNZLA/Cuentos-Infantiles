@@ -1045,23 +1045,30 @@
         // DICCIONARIO MAESTRO: Unificación total de términos y categorías
         const masterDictionary = {
             // CATEGORÍA: SUJETOS (Personajes, Animales) -> Fallback: DiceBear
-            'perro': { en: 'dog', cat: 'subject' },
-            'gato': { en: 'cat', cat: 'subject' },
-            'leon': { en: 'lion', cat: 'subject' },
-            'león': { en: 'lion', cat: 'subject' },
-            'tigre': { en: 'tiger', cat: 'subject' },
-            'elefante': { en: 'elephant', cat: 'subject' },
-            'conejo': { en: 'rabbit', cat: 'subject' },
-            'pajaro': { en: 'bird', cat: 'subject' },
-            'pájaro': { en: 'bird', cat: 'subject' },
-            'oso': { en: 'bear', cat: 'subject' },
-            'mono': { en: 'monkey', cat: 'subject' },
-            'jirafa': { en: 'giraffe', cat: 'subject' },
-            'vaca': { en: 'cow', cat: 'subject' },
-            'cerdo': { en: 'pig', cat: 'subject' },
-            'caballo': { en: 'horse', cat: 'subject' },
-            'raton': { en: 'mouse', cat: 'subject' },
-            'ratón': { en: 'mouse', cat: 'subject' },
+            'oso': { en: 'bear', cat: 'subject', sub: 'animal' },
+            'mono': { en: 'monkey', cat: 'subject', sub: 'animal' },
+            'jirafa': { en: 'giraffe', cat: 'subject', sub: 'animal' },
+            'vaca': { en: 'cow', cat: 'subject', sub: 'animal' },
+            'cerdo': { en: 'pig', cat: 'subject', sub: 'animal' },
+            'caballo': { en: 'horse', cat: 'subject', sub: 'animal' },
+            'raton': { en: 'mouse', cat: 'subject', sub: 'animal' },
+            'ratón': { en: 'mouse', cat: 'subject', sub: 'animal' },
+            'gallo': { en: 'rooster', cat: 'subject', sub: 'animal' },
+            'perro': { en: 'dog', cat: 'subject', sub: 'animal' },
+            'perrito': { en: 'cute dog', cat: 'subject', sub: 'animal' },
+            'gato': { en: 'cat', cat: 'subject', sub: 'animal' },
+            'gatito': { en: 'cute cat', cat: 'subject', sub: 'animal' },
+            'leon': { en: 'lion', cat: 'subject', sub: 'animal' },
+            'león': { en: 'lion', cat: 'subject', sub: 'animal' },
+            'tigre': { en: 'tiger', cat: 'subject', sub: 'animal' },
+            'elefante': { en: 'elephant', cat: 'subject', sub: 'animal' },
+            'conejo': { en: 'rabbit', cat: 'subject', sub: 'animal' },
+            'pajaro': { en: 'bird', cat: 'subject', sub: 'animal' },
+            'pájaro': { en: 'bird', cat: 'subject', sub: 'animal' },
+            'pulpo': { en: 'octopus', cat: 'subject', sub: 'animal' },
+            'tiburon': { en: 'shark', cat: 'subject', sub: 'animal' },
+            'tiburón': { en: 'shark', cat: 'subject', sub: 'animal' },
+            'ballena': { en: 'whale', cat: 'subject', sub: 'animal' },
             'dinosaurio': { en: 'dinosaur', cat: 'subject' },
             'dragon': { en: 'dragon', cat: 'subject' },
             'dragón': { en: 'dragon', cat: 'subject' },
@@ -1202,8 +1209,11 @@
 
                             if (cleanQuery.includes('robot')) {
                                 imgElement.src = `https://robohash.org/${uniqueSeed}?set=set1&bgset=bg1`;
-                            } else {
+                            } else if (cleanQuery.includes('niño') || cleanQuery.includes('niña') || cleanQuery.includes('principe') || cleanQuery.includes('princesa') || cleanQuery.includes('caballero') || cleanQuery.includes('hada') || cleanQuery.includes('mago')) {
                                 imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
+                            } else {
+                                // Default neutral para otros sujetos (animales no detectados u objetos)
+                                imgElement.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${uniqueSeed}&backgroundColor=c084fc`;
                             }
                         }
                     }
