@@ -609,11 +609,11 @@
 
                 if (cleanName.includes('robot')) {
                     img.src = `https://robohash.org/${unique_seed}?set=set1&bgset=bg1`;
-                } else if (cleanName.includes('niño') || cleanName.includes('niña') || cleanName.includes('principe') || cleanName.includes('princesa') || cleanName.includes('caballero') || cleanName.includes('hada') || cleanName.includes('mago')) {
-                    // Si es un humano explícito, usar Adventure pero con variedad
+                } else if ((entry && category === 'subject') || cleanName.match(/niño|niña|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/)) {
+                    // Si es un sujeto conocido o tiene palabras clave de humano/héroe
                     img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${unique_seed}&backgroundColor=ffd5dc`;
                 } else {
-                    // Default neutral para otros sujetos (animales no detectados u objetos)
+                    // Default neutral para otros sujetos (animales no detectados u objetos desconocidos)
                     img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${unique_seed}&backgroundColor=c084fc`;
                 }
             }

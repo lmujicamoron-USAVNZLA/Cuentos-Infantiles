@@ -1209,10 +1209,11 @@
 
                             if (cleanQuery.includes('robot')) {
                                 imgElement.src = `https://robohash.org/${uniqueSeed}?set=set1&bgset=bg1`;
-                            } else if (cleanQuery.includes('niño') || cleanQuery.includes('niña') || cleanQuery.includes('principe') || cleanQuery.includes('princesa') || cleanQuery.includes('caballero') || cleanQuery.includes('hada') || cleanQuery.includes('mago')) {
+                            } else if ((entry && category === 'subject') || cleanQuery.match(/niño|niña|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/)) {
+                                // Si es un sujeto conocido o tiene palabras clave de humano/héroe
                                 imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
                             } else {
-                                // Default neutral para otros sujetos (animales no detectados u objetos)
+                                // Default neutral para otros sujetos (animales no detectados u objetos desconocidos)
                                 imgElement.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${uniqueSeed}&backgroundColor=c084fc`;
                             }
                         }
