@@ -281,13 +281,13 @@
                     </svg>
                     Volver al Portal
                 </a>
-                <h1 style="font-size: 1.8rem;">Control de Guardianes</h1>
-                <p style="color: var(--text-muted);">Gestiona los accesos mágicos de Firebase</p>
+                <h1 style="font-size: 1.8rem;">Panel de Superusuario</h1>
+                <p style="color: var(--text-muted);">Estadísticas Maestras y Gestión de Aventureros</p>
             </div>
             <div id="adminAuthArea"
                 style="background: white; padding: 0.8rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 0.5rem; align-items: center;">
-                <input type="password" id="adminPass" placeholder="Clave Mágica"
-                    style="padding: 0.6rem; border: 1px solid #eee; border-radius: 0.5rem; outline: none; width: 140px;">
+                <input type="password" id="adminPass" placeholder="******" maxlength="6"
+                    style="padding: 0.6rem; border: 1px solid #eee; border-radius: 0.5rem; outline: none; width: 100px; text-align: center; letter-spacing: 3px;">
                 <button class="btn-action" style="background: var(--primary); color: white; padding: 0.6rem 1.2rem;"
                     onclick="checkAdminAccess()">Abrir</button>
             </div>
@@ -353,7 +353,7 @@
         // Control de Acceso Admin
         function checkAdminAccess() {
             const pass = document.getElementById('adminPass').value;
-            if (pass === '2026') { // Clave temporal sugerida
+            if (pass === '202600') { // Actualizada a 6 dígitos como solicitaste
                 document.getElementById('adminAuthArea').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
                 document.getElementById('logoutBtn').style.display = 'block';
