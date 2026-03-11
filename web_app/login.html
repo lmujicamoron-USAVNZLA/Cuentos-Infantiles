@@ -169,25 +169,37 @@
                         // 2. Verificar en Firestore si el Administrador lo aprobó
                         const userDoc = await firebase.firestore().collection("users").doc(user.uid).get();
 
-                        if (userDoc.exists) {
-                            const userData = userDoc.data();
+                        if (userDoc.exists || user.email === 'luisalberto.mm4130@gmail.com') {
+                            let userData = userDoc.exists ? userDoc.data() : {
+                                username: 'Superusuario',
+                                email: user.email,
+                                status: 'aprobado',
+                                emailVerified: true,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            };
+
+                            // Magia: Si eres Superusuario y no tienes perfil en Firestore, lo creamos ahora mismo
+                            if (!userDoc.exists && user.email === 'luisalberto.mm4130@gmail.com') {
+                                console.log("🪄 Creando perfil de Superusuario en Firestore...");
+                                await firebase.firestore().collection("users").doc(user.uid).set(userData);
+                            }
 
                             // Actualizar emailVerified en Firestore si ya lo hizo en Auth
-                            if (!userData.emailVerified) {
+                            if (userDoc.exists && !userData.emailVerified) {
                                 await firebase.firestore().collection("users").doc(user.uid).update({
                                     emailVerified: true
                                 });
                             }
 
                             if (userData.status === 'aprobado' || user.email === 'luisalberto.mm4130@gmail.com') {
-                                // Redirigir al Superusuario directo al Admin si lo desea, o al Dashboard
+                                // Redirigir al Superusuario directo al Admin
                                 if (user.email === 'luisalberto.mm4130@gmail.com') {
                                     window.location.href = 'admin.html';
                                 } else {
                                     window.location.href = 'dashboard.html';
                                 }
                             } else {
-                                alert("¡Casi listo! Tu cuenta está esperando la aprobación de un Guardián (Administrador).");
+                                alert("¡Casi listo! Tu cuenta está esperando la aprobación de un Guardián.");
                                 btn.disabled = false;
                                 btn.innerHTML = originalContent;
                             }
