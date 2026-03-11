@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hisorycreatorkids.twa",
+      "sha256_cert_fingerprints": [
+        "TU_SHA256_AQUÍ_CUANDO_TENGAS_LA_KEYSTORE"
+      ]
+    }
+  }
+]
