@@ -499,6 +499,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="safety.js"></script>
     <!-- jsPDF para exportación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -650,7 +651,10 @@
         // --- FUNCIONES DE ELIMINACIÓN ---
         let storyToDelete = null;
 
-        function confirmDelete(storyId, storyTitle) {
+        async function confirmDelete(storyId, storyTitle) {
+            const isAdult = await triggerParentalGate();
+            if (!isAdult) return;
+            
             storyToDelete = storyId;
             document.getElementById('deleteModal').classList.add('active');
         }
@@ -747,6 +751,9 @@
         let storyToEdit = null;
 
         async function openEditModal(storyId) {
+            const isAdult = await triggerParentalGate();
+            if (!isAdult) return;
+
             storyToEdit = storyId;
             try {
                 const docSnap = await db.collection('stories').doc(storyId).get();

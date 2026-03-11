@@ -283,6 +283,15 @@
                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
             </svg>
         </button>
+        <!-- BOTÓN DE REPORTE -->
+        <button class="nav-btn-circle" id="reportBtn" onclick="reportContent()" title="Reportar contenido inapropiado"
+            style="background: #f43f5e;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                <line x1="4" y1="22" x2="4" y2="15" />
+            </svg>
+        </button>
     </div>
 
     <main class="reader-container">
@@ -672,6 +681,26 @@
                 setTimeout(() => readCurrentPage(), 500);
             }
             updateUI();
+        }
+
+        async function reportContent() {
+            const storyId = localStorage.getItem('currentStoryId');
+            if (!storyId) return;
+
+            const confirmed = confirm("¿Deseas reportar esta historia como inapropiada? ✨ Nuestro equipo la revisará de inmediato.");
+            if (!confirmed) return;
+
+            try {
+                await db.collection("stories").doc(storyId).update({
+                    flagged: true,
+                    flaggedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Gracias por ayudarnos a mantener la magia segura. La historia ha sido reportada.");
+                window.location.href = 'dashboard.html';
+            } catch (e) {
+                console.error("Error al reportar:", e);
+                alert("Hubo un error al enviar el reporte. Inténtalo de nuevo.");
+            }
         }
 
         initReader();

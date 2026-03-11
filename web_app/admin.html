@@ -324,6 +324,7 @@
                     <button class="tab-btn active" onclick="setFilter('all', this)">Todos</button>
                     <button class="tab-btn" onclick="setFilter('pendiente', this)">Pendientes</button>
                     <button class="tab-btn" onclick="setFilter('aprobado', this)">Aprobados</button>
+                    <button class="tab-btn" onclick="setFilter('flagged', this)" style="color: #ef4444;">🚩 Reportados</button>
                 </div>
             </div>
 
@@ -425,7 +426,8 @@
             const titles = {
                 'all': 'Todos los Guardianes',
                 'pendiente': 'Solicitudes en Espera',
-                'aprobado': 'Guardianes Aprobados'
+                'aprobado': 'Guardianes Aprobados',
+                'flagged': 'Historias Reportadas'
             };
             document.getElementById('listTitle').innerText = titles[filter];
 
@@ -443,7 +445,11 @@
                 return matchesFilter && matchesSearch;
             });
 
-            renderUserList(filtered, list);
+            if (currentFilter === 'flagged') {
+                loadFlaggedStories(list);
+            } else {
+                renderUserList(filtered, list);
+            }
         }
 
         function renderUserList(users, container) {
@@ -512,6 +518,53 @@
                 } catch (e) {
                     alert("Error al eliminar: " + e.message);
                 }
+            }
+        }
+
+        async function loadFlaggedStories(container) {
+            container.innerHTML = '<p style="padding: 2rem; text-align: center;">Buscando historias marcadas...</p>';
+            try {
+                const snapshot = await db.collection("stories").where("flagged", "==", true).get();
+                container.innerHTML = '';
+                if (snapshot.empty) {
+                    container.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">No hay historias reportadas. ✨</div>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const story = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    item.innerHTML = `
+                        <img src="${story.coverImg || story.characterImg}" class="user-avatar">
+                        <div class="user-info">
+                            <h4>"${story.title}" 🚩 <span class="badge badge-pending">Reportado</span></h4>
+                            <p>Protas: ${story.character} | Lugar: ${story.place}</p>
+                            <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #475569;">${story.content.substring(0, 100)}...</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-action btn-approve" onclick="clearFlag('${doc.id}')">Limpiar</button>
+                            <button class="btn-action btn-reject" onclick="deleteStory('${doc.id}')">Eliminar</button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="color:red; padding:2rem;">Error al cargar historias.</p>';
+            }
+        }
+
+        async function clearFlag(sid) {
+            if (confirm("¿Limpiar reporte? La historia volverá a estar visible.")) {
+                await db.collection("stories").doc(sid).update({ flagged: false });
+                setFilter('flagged', document.querySelector('.tab-btn[onclick*="flagged"]'));
+            }
+        }
+
+        async function deleteStory(sid) {
+            if (confirm("¿ELIMINAR ESTA HISTORIA PERMANENTEMENTE?")) {
+                await db.collection("stories").doc(sid).delete();
+                setFilter('flagged', document.querySelector('.tab-btn[onclick*="flagged"]'));
             }
         }
 

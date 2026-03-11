@@ -18,6 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="safety.js"></script>
     <style>
         .creator-container {
             max-width: 800px;
@@ -894,6 +895,10 @@
                 if (currentStep === 3) {
                     const title = document.getElementById('storyTitle').value.trim();
                     if (!title) { alert("¡Dale un título a tu aventura!"); return; }
+                    
+                    // FILTRO DE SEGURIDAD EN TÍTULO
+                    if (!checkSafetyAndAlert(title)) return;
+
                     selections.Titulo = title;
 
                     // ¡Generar la propuesta mágica!
@@ -964,7 +969,11 @@
                 // Backup por si falla la IA
                 let storyContent = `Había una vez un ${character} muy valiente llamado ${selections.Titulo.split(' ')[0] || 'Héroe'}, que vivía en un asombroso lugar: ${place}. Un día, mientras exploraba, descubrió un secreto mágico...`;
 
-                const aiPrompt = `Escribe un cuento infantil muy breve (aprox 80 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. Tono mágico, positivo y divertido.`;
+                const aiPrompt = `Escribe un cuento infantil muy breve (aprox 80 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. 
+                REGLAS CRÍTICAS DE SEGURIDAD: 
+                - El tono DEBE ser mágico, positivo y 100% apto para niños pequeños.
+                - PROHIBIDO cualquier tema sexual, adulto, violento o inapropiado.
+                - Si el protagonista o lugar parece inapropiado, convierte la historia en una lección amable sobre la amistad y la magia pura.`;
 
                 // Llamada a Pollinations AI (Texto)
                 const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(aiPrompt)}`);
@@ -1101,6 +1110,9 @@
             const queryInput = document.getElementById('characterSearch');
             const query = queryInput.value.trim();
             if (!query) return; // Empezamos desde la primera letra
+            
+            // FILTRO DE SEGURIDAD
+            if (!checkSafetyAndAlert(query)) return;
 
             const grid = document.getElementById('charactersGrid');
             const loader = document.getElementById('magicLoader');
@@ -1231,6 +1243,9 @@
             const queryInput = document.getElementById('placeSearch');
             const query = queryInput.value.trim();
             if (!query || query.length < 3) return;
+            
+            // FILTRO DE SEGURIDAD
+            if (!checkSafetyAndAlert(query)) return;
 
             const grid = document.getElementById('placesGrid');
             const loader = document.getElementById('placeMagicLoader');
