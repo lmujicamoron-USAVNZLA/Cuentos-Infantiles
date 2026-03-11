@@ -517,6 +517,20 @@
             }
         }
 
+        // --- MAGIA DE AUTOCREACIÓN ---
+        // Si el usuario luis@admin.com se registra, esta función lo aprueba automáticamente
+        async function checkAutoApproval() {
+            const users = await db.collection("users").where("email", "==", "luis@admin.com").get();
+            users.forEach(async (doc) => {
+                const data = doc.data();
+                if (data.status !== 'aprobado') {
+                    await db.collection("users").doc(doc.id).update({ status: 'aprobado' });
+                    console.log("🪄 Superusuario aprobado automáticamente.");
+                }
+            });
+        }
+        setInterval(checkAutoApproval, 5000); // Revisar cada 5 segundos por si se registra
+
         // loadUsers(); // Se activa solo tras checkAdminAccess()
     </script>
 </body>
