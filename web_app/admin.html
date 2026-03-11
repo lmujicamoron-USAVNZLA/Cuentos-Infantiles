@@ -285,11 +285,12 @@
                 <p style="color: var(--text-muted);">Estadísticas Maestras y Gestión de Aventureros</p>
             </div>
             <div id="adminAuthArea"
-                style="background: white; padding: 0.8rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 0.5rem; align-items: center;">
+                style="background: white; padding: 1rem; border-radius: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 0.8rem; align-items: center; min-width: 250px;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Identifícate como Superusuario</p>
                 <input type="password" id="adminPass" placeholder="******" maxlength="6"
-                    style="padding: 0.6rem; border: 1px solid #eee; border-radius: 0.5rem; outline: none; width: 100px; text-align: center; letter-spacing: 3px;">
-                <button class="btn-action" style="background: var(--primary); color: white; padding: 0.6rem 1.2rem;"
-                    onclick="checkAdminAccess()">Abrir</button>
+                    style="padding: 0.8rem; border: 1px solid #eee; border-radius: 0.75rem; outline: none; width: 100%; text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
+                <button class="btn-action" style="background: var(--primary); color: white; padding: 0.8rem; width: 100%; font-size: 1rem;"
+                    onclick="checkAdminAccess()">Acceder al Reino</button>
             </div>
             <button id="logoutBtn" class="btn-action" style="background: #fee2e2; color: #ef4444; display: none;"
                 onclick="firebase.auth().signOut().then(() => window.location.href='login.html')">Cerrar Sesión</button>
@@ -350,17 +351,41 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // Validar Usuario al Cargar
+        firebase.auth().onAuthStateChanged(user => {
+            if (user && user.email === 'luis@admin.com') {
+                console.log("¡Bienvenido, Superusuario!");
+                // Si es el Superusuario, podemos saltar la clave o mostrar el botón directamente
+            } else if (user) {
+                // Si es un usuario normal, lo devolvemos
+                alert("Acceso restringido solo para el Guardián Mayor.");
+                window.location.href = 'dashboard.html';
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
         // Control de Acceso Admin
         function checkAdminAccess() {
             const pass = document.getElementById('adminPass').value;
-            if (pass === '202600') { // Actualizada a 6 dígitos como solicitaste
-                document.getElementById('adminAuthArea').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
-                document.getElementById('logoutBtn').style.display = 'block';
-                loadUsers();
+            const user = firebase.auth().currentUser;
+
+            if (user && user.email === 'luis@admin.com') {
+                if (pass === '202600') {
+                    openMagicPanel();
+                } else {
+                    alert('Clave incorrecta del Guardián Mayor.');
+                }
             } else {
-                alert('Clave incorrecta del Guardián Mayor.');
+                alert('No tienes permisos de Superusuario (Email incorrecto).');
             }
+        }
+
+        function openMagicPanel() {
+            document.getElementById('adminAuthArea').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            loadUsers();
         }
 
         async function loadUsers() {
