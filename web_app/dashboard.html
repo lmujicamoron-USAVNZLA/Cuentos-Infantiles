@@ -1016,8 +1016,8 @@
 
             // Otros Curry
             'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'ironman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'iron man': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'ironman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8-200d-2642-fe0f.svg',
+            'iron man': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8-200d-2642-fe0f.svg',
             'hulk': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg',
             'thor': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f528.svg',
             'wonder woman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2b50.svg',
@@ -1083,11 +1083,11 @@
             'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject', sub: 'hero' },
             'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject', sub: 'hero' },
             'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject', sub: 'hero' },
-            'ironman': { en: 'ironman superhero in robotic red and gold suit', cat: 'subject', sub: 'tech-hero' },
-            'iron man': { en: 'ironman superhero in robotic red and gold suit', cat: 'subject', sub: 'tech-hero' },
+            'ironman': { en: 'Ironman superhero in full robotic red and gold armor suit, marvel style', cat: 'subject', sub: 'tech-hero' },
+            'iron man': { en: 'Ironman superhero in full robotic red and gold armor suit, marvel style', cat: 'subject', sub: 'tech-hero' },
             'hulk': { en: 'giant green muscular superhero hulk', cat: 'subject', sub: 'hero' },
             'thor': { en: 'viking superhero thor with hammer', cat: 'subject', sub: 'hero' },
-            'robot': { en: 'friendly cute robot', cat: 'subject', sub: 'robot' },
+            'robot': { en: 'friendly shiny metallic robot character with glowing eyes, silver and blue colors', cat: 'subject', sub: 'robot' },
             'princesa': { en: 'princess', cat: 'subject' },
             'principe': { en: 'prince', cat: 'subject' },
             'príncipe': { en: 'prince', cat: 'subject' },
@@ -1216,8 +1216,11 @@
                             // DIVERSIFICACIÓN REAL: Usamos un seed único para CADA imagen usando el index
                             const uniqueSeed = encodeURIComponent(cleanQuery) + '_' + index + '_' + Math.floor(Math.random() * 9999);
 
-                            if (cleanQuery.includes('robot') || subcategory === 'robot' || subcategory === 'tech-hero') {
+                            if (cleanQuery.includes('robot') || subcategory === 'robot') {
                                 imgElement.src = `https://robohash.org/${uniqueSeed}?set=set1&bgset=bg1`;
+                            } else if (subcategory === 'tech-hero') {
+                                // Ironman y similares usan Bottts (estilo casco/robot) pero diferente a Robohash
+                                imgElement.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${uniqueSeed}&backgroundColor=ff5a5f`;
                             } else if (cleanQuery.match(/niño|niña|hijo|hija|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/) || (entry && category === 'subject' && subcategory !== 'animal')) {
                                 // Si es un humano explícito o un héroe reconocido (pero no animal/robot)
                                 imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc`;
