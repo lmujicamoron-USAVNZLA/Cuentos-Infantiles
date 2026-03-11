@@ -607,13 +607,14 @@
                 // EVITAR HUMANOS PARA ROBOTS: Seed único por índice
                 const unique_seed = encodeURIComponent(cleanName) + "_" + index + "_" + Math.floor(Math.random() * 1000);
 
-                if (cleanName.includes('robot')) {
+                if (cleanName.includes('robot') || subcategory === 'robot' || subcategory === 'tech-hero') {
                     img.src = `https://robohash.org/${unique_seed}?set=set1&bgset=bg1`;
-                } else if ((entry && category === 'subject') || cleanName.match(/niño|niña|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/)) {
-                    // Si es un sujeto conocido o tiene palabras clave de humano/héroe
+                } else if (cleanName.match(/niño|niña|hijo|hija|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/) || (entry && category === 'subject' && subcategory !== 'animal')) {
+                    // Si es un humano explícito o un héroe reconocido (pero no animal/robot)
                     img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${unique_seed}&backgroundColor=ffd5dc`;
                 } else {
                     // Default neutral para otros sujetos (animales no detectados u objetos desconocidos)
+                    // Evitamos caras humanas aquí para reducir confusión
                     img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${unique_seed}&backgroundColor=c084fc`;
                 }
             }
@@ -662,10 +663,18 @@
             'pingüino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
             'delfin': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
             'delfín': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
-            'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject' },
-            'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject' },
-            'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject' },
-            'robot': { en: 'friendly cute robot', cat: 'subject' },
+            'dinosaurio': { en: 'dinosaur', cat: 'subject', sub: 'animal' },
+            'dragon': { en: 'dragon', cat: 'subject', sub: 'animal' },
+            'dragón': { en: 'dragon', cat: 'subject', sub: 'animal' },
+            'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject', sub: 'hero' },
+            'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject', sub: 'hero' },
+            'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject', sub: 'hero' },
+            'ironman': { en: 'ironman superhero in robotic red and gold suit', cat: 'subject', sub: 'tech-hero' },
+            'iron man': { en: 'ironman superhero in robotic red and gold suit', cat: 'subject', sub: 'tech-hero' },
+            'hulk': { en: 'giant green muscular superhero hulk', cat: 'subject', sub: 'hero' },
+            'thor': { en: 'viking superhero thor with hammer', cat: 'subject', sub: 'hero' },
+            'wonder woman': { en: 'amazonian superhero wonder woman with lasso and shield', cat: 'subject', sub: 'hero' },
+            'robot': { en: 'friendly cute robot', cat: 'subject', sub: 'robot' },
             'princesa': { en: 'princess', cat: 'subject' },
             'principe': { en: 'prince', cat: 'subject' },
             'príncipe': { en: 'prince', cat: 'subject' },
@@ -675,15 +684,10 @@
             'ninja': { en: 'ninja', cat: 'subject' },
             'caballero': { en: 'knight', cat: 'subject' },
             'astronauta': { en: 'astronaut', cat: 'subject' },
-            'robocop': { en: 'robocop robot police officer', cat: 'subject' },
-            'robotcop': { en: 'robocop robot police officer', cat: 'subject' },
-            'spiderman': { en: 'spiderman superhero', cat: 'subject' },
-            'batman': { en: 'batman superhero', cat: 'subject' },
-            'ironman': { en: 'ironman superhero', cat: 'subject' },
-            'hulk': { en: 'hulk superhero', cat: 'subject' },
-            'capitán américa': { en: 'captain america superhero', cat: 'subject' },
-            'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject' },
-            'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject' },
+            'robocop': { en: 'robocop robot police officer', cat: 'subject', sub: 'robot' },
+            'robotcop': { en: 'robocop robot police officer', cat: 'subject', sub: 'robot' },
+            'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject', sub: 'hero' },
+            'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject', sub: 'hero' },
             'marciano': { en: 'alien martian', cat: 'subject' },
             'alien': { en: 'alien character', cat: 'subject' },
             'extraterrestre': { en: 'alien creature', cat: 'subject' },
@@ -749,8 +753,7 @@
             'júpiter': { en: 'giant gas planet jupiter', cat: 'landscape' },
             'saturno': { en: 'planet saturn with rings', cat: 'landscape' },
             'luna': { en: 'moon surface with craters', cat: 'landscape' },
-            'estrella': { en: 'bright shining star in space', cat: 'landscape' },
-            'gallo': { en: 'colorful rooster', cat: 'subject' }
+            'estrella': { en: 'bright shining star in space', cat: 'landscape' }
         };
 
 
@@ -877,7 +880,7 @@
                 selectedThemeKey = 'space';
             } else if (charName.match(/celebración|fiesta|cumpleaños|parque|feria|carnaval|diversión/) || placeName.match(/parque|feria|carnaval|festival/)) {
                 selectedThemeKey = 'party';
-            } else if (charName.match(/dinosaurio|dragón|león|tigre|aventura|superman|batman|spiderman|pirata|ninja|caballero/)) {
+            } else if (charName.match(/dinosaurio|dragón|león|tigre|aventura|superman|batman|spiderman|pirata|ninja|caballero|ironman|hulk|thor|wonder woman/)) {
                 selectedThemeKey = 'adventure';
             }
 
@@ -1120,6 +1123,11 @@
             'superman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8.svg',
             'batman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f987.svg',
             'spiderman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f577.svg',
+            'ironman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'iron man': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
+            'hulk': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg',
+            'thor': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f528.svg',
+            'wonder woman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2b50.svg',
             'kaliman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
             'kalimán': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
             'disney': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
