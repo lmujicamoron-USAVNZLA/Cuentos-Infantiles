@@ -157,8 +157,8 @@
                 .then(async (userCredential) => {
                     const user = userCredential.user;
 
-                    // 1. Verificar si el email está verificado en Firebase Auth
-                    if (!user.emailVerified) {
+                    // 1. Verificar si el email está verificado en Firebase Auth (Bypass para Superusuario)
+                    if (!user.emailVerified && user.email !== 'luis@admin.com') {
                         alert("Por favor, verifica tu correo antes de entrar. Revisa tu bandeja de entrada.");
                         btn.disabled = false;
                         btn.innerHTML = originalContent;
@@ -204,7 +204,14 @@
                     }
                 })
                 .catch((error) => {
-                    alert("Error al iniciar sesión: " + error.message);
+                    console.error("Firebase Auth Error:", error.code, error.message);
+                    if (error.code === 'auth/user-not-found') {
+                        alert("Esta cuenta aún no existe. ¡Regístrate primero como luis@admin.com!");
+                    } else if (error.code === 'auth/wrong-password') {
+                        alert("Contraseña incorrecta. Asegúrate de usar la que elegiste al registrarte.");
+                    } else {
+                        alert("Error al iniciar sesión: " + error.message);
+                    }
                     btn.disabled = false;
                     btn.innerHTML = originalContent;
                 });
