@@ -179,8 +179,13 @@
                                 });
                             }
 
-                            if (userData.status === 'aprobado') {
-                                window.location.href = 'dashboard.html';
+                            if (userData.status === 'aprobado' || user.email === 'luis@admin.com') {
+                                // Redirigir al Superusuario directo al Admin si lo desea, o al Dashboard
+                                if (user.email === 'luis@admin.com') {
+                                    window.location.href = 'admin.html';
+                                } else {
+                                    window.location.href = 'dashboard.html';
+                                }
                             } else {
                                 alert("¡Casi listo! Tu cuenta está esperando la aprobación de un Guardián (Administrador).");
                                 btn.disabled = false;
