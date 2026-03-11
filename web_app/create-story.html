@@ -20,6 +20,21 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="safety.js"></script>
     <style>
+        .offline-banner {
+            display: none;
+            background: #f43f5e;
+            color: white;
+            padding: 0.8rem;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease-out;
+            position: sticky;
+            top: 1rem;
+            z-index: 1000;
+        }
+
         .creator-container {
             max-width: 800px;
             margin: 0 auto;
@@ -296,6 +311,9 @@
     </div>
 
     <main class="creator-container" style="position: relative;">
+        <div id="offlineBanner" class="offline-banner">
+            📡 Oh no, no hay internet. Necesitas internet para usar la magia de la IA.
+        </div>
         <!-- Badge de Usuario Mágico -->
         <div id="userBadge"
             style="position: absolute; top: 0; right: 0; display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.8); padding: 0.5rem 1rem; border-radius: 2rem; backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transform: translateY(-120%); transition: transform 0.5s;">
@@ -899,6 +917,11 @@
                     // FILTRO DE SEGURIDAD EN TÍTULO
                     if (!checkSafetyAndAlert(title)) return;
 
+                    if (!navigator.onLine) {
+                        alert("🧚‍♀️ Las hadas necesitan internet para inspirarse. ¡Busca una señal mágica (WiFi)!");
+                        return;
+                    }
+
                     selections.Titulo = title;
 
                     // ¡Generar la propuesta mágica!
@@ -1026,6 +1049,35 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     content: finalContent
                 });
+
+                // --- SISTEMA DE MEDALLAS ---
+                try {
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const currentBadges = userDoc.data().badges || [];
+                        const newBadgesToAdd = [];
+
+                        // 1. Hacedor de Magia (Primer cuento)
+                        if (!currentBadges.includes('first_story')) {
+                            newBadgesToAdd.push('first_story');
+                        }
+
+                        // 2. Sabio Nocturno (20:00 a 06:00)
+                        const hour = new Date().getHours();
+                        if ((hour >= 20 || hour <= 6) && !currentBadges.includes('night_owl')) {
+                            newBadgesToAdd.push('night_owl');
+                        }
+
+                        if (newBadgesToAdd.length > 0) {
+                            await db.collection("users").doc(user.uid).update({
+                                badges: firebase.firestore.FieldValue.arrayUnion(...newBadgesToAdd)
+                            });
+                            console.log("¡Medallas otorgadas!", newBadgesToAdd);
+                        }
+                    }
+                } catch (badgeErr) {
+                    console.error("Error otorgando medallas:", badgeErr);
+                }
 
                 loader.querySelector('h2').innerText = "¡Historia Guardada! ✨";
                 loader.querySelector('p').innerText = "Volviendo a tu biblioteca...";
@@ -1425,6 +1477,20 @@
 
             if (filter.length >= 3) liveSearchPlace();
         }
+
+        // --- MANEJO DE ESTADO ONLINE/OFFLINE ---
+        function updateOnlineStatus() {
+            const banner = document.getElementById('offlineBanner');
+            if (navigator.onLine) {
+                if (banner) banner.style.display = 'none';
+            } else {
+                if (banner) banner.style.display = 'block';
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
     </script>
 </body>
 

@@ -106,6 +106,31 @@
             border-radius: 50%;
         }
 
+        .offline-banner {
+            display: none;
+            background: #f43f5e;
+            color: white;
+            padding: 0.8rem;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .offline-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(244, 63, 94, 0.1);
+            color: #e11d48;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.4rem;
+        }
+
         .story-thumb {
             width: 100%;
             height: 130px;
@@ -378,7 +403,62 @@
             justify-content: center;
             border-radius: 50%;
             font-size: 0.8rem;
+            font-size: 0.8rem;
             color: white;
+        }
+
+        /* Estilos para Medallas */
+        .badges-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scrollbar-width: none;
+        }
+        .badges-container::-webkit-scrollbar { display: none; }
+
+        .badge-item {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 80px;
+            opacity: 0.3;
+            filter: grayscale(1);
+            transition: all 0.5s ease;
+        }
+
+        .badge-item.active {
+            opacity: 1;
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .badge-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .badge-item.active .badge-icon {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+            border: 2px solid var(--primary);
+        }
+
+        .badge-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
         }
     </style>
 </head>
@@ -461,6 +541,9 @@
     </div>
 
     <main class="container" style="max-width: 1000px;">
+        <div id="offlineBanner" class="offline-banner">
+            📡 Modo Offline Activado - Estás viendo tus cuentos guardados
+        </div>
         <nav class="nav-bar">
             <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem;">Story Creator Kids</h2>
             <div class="user-profile">
@@ -473,6 +556,28 @@
         <button class="create-btn-large" onclick="window.location.href='create-story.html'">
             ✨ Crear nueva historia mágica
         </button>
+
+        <div id="badgesSection" style="margin-top: 2rem;">
+            <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 0.5rem;">Mis Medallas Mágicas</h3>
+            <div class="badges-container" id="badgesGrid">
+                <div class="badge-item" id="badge-first_story" title="Crea tu primer cuento">
+                    <div class="badge-icon">🪄</div>
+                    <div class="badge-name">Hacedor de Magia</div>
+                </div>
+                <div class="badge-item" id="badge-story_read" title="Lee un cuento completo">
+                    <div class="badge-icon">⭐</div>
+                    <div class="badge-name">Lector Estrella</div>
+                </div>
+                <div class="badge-item" id="badge-night_owl" title="Crea un cuento de noche">
+                    <div class="badge-icon">🦉</div>
+                    <div class="badge-name">Sabio Nocturno</div>
+                </div>
+                <div class="badge-item" id="badge-explorer" title="Crea 5 cuentos o más">
+                    <div class="badge-icon">🧭</div>
+                    <div class="badge-name">Gran Explorador</div>
+                </div>
+            </div>
+        </div>
 
         <div class="dashboard-grid" id="storiesGrid">
             <!-- Los cuentos se cargarán dinámicamente aquí -->
@@ -558,6 +663,7 @@
                     userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
                 }
 
+                loadBadges(user.uid);
                 loadStories(user.uid);
             } else {
                 window.location.href = 'login.html'; // Kept original 'login.html' as the snippet's 'index.html' might be a typo or specific to a different flow.
@@ -574,30 +680,22 @@
                     .orderBy("createdAt", "desc")
                     .get();
 
+                // Guardar en cache local para modo offline
+                const storiesData = [];
+                snapshot.forEach(doc => storiesData.push({ id: doc.id, ...doc.data() }));
+                localStorage.setItem(`cached_stories_${userId}`, JSON.stringify(storiesData));
+
                 renderStories(snapshot, grid);
 
             } catch (error) {
                 console.error("Error cargando cuentos:", error);
 
-                // Intento de recuperación: Consulta simple sin ordenamiento (por si falta el índice)
-                if (error.code === 'failed-precondition' || error.message.includes('index')) {
-                    try {
-                        console.log("Intentando carga sin ordenamiento...");
-                        const snapshot = await db.collection("stories")
-                            .where("userId", "==", userId)
-                            .get();
-
-                        renderStories(snapshot, grid);
-
-                        // Avisar discretamente
-                        const warning = document.createElement('div');
-                        warning.style = "grid-column: 1/-1; text-align: center; color: #f59e0b; font-size: 0.8rem; margin-top: 1rem;";
-                        warning.innerText = "Nota: Los cuentos pueden no estar ordenados por fecha (Falta índice en Firebase).";
-                        grid.appendChild(warning);
-                        return;
-                    } catch (retryError) {
-                        console.error("Fallo también el reintento:", retryError);
-                    }
+                // Si hay error (posiblemente offline), intentar cargar del cache
+                const cached = localStorage.getItem(`cached_stories_${userId}`);
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    renderStories(data, grid, true); // true indica modo offline
+                    return;
                 }
 
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
@@ -607,10 +705,47 @@
             }
         }
 
-        function renderStories(snapshot, grid) {
+        async function loadBadges(userId) {
+            try {
+                const doc = await db.collection("users").doc(userId).get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const badges = userData.badges || [];
+                    
+                    badges.forEach(badgeId => {
+                        const badgeEl = document.getElementById(`badge-${badgeId}`);
+                        if (badgeEl) {
+                            badgeEl.classList.add('active');
+                        }
+                    });
+
+                    // Bonus: Check for explorer badge automatically if not present
+                    if (!badges.includes('explorer')) {
+                        const storiesSnapshot = await db.collection("stories").where("userId", "==", userId).get();
+                        if (storiesSnapshot.size >= 5) {
+                            await db.collection("users").doc(userId).update({
+                                badges: firebase.firestore.FieldValue.arrayUnion('explorer')
+                            });
+                            document.getElementById('badge-explorer').classList.add('active');
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Error cargando medallas:", e);
+            }
+        }
+
+        function renderStories(snapshot, grid, isOffline = false) {
             grid.innerHTML = '';
 
-            if (snapshot.empty) {
+            let items = [];
+            if (isOffline) {
+                items = snapshot;
+            } else {
+                snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+            }
+
+            if (items.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                         <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300" 
@@ -621,29 +756,29 @@
                 return;
             }
 
-            snapshot.forEach(doc => {
-                const story = doc.data();
+            items.forEach(story => {
                 const card = document.createElement('div');
                 card.className = 'story-card';
                 card.onclick = () => {
-                    localStorage.setItem('currentStoryId', doc.id);
+                    localStorage.setItem('currentStoryId', story.id);
                     window.location.href = 'story-reader.html';
                 };
 
-                // Prioridad total para la identidad del cuento: 1. Portada, 2. Protagonista, 3. Lugar, 4. Backup
                 let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1512418490979-92798ccc13b0?auto=format&fit=crop&q=80&w=400';
+                let offlineBadge = isOffline ? `<div class="offline-badge">📡 Guardado</div>` : '';
 
-                    card.innerHTML = `
-                        <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${doc.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
-                        <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${doc.id}')" title="Descargar PDF">📥</button>
-                        <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${doc.id}')" title="Editar">✍️</button>
-                        <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${doc.id}')" title="Imagen">🎨</button>
-                        <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
-                        <div style="padding: 0.1rem;">
-                            <h3 style="margin-bottom: 0.2rem; font-size: 1rem; color: var(--text-main); line-height: 1.2;">${story.title}</h3>
-                            <p style="color: var(--text-muted); font-size: 0.75rem;">${story.character} en ${story.place}</p>
-                        </div>
-                    `;
+                card.innerHTML = `
+                    <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${story.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
+                    <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${story.id}')" title="Descargar PDF">📥</button>
+                    <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${story.id}')" title="Editar">✍️</button>
+                    <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${story.id}')" title="Imagen">🎨</button>
+                    <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
+                    <div style="padding: 0.1rem;">
+                        <h3 style="margin-bottom: 0.2rem; font-size: 1rem; color: var(--text-main); line-height: 1.2;">${story.title}</h3>
+                        <p style="color: var(--text-muted); font-size: 0.75rem;">${story.character} en ${story.place}</p>
+                        ${offlineBadge}
+                    </div>
+                `;
                 grid.appendChild(card);
             });
         }
@@ -709,41 +844,68 @@
                 const pdf = new jsPDF();
                 const margin = 20;
                 const pageWidth = pdf.internal.pageSize.getWidth();
+                let cursorY = 40;
 
-                // Título
+                // 1. Imagen de Portada
+                const imgUrl = story.coverImg || story.characterImg;
+                try {
+                    // Cargar imagen
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = imgUrl;
+                    await new Promise(resolve => img.onload = resolve);
+                    
+                    // Dibujar imagen centrada
+                    const imgSize = 80;
+                    pdf.addImage(img, 'JPEG', (pageWidth - imgSize)/2, cursorY, imgSize, imgSize);
+                    cursorY += imgSize + 20;
+                } catch (imgErr) {
+                    console.warn("No se pudo añadir la imagen al PDF", imgErr);
+                }
+
+                // 2. Título
                 pdf.setFont("helvetica", "bold");
-                pdf.setFontSize(22);
-                pdf.setTextColor(79, 70, 229); // Color Primary
-                pdf.text(story.title, margin, 30);
+                pdf.setFontSize(26);
+                pdf.setTextColor(99, 102, 241); // var(--primary)
+                pdf.text(story.title, pageWidth/2, cursorY, { align: 'center' });
+                cursorY += 15;
 
-                // Info
-                pdf.setFontSize(12);
+                // 3. Info Protas
+                pdf.setFontSize(14);
                 pdf.setFont("helvetica", "italic");
                 pdf.setTextColor(100, 116, 139);
-                pdf.text(`Una aventura de ${story.character} en ${story.place}`, margin, 40);
+                pdf.text(`Una aventura mágica de ${story.character} en ${story.place}`, pageWidth/2, cursorY, { align: 'center' });
+                cursorY += 20;
 
-                // Línea divisoria
-                pdf.setDrawColor(226, 232, 240);
-                pdf.line(margin, 45, pageWidth - margin, 45);
+                // 4. Línea Divisoria
+                pdf.setDrawColor(99, 102, 241);
+                pdf.setLineWidth(0.5);
+                pdf.line(margin, cursorY, pageWidth - margin, cursorY);
+                cursorY += 15;
 
-                // Contenido
+                // 5. Contenido (Nueva página si es necesario)
+                pdf.addPage();
                 pdf.setFont("helvetica", "normal");
-                pdf.setTextColor(51, 65, 85);
+                pdf.setTextColor(30, 41, 59);
                 pdf.setFontSize(14);
-
+                
                 const splitText = pdf.splitTextToSize(story.content, pageWidth - (margin * 2));
-                pdf.text(splitText, margin, 60);
+                pdf.text(splitText, margin, 30);
 
                 // Pie de página
-                pdf.setFontSize(10);
-                pdf.setTextColor(148, 163, 184);
-                pdf.text("Creado con Story Creator Kids ✨", margin, pdf.internal.pageSize.getHeight() - 10);
+                const pageCount = pdf.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(148, 163, 184);
+                    pdf.text("Creado con Story Creator Kids ✨", pageWidth/2, pdf.internal.pageSize.getHeight() - 10, { align: 'center' });
+                }
 
-                pdf.save(`${story.title.replace(/\s+/g, '_')}_Cuento.pdf`);
+                pdf.save(`${story.title.replace(/\s+/g, '_')}_Mágico.pdf`);
 
             } catch (error) {
                 console.error("Error exportando PDF:", error);
-                alert("Hubo un error al generar el PDF mágino.");
+                alert("Hubo un error al generar el PDF mágico.");
             }
         }
 
@@ -1218,6 +1380,20 @@
                 navigator.serviceWorker.register('sw.js');
             });
         }
+
+        // --- MANEJO DE ESTADO ONLINE/OFFLINE ---
+        function updateOnlineStatus() {
+            const banner = document.getElementById('offlineBanner');
+            if (navigator.onLine) {
+                if (banner) banner.style.display = 'none';
+            } else {
+                if (banner) banner.style.display = 'block';
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
     </script>
 </body>
 
