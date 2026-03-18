@@ -44,15 +44,19 @@
 
         @media (max-width: 768px) {
             .creator-container {
-                padding: 1rem;
-                padding-bottom: 6rem;
+                padding: 1.5rem 1rem;
+                padding-bottom: 7rem;
             }
             .options-grid {
-                grid-template-columns: 1fr !important;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
                 gap: 1rem !important;
+            }
+            .option-card {
+                padding: 1rem;
             }
             .creator-header h1 {
                 font-size: 1.5rem;
+                margin-top: 1rem;
             }
         }
 
@@ -136,8 +140,9 @@
         }
 
         .option-card img {
-            width: 140px;
-            height: 140px;
+            width: 100%;
+            max-width: 160px;
+            aspect-ratio: 1 / 1;
             margin-bottom: 1rem;
             border-radius: 1.5rem;
             object-fit: cover;
