@@ -413,7 +413,10 @@
             margin-bottom: 2rem;
             border-bottom: 2px solid rgba(99, 102, 241, 0.1);
             padding-bottom: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
+        .dashboard-tabs::-webkit-scrollbar { display: none; }
 
         .tab-item {
             padding: 0.75rem 1.5rem;
@@ -425,6 +428,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
         }
 
         .tab-item.active {
