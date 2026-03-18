@@ -403,7 +403,6 @@
             justify-content: center;
             border-radius: 50%;
             font-size: 0.8rem;
-            font-size: 0.8rem;
             color: white;
         }
 
@@ -448,6 +447,50 @@
         .action-btn.fav.active {
             background: #f43f5e;
             color: white;
+        }
+
+        /* Estilos para Medallas Restaurados */
+        .badges-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scrollbar-width: none;
+            justify-content: space-around;
+        }
+        .badges-container::-webkit-scrollbar { display: none; }
+
+        .badge-item {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 90px;
+            opacity: 0.3;
+            filter: grayscale(1);
+            transition: all 0.5s ease;
+        }
+
+        .badge-item.active {
+            opacity: 1;
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .badge-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
         }
 
         .badge-item.active .badge-icon {
