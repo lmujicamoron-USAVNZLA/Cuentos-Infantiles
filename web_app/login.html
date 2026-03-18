@@ -158,7 +158,7 @@
                     const user = userCredential.user;
 
                     // 1. Verificar si el email está verificado en Firebase Auth (Bypass para Superusuario)
-                    if (!user.emailVerified && user.email !== 'luisalberto.mm4130@gmail.com') {
+                    if (!user.emailVerified && user.email !== 'luisalberto.mm4130@gmail.com' && user.email !== 'luis.mujicam65@gmail.com') {
                         alert("Por favor, verifica tu correo antes de entrar. Revisa tu bandeja de entrada.");
                         btn.disabled = false;
                         btn.innerHTML = originalContent;
@@ -169,7 +169,7 @@
                         // 2. Verificar en Firestore si el Administrador lo aprobó
                         const userDoc = await firebase.firestore().collection("users").doc(user.uid).get();
 
-                        if (userDoc.exists || user.email === 'luisalberto.mm4130@gmail.com') {
+                        if (userDoc.exists || user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com') {
                             let userData = userDoc.exists ? userDoc.data() : {
                                 username: 'Superusuario',
                                 email: user.email,
@@ -179,7 +179,7 @@
                             };
 
                             // Magia: Si eres Superusuario y no tienes perfil en Firestore, lo creamos ahora mismo
-                            if (!userDoc.exists && user.email === 'luisalberto.mm4130@gmail.com') {
+                            if (!userDoc.exists && (user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com')) {
                                 console.log("🪄 Creando perfil de Superusuario en Firestore...");
                                 await firebase.firestore().collection("users").doc(user.uid).set(userData);
                             }
@@ -191,13 +191,8 @@
                                 });
                             }
 
-                            if (userData.status === 'aprobado' || user.email === 'luisalberto.mm4130@gmail.com') {
-                                // Redirigir al Superusuario directo al Admin
-                                if (user.email === 'luisalberto.mm4130@gmail.com') {
-                                    window.location.href = 'admin.html';
-                                } else {
-                                    window.location.href = 'dashboard.html';
-                                }
+                            if (userData.status === 'aprobado' || user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com') {
+                                window.location.href = 'dashboard.html';
                             } else {
                                 alert("¡Casi listo! Tu cuenta está esperando la aprobación de un Guardián.");
                                 btn.disabled = false;
@@ -209,8 +204,12 @@
                             btn.innerHTML = originalContent;
                         }
                     } catch (err) {
-                        console.error("Error consultando Firestore:", err);
-                        alert("Hubo un problema al verificar tu acceso. Intenta de nuevo.");
+                        console.error("Error detallado Firestore:", err.code, err.message);
+                        if (err.code === 'permission-denied') {
+                            alert("¡Acceso denegado! Las reglas de seguridad de Firebase están bloqueando la lectura. Por favor, revisa las reglas en tu consola de Firebase.");
+                        } else {
+                            alert("Hubo un problema al verificar tu acceso: " + err.message);
+                        }
                         btn.disabled = false;
                         btn.innerHTML = originalContent;
                     }

@@ -65,23 +65,44 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.opacity = '0.7';
         btn.disabled = true;
 
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
+        // --- VERIFICACIÓN DE DUPLICADOS EN FIRESTORE ---
+        db.collection("users").where("email", "==", email).get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    const existingUser = querySnapshot.docs[0].data();
+                    
+                    if (existingUser.status === 'aprobado') {
+                        alert("¡Este correo ya es parte del reino! Por favor, inicia sesión.");
+                        window.location.href = 'login.html';
+                    } else {
+                        alert("¡Casi listo! Ya tenemos una solicitud para este correo y está siendo revisada por un Guardián. Por favor, ten un poco de paciencia ✨");
+                    }
+                    
+                    btn.innerHTML = originalContent;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                    return;
+                }
 
-                // 1. Enviar correo de verificación (AUTOMÁTICO)
-                return user.sendEmailVerification().then(() => {
-                    alert("¡Correo enviado! Revisa tu bandeja de entrada para activar tu cuenta.");
-                    // 2. Guardar datos adicionales en Firestore
-                    return db.collection("users").doc(user.uid).set({
-                        username: username,
-                        email: email,
-                        avatar: imagePreview.src || '',
-                        status: 'pendiente',
-                        emailVerified: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                // Si no existe, procedemos con el registro en Auth
+                return auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+
+                        // 1. Enviar correo de verificación (AUTOMÁTICO)
+                        return user.sendEmailVerification().then(() => {
+                            alert("¡Correo enviado! Revisa tu bandeja de entrada para activar tu cuenta.");
+                            // 2. Guardar datos adicionales en Firestore
+                            return db.collection("users").doc(user.uid).set({
+                                username: username,
+                                email: email,
+                                avatar: imagePreview.src || '',
+                                status: 'pendiente',
+                                emailVerified: false,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
                     });
-                });
             })
             .then(() => {
                 localStorage.setItem('lastUser', username);

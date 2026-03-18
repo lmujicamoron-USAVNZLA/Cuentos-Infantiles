@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Quicksand:wght@400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Quicksand:wght@400;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -19,8 +19,9 @@
     <style>
         body {
             font-family: 'Quicksand', sans-serif;
-            background: #fdf2f8;
+            background: #f8fafc; /* Color más elegante para fondo */
             overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #fdf2f8 0%, #f8fafc 100%);
         }
 
         .reader-container {
@@ -35,15 +36,16 @@
 
         .book-wrapper {
             width: 100%;
-            max-width: 900px;
-            height: 70vh;
-            background: white;
-            border-radius: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            max-width: 950px;
+            height: 75vh;
+            background: #fffcf5; /* Tono papel antiguo suave */
+            border-radius: 1.5rem;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.2), 0 18px 36px -18px rgba(0, 0, 0, 0.2);
             position: relative;
             display: flex;
             overflow: hidden;
-            animation: bookOpen 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: bookOpen 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            border: 8px solid white;
         }
 
         @keyframes bookOpen {
@@ -122,12 +124,20 @@
         }
 
         .story-text {
-            font-size: 1.25rem;
-            line-height: 1.7;
-            color: #334155;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.6rem;
+            line-height: 1.6;
+            color: #2c3e50;
             font-weight: 400;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            opacity: 0;
+            animation: textFadeIn 0.8s forwards 0.5s;
+        }
+
+        @keyframes textFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .story-text span {
@@ -401,13 +411,15 @@
         const synth = window.speechSynthesis;
 
         const musicThemes = {
-            fantasy: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24915c26b5.mp3?filename=fantasy-magical-background-music-for-videos-123478.mp3",
+            fantasy: "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3", // Temporal, buscando mejores loops
+            fantasy: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Ejemplo, usaré enlaces más mágicos
             space: "https://cdn.pixabay.com/download/audio/2022/03/23/audio_07b2a04be3.mp3?filename=space-atmospheric-background-106558.mp3",
             adventure: "https://cdn.pixabay.com/download/audio/2022/05/17/audio_383f982b6b.mp3?filename=adventure-cinematic-110826.mp3",
             happy: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-kids-loop-13-13233.mp3",
             forest: "https://cdn.pixabay.com/download/audio/2023/05/08/audio_03d9370642.mp3?filename=nature-forest-birds-150257.mp3",
             mystery: "https://cdn.pixabay.com/download/audio/2022/10/30/audio_5179043c7b.mp3?filename=mysterious-forest-125432.mp3",
-            water: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb6442654c.mp3?filename=underwater-ambience-6201.mp3"
+            ocean: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb6442654c.mp3?filename=underwater-ambience-6201.mp3",
+            medieval: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_73024840d2.mp3?filename=medieval-fantasy-104443.mp3"
         };
 
         // --- SISTEMA DE MÚSICA MÁGICA ---
@@ -586,6 +598,21 @@
             }
             requestAnimationFrame(animateParticles);
         }
+        
+        // --- Generador de Sparkles de Fondo ---
+        function createBackgroundSparkle() {
+            if (particles.length < 50) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const p = new Particle(x, y);
+                p.speedX *= 0.2;
+                p.speedY *= 0.2;
+                p.life = Math.random() * 0.5 + 0.5;
+                particles.push(p);
+            }
+        }
+        setInterval(createBackgroundSparkle, 200);
+
         animateParticles();
 
         let isEnglish = false;
@@ -889,6 +916,13 @@
                 }
             }
         }
+
+        // --- NAVEGACIÓN POR TECLADO (ESC) ---
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.location.href = 'dashboard.html';
+            }
+        });
 
         initReader();
     </script>

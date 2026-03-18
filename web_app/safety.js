@@ -7,15 +7,17 @@ const SAFETY_BLACKLIST = [
     // Sexual content (Spanish)
     'sexo', 'sexual', 'porno', 'pornografía', 'erótico', 'erotica', 'pene', 'vagina', 'teta', 'pecho', 'culo', 'trasero',
     'prostituta', 'puta', 'puto', 'verga', 'pito', 'coito', 'masturbación', 'orgasmo', 'violar', 'violación',
+    'fetiche', 'incesto', 'pedofilia', 'pornografia', 'penis', 'vagina', 'clitoris', 'espermatozoide',
     // Violence / Gore
     'sangre', 'matar', 'muerte', 'asesino', 'suicidio', 'tortura', 'terrorismo', 'bomba', 'armas', 'pistola', 'cuchillo',
+    'escopeta', 'metralleta', 'desmembrar', 'cadáver', 'sangriento', 'masacre', 'guerra',
     // Drugs
-    'droga', 'cocaína', 'heroína', 'marihuana', 'alcohol', 'borracho',
+    'droga', 'cocaína', 'heroína', 'marihuana', 'alcohol', 'borracho', 'anfetamina', 'éxtasis', ' LSD ',
     // Hate speech / Insults
-    'odio', 'racista', 'nazi', 'estúpido', 'idiota', 'imbécil', 'maldito',
-    // English equivalents (just in case)
+    'odio', 'racista', 'nazi', 'estúpido', 'idiota', 'imbécil', 'maldito', 'hijo de puta', 'mierda', 'cabrón',
+    // English equivalents
     'sex', 'porn', 'ebony', 'intercourse', 'vagina', 'penis', 'boobs', 'butt', 'ass', 'murder', 'kill', 'death', 'blood',
-    'drugs', 'cocaine', 'weed', 'stupid', 'idiot'
+    'drugs', 'cocaine', 'weed', 'stupid', 'idiot', 'shit', 'fuck', 'bastard', 'nazi', 'hitler'
 ];
 
 /**
@@ -26,20 +28,20 @@ const SAFETY_BLACKLIST = [
 function validateContent(text) {
     if (!text) return { valid: true, word: null };
     
-    const words = text.toLowerCase().split(/\s+/);
-    for (let word of words) {
-        // Clean word from symbols
-        const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-        if (SAFETY_BLACKLIST.includes(cleanWord)) {
-            return { valid: false, word: cleanWord };
-        }
-    }
-    
-    // Also check for substrings for common bypasses
+    // Normalize text: lowercase and remove some common obfuscation
     const lowerText = text.toLowerCase();
+    const normalizedText = lowerText.replace(/[\s\._\-]/g, ""); // Remove spaces, dots, underscores for substring check
+    
     for (let forbidden of SAFETY_BLACKLIST) {
-        if (lowerText.includes(forbidden)) {
-            return { valid: false, word: forbidden };
+        // 1. Exact or substring match in original text
+        if (lowerText.includes(forbidden.toLowerCase().trim())) {
+            return { valid: false, word: forbidden.trim() };
+        }
+        
+        // 2. Match in normalized text (prevents s e x o, s.e.x.o, etc)
+        const cleanForbidden = forbidden.toLowerCase().trim().replace(/[\s\._\-]/g, "");
+        if (cleanForbidden.length > 2 && normalizedText.includes(cleanForbidden)) {
+            return { valid: false, word: forbidden.trim() };
         }
     }
 
@@ -98,7 +100,13 @@ async function triggerParentalGate() {
         const submit = document.getElementById('gateSubmit');
         const cancel = document.getElementById('gateCancel');
 
+        const onKeyDown = (e) => {
+            if (e.key === 'Escape') handleResult(false);
+        };
+        window.addEventListener('keydown', onKeyDown);
+
         const handleResult = (success) => {
+            window.removeEventListener('keydown', onKeyDown);
             document.body.removeChild(container);
             resolve(success);
         };

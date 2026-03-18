@@ -1001,8 +1001,19 @@
             const loaderText = loader.querySelector('h2');
             const loaderSub = loader.querySelector('p');
 
-            loaderText.innerText = "Consultando a las hadas...";
-            loaderSub.innerText = "Escribiendo una propuesta para tu historia.";
+            const magicMessages = [
+                { t: "Consultando a las hadas...", s: "Escribiendo una propuesta para tu historia." },
+                { t: "Sacudiendo polvo de estrellas...", s: "Añadiendo un toque de magia a los párrafos." },
+                { t: "Buscando tinta de arcoíris...", s: "Dibujando las palabras más hermosas." },
+                { t: "Abriendo el cofre de los sueños...", s: "Tu aventura está casi lista." }
+            ];
+            let msgIndex = 0;
+            const msgInterval = setInterval(() => {
+                msgIndex = (msgIndex + 1) % magicMessages.length;
+                loaderText.innerText = magicMessages[msgIndex].t;
+                loaderSub.innerText = magicMessages[msgIndex].s;
+            }, 3000);
+
             loader.style.display = 'flex';
 
             const character = selections.Personaje;
@@ -1014,11 +1025,9 @@
                 // Backup por si falla la IA
                 let storyContent = `Había una vez un ${character} muy valiente llamado ${selections.Titulo.split(' ')[0] || 'Héroe'}, que vivía en un asombroso lugar: ${place}. Un día, mientras exploraba, descubrió un secreto mágico...`;
 
-                const aiPrompt = `Escribe un cuento infantil muy breve (aprox 80 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. 
-                REGLAS CRÍTICAS DE SEGURIDAD: 
-                - El tono DEBE ser mágico, positivo y 100% apto para niños pequeños.
-                - PROHIBIDO cualquier tema sexual, adulto, violento o inapropiado.
-                - Si el protagonista o lugar parece inapropiado, convierte la historia en una lección amable sobre la amistad y la magia pura.`;
+                const aiPrompt = `Escribe un cuento infantil muy breve (aprox 60-80 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. 
+                REGLAS: Responde ÚNICAMENTE con el cuento. Sin introducciones ni comentarios.
+                SEGURIDAD: Tono mágico y 100% apto para niños. PROHIBIDO contenido adulto, violento o inapropiado.`;
 
                 // Llamada a Pollinations AI (Texto)
                 const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(aiPrompt)}`);
@@ -1028,12 +1037,37 @@
                 }
 
                 textarea.value = storyContent;
+
+                // VALIDACIÓN DE SEGURIDAD POST-GENERACIÓN
+                const safetyResult = validateContent(storyContent);
+                if (!safetyResult.valid) {
+                    console.warn("⚠️ Contenido IA bloqueado por seguridad:", safetyResult.word);
+                    loaderText.innerText = "Recalibrando magia...";
+                    loaderSub.innerText = "Las hadas cometieron un error, estamos reescribiendo tu historia.";
+                    
+                    // Reintentar con un prompt más estricto una vez
+                    const strictPrompt = aiPrompt + " REGLA ABSOLUTA: No menciones nada que pueda interpretarse como '" + safetyResult.word + "'. Mantén el cuento extremadamente infantil y dulce.";
+                    const retryResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(strictPrompt)}`);
+                    if (retryResponse.ok) {
+                        const retryText = await retryResponse.text();
+                        if (validateContent(retryText).valid) {
+                            textarea.value = retryText;
+                        } else {
+                            textarea.value = "Había una vez una aventura mágica llena de flores y estrellas. Todos vivieron muy felices en un mundo de colores. ✨";
+                        }
+                    } else {
+                        textarea.value = "Había una vez una aventura mágica llena de flores y estrellas. Todos vivieron muy felices en un mundo de colores. ✨";
+                    }
+                }
+
+                clearInterval(msgInterval);
                 loader.style.display = 'none';
                 return true;
 
             } catch (error) {
                 console.error("Error Generando:", error);
                 alert("Las hadas están un poco distraídas. Intenta de nuevo.");
+                clearInterval(msgInterval);
                 loader.style.display = 'none';
                 return false;
             }
@@ -1069,6 +1103,7 @@
                     coverImg: coverImg,
                     musicTheme: selections.musicTheme || 'happy',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userEmail: user.email,
                     content: finalContent
                 });
 
@@ -1520,6 +1555,17 @@
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
         updateOnlineStatus();
+
+        // --- NAVEGACIÓN POR TECLADO (ESC) ---
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Si el parental gate está abierto, safety.js se encarga.
+                // Si no, activamos la función de volver atrás de la app.
+                if (!document.getElementById('parentalGate')) {
+                    changeStep(-1);
+                }
+            }
+        });
     </script>
 </body>
 
