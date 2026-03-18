@@ -108,38 +108,165 @@
             border-radius: 50%;
         }
 
-        .offline-banner {
-            display: none;
-            background: #f43f5e;
-            color: white;
-            padding: 0.8rem;
-            text-align: center;
-            font-weight: 600;
-            border-radius: 1rem;
-            margin-bottom: 1.5rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .offline-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            background: rgba(244, 63, 94, 0.1);
-            color: #e11d48;
-            padding: 0.2rem 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.4rem;
-        }
-
-        .story-thumb {
+        /* --- Nuevo Diseño Sidebar Premium --- */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 130px;
-            background: #eee;
-            border-radius: 0.75rem;
-            margin-bottom: 0.5rem;
-            object-fit: cover;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 2100;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        /* Botón de Menú (Hamburguesa) */
+        .menu-toggle {
+            background: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.05);
+            background: #f8fafc;
+        }
+
+        /* Botón de Creación Flotante (FAB) */
+        .fab-create {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+            z-index: 1500;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fab-create:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .fab-label {
+            position: absolute;
+            right: 80px;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .fab-create:hover .fab-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .create-btn-large {
+                display: none !important;
+            }
+            .nav-bar h2 {
+                font-size: 1.2rem !important;
+            }
+            .container {
+                padding-top: 5rem !important;
+            }
         }
 
         .action-btn {
@@ -513,12 +640,49 @@
     </style>
 </head>
 
-<body>
-    <div class="background-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
     </div>
+
+    <!-- Menú Lateral (Sidebar) Premium -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">✨</div>
+            <h2 style="font-size: 1.2rem; color: var(--primary); margin: 0;">Story Creator</h2>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="sidebar-item active" id="side-my-stories" onclick="handleSidebarNav('my-stories')">
+                <span>📖</span> Mis Cuentos
+            </div>
+            <div class="sidebar-item" id="side-favorites" onclick="handleSidebarNav('favorites')">
+                <span>💖</span> Favoritos
+            </div>
+            <div class="sidebar-item" id="side-global" onclick="handleSidebarNav('global')">
+                <span>🌎</span> Biblioteca Global
+            </div>
+            <div class="sidebar-item" onclick="openProfileModal(); toggleSidebar();">
+                <span>👤</span> Mi Perfil
+            </div>
+            
+            <div id="sideAdminItem" style="display: none;">
+                <div class="sidebar-item" onclick="window.location.href='admin.html'" style="color: #8b5cf6;">
+                    <span>⚙️</span> Modo Admin
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-item" onclick="firebase.auth().signOut()" style="color: #f43f5e; opacity: 0.8;">
+                <span>🚪</span> Cerrar Sesión
+            </div>
+        </div>
+    </aside>
+
+    <!-- Botón Flotante de Creación (FAB) -->
+    <button class="fab-create" onclick="window.location.href='create-story.html'">
+        ✨
+        <span class="fab-label">Crear Nueva Historia</span>
+    </button>
 
     <!-- Modal de Confirmación -->
     <!-- Modal de Confirmación Eliminación -->
@@ -619,31 +783,22 @@
             📡 Modo Offline Activado - Estás viendo tus cuentos guardados
         </div>
         <nav class="nav-bar">
-            <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem;">Story Creator Kids</h2>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <button id="adminToggle" onclick="window.location.href='admin.html'" 
-                    style="display: none; background: #8b5cf6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);">
-                    ⚙️ Modo Admin
-                </button>
-                <div class="user-profile">
-                    <span id="displayUserName">Cargando...</span>
-                    <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
-                        onclick="firebase.auth().signOut()" style="cursor: pointer;" title="Cerrar sesión">
-                </div>
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids</h2>
+            </div>
+            
+            <div class="user-profile" style="background: white; border: 1px solid #e2e8f0;">
+                <span id="displayUserName" style="font-weight: 600;">Cargando...</span>
+                <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
+                    onclick="openProfileModal()" style="cursor: pointer; border: 2px solid var(--primary);">
             </div>
         </nav>
 
-        <button class="create-btn-large" onclick="window.location.href='create-story.html'">
-            ✨ Crear nueva historia mágica
-        </button>
+        <!-- El botón de creación ahora es un FAB (Flotante) o está en el Sidebar -->
+        <!-- Las pestañas ahora están integradas en el Sidebar para mayor limpieza -->
 
-        <div class="dashboard-tabs">
-            <div class="tab-item active" onclick="switchDashboardTab('my-stories', this)">📖 Mis Cuentos</div>
-            <div class="tab-item" onclick="switchDashboardTab('favorites', this)">💖 Favoritos</div>
-            <div class="tab-item" onclick="switchDashboardTab('global', this)">🌎 Biblioteca Global</div>
-        </div>
-
-        <div id="badgesSection" style="margin-top: 2rem;">
+        <div id="badgesSection" style="margin-top: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                 <h3 style="font-size: 1.1rem; color: var(--primary);">Mis Medallas Mágicas</h3>
                 <button onclick="openProfileModal()" style="background: white; border: 1px solid #e2e8f0; padding: 0.4rem 0.8rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--text-main);">👤 Mi Perfil</button>
@@ -673,21 +828,7 @@
         </div>
     </main>
 
-    <!-- Barra de Navegación Móvil -->
-    <nav class="mobile-nav">
-        <a href="dashboard.html" class="mobile-nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span>Inicio</span>
-        </a>
-        <a href="create-story.html" class="mobile-nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
-            <span>Crear</span>
-        </a>
-        <a href="#" onclick="firebase.auth().signOut()" class="mobile-nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-            <span>Salir</span>
-        </a>
-    </nav>
+    <!-- Navegación Móvil eliminada -->
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -727,8 +868,8 @@
             if (user) {
                 // Check if superuser
                 if (user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com') {
-                    const adminBtn = document.getElementById('adminToggle');
-                    if (adminBtn) adminBtn.style.display = 'block';
+                    const sideAdmin = document.getElementById('sideAdminItem');
+                    if (sideAdmin) sideAdmin.style.display = 'block';
                 }
                 // 1. Obtener Nombre para mostrar
                 const name = user.displayName || user.email.split('@')[0];
@@ -798,12 +939,20 @@
                 </div>`;
             }
         }
-        async function switchDashboardTab(tab, element) {
+        async function switchDashboardTab(tab, element = null) {
             currentStoriesTab = tab;
             
-            // UI feedback
-            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+            // UI feedback para pestañas (si existen) y sidebar
+            if (element) {
+                document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+            }
+            
+            // También actualizar sidebar si no se hizo desde ahí
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => item.classList.remove('active'));
+            const sideItem = document.getElementById(`side-${tab}`);
+            if (sideItem) sideItem.classList.add('active');
             
             const user = firebase.auth().currentUser;
             if (!user) return;
@@ -1659,12 +1808,39 @@
         window.addEventListener('offline', updateOnlineStatus);
         updateOnlineStatus();
 
+        // --- LÓGICA SIDEBAR PREMIUM ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function handleSidebarNav(tab) {
+            // Reutilizamos la función existente de cambio de pestañas
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => item.classList.remove('active'));
+            
+            const activeItem = document.getElementById(`side-${tab}`);
+            if (activeItem) activeItem.classList.add('active');
+
+            // Ejecutar el cambio de pestaña real (la función switchDashboardTab ya existe)
+            switchDashboardTab(tab);
+            
+            // Cerrar el menú en móvil tras navegar
+            toggleSidebar();
+        }
+
         // --- NAVEGACIÓN POR TECLADO (ESC) ---
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const imageModal = document.getElementById('imageModal');
+                const sidebar = document.getElementById('sidebar');
                 if (imageModal && imageModal.classList.contains('active')) {
                     closeImageModal();
+                }
+                if (sidebar && sidebar.classList.contains('active')) {
+                    toggleSidebar();
                 }
             }
         });
