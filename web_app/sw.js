@@ -1,4 +1,4 @@
-const CACHE_NAME = 'story-creator-kids-v2';
+const CACHE_NAME = 'story-creator-kids-v3';
 const ASSETS = [
     './',
     'index.html',

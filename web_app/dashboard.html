@@ -102,10 +102,70 @@
             font-size: 0.9rem;
         }
 
-        .user-profile img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        /* --- Modo Luna (Dark Mode) --- */
+        body.dark-mode {
+            --bg-main: #0f172a;
+            --text-main: #f1f5f9;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #818cf8;
+            background: var(--bg-main);
+        }
+
+        body.dark-mode .sidebar {
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            border-right-color: rgba(255,255,255,0.1);
+        }
+
+        body.dark-mode .sidebar-item {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .sidebar-header h2 {
+            color: var(--primary) !important;
+        }
+
+        body.dark-mode .nav-bar h2 {
+            color: var(--primary) !important;
+        }
+
+        body.dark-mode .user-profile {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+            color: white;
+        }
+
+        body.dark-mode .story-card {
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        body.dark-mode .story-card:hover {
+            background: rgba(51, 65, 85, 0.9);
+        }
+
+        body.dark-mode .action-btn {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #f1f5f9 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        body.dark-mode .action-btn:hover {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .action-btn.share {
+            color: #22c55e;
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
         }
 
         /* --- Nuevo Diseño Sidebar Premium --- */
@@ -145,9 +205,27 @@
             border-right: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .sidebar.active {
-            left: 0;
+        /* Switch Styles */
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 44px;
+          height: 24px;
         }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+          position: absolute; cursor: pointer;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: #cbd5e1;
+          transition: .4s; border-radius: 24px;
+        }
+        .slider:before {
+          position: absolute; content: "";
+          height: 18px; width: 18px; left: 3px; bottom: 3px;
+          background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #6366f1; }
+        input:checked + .slider:before { transform: translateX(20px); }
 
         .sidebar-header {
             display: flex;
@@ -222,23 +300,23 @@
             background: #f8fafc;
         }
 
-        /* Botón de Creación Flotante (FAB) */
+        /* Botón de Creación Flotante (FAB) Estilizado */
         .fab-create {
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            width: 65px;
-            height: 65px;
+            width: 54px;
+            height: 54px;
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             border: none;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
             z-index: 1500;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -249,7 +327,7 @@
 
         .fab-label {
             position: absolute;
-            right: 80px;
+            right: 65px;
             background: white;
             padding: 0.5rem 1rem;
             border-radius: 1rem;
@@ -282,9 +360,8 @@
         }
 
         .action-btn {
-            position: absolute;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             border: none;
             display: flex;
@@ -292,41 +369,59 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: rgba(255, 255, 255, 0.9);
-            font-size: 0.85rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            font-size: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             z-index: 10;
+            opacity: 0.85;
         }
 
         .action-btn:hover {
-            transform: scale(1.15);
-            background: var(--primary);
+            transform: scale(1.15) translateY(-2px);
+            background: rgba(255, 255, 255, 1);
             color: white;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            opacity: 1;
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 0.4rem;
+            z-index: 10;
+            pointer-events: none;
+            max-width: calc(100% - 1.2rem);
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .card-actions button {
+            pointer-events: auto;
         }
 
         .action-btn.delete {
-            top: 0.5rem;
-            right: 0.5rem;
             color: #ef4444;
         }
 
         .action-btn.export {
-            top: 0.5rem;
-            right: 2.5rem;
             color: var(--primary);
         }
 
         .action-btn.edit {
-            top: 0.5rem;
-            right: 4.5rem;
             color: #f59e0b;
         }
 
         .action-btn.image {
-            top: 0.5rem;
-            right: 6.5rem;
             color: #10b981;
+        }
+
+        .action-btn.fav {
+            color: #f43f5e;
         }
 
         .action-btn.delete:hover,
@@ -357,7 +452,7 @@
             align-items: flex-start;
             /* Evita que se corten los botones */
             justify-content: center;
-            z-index: 1000;
+            z-index: 3000;
             animation: fadeIn 0.3s ease;
             overflow-y: auto;
             padding: 5vh 0;
@@ -583,12 +678,6 @@
             color: var(--primary);
         }
 
-        .action-btn.fav {
-            top: 0.5rem;
-            right: 8.5rem;
-            color: #f43f5e;
-        }
-        
         .action-btn.fav.active {
             background: #f43f5e;
             color: white;
@@ -657,10 +746,20 @@
     <!-- Menú Lateral (Sidebar) Premium -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">✨</div>
-            <h2 style="font-size: 1.2rem; color: var(--primary); margin: 0;">Story Creator</h2>
-        </div>
+            <div class="sidebar-header">
+                <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">✨</div>
+                <h2 style="font-size: 1.2rem; color: var(--primary); margin: 0;">Story Creator</h2>
+            </div>
+
+            <div class="theme-switch" style="margin: 1.5rem 0; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem; background: rgba(99, 102, 241, 0.05); border-radius: 1.2rem; border: 1px solid rgba(99, 102, 241, 0.1);">
+                <div style="display: flex; align-items: center; gap: 0.8rem; font-weight: 700; font-size: 0.95rem; color: var(--primary);">
+                    <span id="theme-icon">☀️</span> <span id="theme-label">Modo Día</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="darkModeToggle" onclick="toggleDarkMode()">
+                    <span class="slider round"></span>
+                </label>
+            </div>
 
         <div class="sidebar-menu">
             <div class="sidebar-item active" id="side-my-stories" onclick="handleSidebarNav('my-stories')">
@@ -800,10 +899,10 @@
                 <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids</h2>
             </div>
             
-            <div class="user-profile" style="background: white; border: 1px solid #e2e8f0;">
+            <div class="user-profile" style="background: white; border: 1px solid #e2e8f0; max-width: fit-content;">
                 <span id="displayUserName" style="font-weight: 600;">Cargando...</span>
                 <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
-                    onclick="openProfileModal()" style="cursor: pointer; border: 2px solid var(--primary);">
+                    onclick="openProfileModal()" style="cursor: pointer; border: 2px solid var(--primary); width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
             </div>
         </nav>
 
@@ -1146,20 +1245,30 @@
                 let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1512418490979-92798ccc13b0?auto=format&fit=crop&q=80&w=400';
                 let offlineBadge = isOffline ? `<div class="offline-badge">📡 Guardado</div>` : '';
                 
-                // Botones de acción (Solo para mis cuentos)
+                // Botones de acción agrupados
                 let actionBtns = '';
                 if (!isGlobal) {
                     actionBtns = `
-                        <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${story.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
-                        <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${story.id}')" title="Descargar PDF">📥</button>
-                        <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${story.id}')" title="Editar">✍️</button>
-                        <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${story.id}')" title="Imagen">🎨</button>
+                        <div class="card-actions">
+                            <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${story.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
+                            <button class="action-btn share" onclick="event.stopPropagation(); shareStory('${story.title.replace(/'/g, "\\'")}', '${story.id}')" title="Compartir">🔗</button>
+                            <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${story.id}')" title="Descargar PDF">📥</button>
+                            <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${story.id}')" title="Editar">✍️</button>
+                            <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${story.id}')" title="Imagen">🎨</button>
+                            <button class="action-btn fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${story.id}', ${isFav})" title="Favorito">${isFav ? '❤️' : '🤍'}</button>
+                        </div>
+                    `;
+                } else {
+                    // Si es global, solo mostramos el botón de favorito
+                    actionBtns = `
+                        <div class="card-actions">
+                            <button class="action-btn fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${story.id}', ${isFav})" title="Favorito">${isFav ? '❤️' : '🤍'}</button>
+                        </div>
                     `;
                 }
 
                 card.innerHTML = `
                     ${actionBtns}
-                    <button class="action-btn fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${story.id}', ${isFav})" title="Favorito">${isFav ? '❤️' : '🤍'}</button>
                     <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
                     <div style="padding: 0.1rem;">
                         <h3 style="margin-bottom: 0.2rem; font-size: 1rem; color: var(--text-main); line-height: 1.2;">${story.title}</h3>
@@ -1782,11 +1891,10 @@
             } catch (error) {
                 console.error("Error actualizando imagen:", error);
                 alert("Hubo un error al actualizar la imagen: " + error.message);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
             }
         }
     </script>
+
     <script>
         // Rastreo de Instalación PWA
         window.addEventListener('appinstalled', () => {
@@ -1802,17 +1910,72 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
+                navigator.serviceWorker.register('sw.js').catch(err => console.log("SW registration failed:", err));
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // --- LÓGICA MODO LUNA ---
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            updateThemeUI(isDark);
+            
+            if (isDark) {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#818cf8', '#c084fc', '#e2e8f0']
+                });
+            }
+        }
+
+        function updateThemeUI(isDark) {
+            const label = document.getElementById('theme-label');
+            const icon = document.getElementById('theme-icon');
+            const checkbox = document.getElementById('darkModeToggle');
+            
+            if (isDark) {
+                if (label) label.innerText = "Modo Luna";
+                if (icon) icon.innerText = "🌙";
+                if (checkbox) checkbox.checked = true;
+            } else {
+                if (label) label.innerText = "Modo Día";
+                if (icon) icon.innerText = "☀️";
+                if (checkbox) checkbox.checked = false;
+            }
+        }
+
+        // Cargar preferencia al inicio
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // --- COMPARTIR CUENTO ---
+        function shareStory(title, id) {
+            const text = `¡Mira el cuento que creamos: "${title}"! ✨\nLéelo aquí: https://cuentos-infantiles-2026.web.app/story-reader.html?id=${id}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // 🎉 CELEBRACIÓN
+        function celebrate() {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.7 },
+                colors: ['#6366f1', '#a855f7', '#ec4899']
             });
         }
 
         // --- MANEJO DE ESTADO ONLINE/OFFLINE ---
         function updateOnlineStatus() {
             const banner = document.getElementById('offlineBanner');
-            if (navigator.onLine) {
-                if (banner) banner.style.display = 'none';
-            } else {
-                if (banner) banner.style.display = 'block';
+            if (banner) {
+                banner.style.display = navigator.onLine ? 'none' : 'block';
             }
         }
 
@@ -1824,22 +1987,23 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+            if (sidebar) sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+            
+            // Actualizar UI del Switch al abrir
+            updateThemeUI(document.body.classList.contains('dark-mode'));
         }
 
         function handleSidebarNav(tab) {
-            // Reutilizamos la función existente de cambio de pestañas
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             sidebarItems.forEach(item => item.classList.remove('active'));
             
             const activeItem = document.getElementById(`side-${tab}`);
             if (activeItem) activeItem.classList.add('active');
 
-            // Ejecutar el cambio de pestaña real (la función switchDashboardTab ya existe)
-            switchDashboardTab(tab);
-            
-            // Cerrar el menú en móvil tras navegar
+            if (typeof switchDashboardTab === 'function') {
+                switchDashboardTab(tab);
+            }
             toggleSidebar();
         }
 
@@ -1848,15 +2012,10 @@
             if (e.key === 'Escape') {
                 const imageModal = document.getElementById('imageModal');
                 const sidebar = document.getElementById('sidebar');
-                if (imageModal && imageModal.classList.contains('active')) {
-                    closeImageModal();
-                }
-                if (sidebar && sidebar.classList.contains('active')) {
-                    toggleSidebar();
-                }
+                if (imageModal && imageModal.classList.contains('active')) closeImageModal();
+                if (sidebar && sidebar.classList.contains('active')) toggleSidebar();
             }
         });
     </script>
 </body>
-
 </html>

@@ -124,11 +124,11 @@
         }
 
         .story-text {
-            font-family: 'Crimson Pro', serif;
-            font-size: 1.6rem;
-            line-height: 1.6;
-            color: #2c3e50;
-            font-weight: 400;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.4rem;
+            line-height: 1.7;
+            color: #334155;
+            font-weight: 500;
             word-wrap: break-word;
             overflow-wrap: break-word;
             opacity: 0;
@@ -157,10 +157,11 @@
 
         .story-title-page {
             font-family: 'Outfit', sans-serif;
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 600;
             color: var(--primary);
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.02em;
         }
 
         .navigation-controls {
@@ -192,27 +193,79 @@
         }
 
         .nav-btn-circle:disabled {
-            background: #e2e8f0;
+            background: #f1f5f9;
+            color: #94a3b8;
             cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Botones de Control Superiores (Glassmorphism) */
+        .top-control-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #334155;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-control-btn:hover {
+            transform: translateY(-2px);
+            background: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .top-control-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .top-control-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .top-control-btn.active-speaker {
+            background: #ec4899;
+            color: white;
+            box-shadow: 0 6px 15px rgba(236, 72, 153, 0.4);
         }
 
         .close-reader {
             position: absolute;
             top: 2rem;
             left: 2rem;
-            padding: 0.8rem 1.5rem;
-            border-radius: 1rem;
-            background: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             text-decoration: none;
-            color: var(--text-main);
+            color: #334155;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            gap: 0.6rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             z-index: 100;
             cursor: pointer;
-            border: 1px solid #eee;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .close-reader:hover {
+            background: white;
+            transform: translateX(-5px);
         }
 
         @media (max-width: 768px) {
@@ -310,11 +363,10 @@
     <audio id="bgMusic" loop preload="auto"></audio>
     <canvas id="magicCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50;"></canvas>
 
-    <!-- BOTONES DE CONTROL SUPERIOR -->
-    <div style="position: absolute; top: 2rem; right: 2rem; z-index: 100; display: flex; gap: 1rem;">
+    <!-- BOTONES DE CONTROL SUPERIOR ESTILIZADOS -->
+    <div style="position: absolute; top: 2rem; right: 2rem; z-index: 100; display: flex; gap: 0.8rem;">
         <!-- BOTÓN DE MÚSICA -->
-        <button class="nav-btn-circle" id="musicBtn" onclick="toggleMusic()" title="Música Mágica"
-            style="background: #10b981;">
+        <button class="top-control-btn" id="musicBtn" onclick="toggleMusic()" title="Música Mágica" style="color: #10b981;">
             <svg id="musicIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 18V5l12-2v13" />
@@ -323,8 +375,8 @@
             </svg>
         </button>
         <!-- BOTÓN DE NARRACIÓN (TTS) -->
-        <button class="nav-btn-circle" id="speakBtn" onclick="toggleSpeech()" title="Escuchar cuento">
-            <svg id="speakerIcon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+        <button class="top-control-btn" id="speakBtn" onclick="toggleSpeech()" title="Escuchar cuento" style="color: #6366f1;">
+            <svg id="speakerIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
@@ -332,13 +384,11 @@
             </svg>
         </button>
         <!-- TRADUCTOR MÁGICO -->
-        <button class="nav-btn-circle" id="langBtn" onclick="toggleLanguage()" title="Traductor Mágico"
-            style="background: #8b5cf6;">
-            <span id="langText" style="font-weight: 800; font-size: 0.9rem;">EN</span>
+        <button class="top-control-btn" id="langBtn" onclick="toggleLanguage()" title="Traductor Mágico" style="color: #8b5cf6;">
+            <span id="langText" style="font-weight: 800; font-size: 0.8rem;">EN</span>
         </button>
         <!-- BOTÓN DE COLOREAR -->
-        <button class="nav-btn-circle" id="colorBtn" onclick="toggleColoringMode()" title="Modo Colorear"
-            style="background: #f59e0b;">
+        <button class="top-control-btn" id="colorBtn" onclick="toggleColoringMode()" title="Modo Colorear" style="color: #f59e0b;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 19l7-7 3 3-7 7-3-3z" />
@@ -348,8 +398,7 @@
             </svg>
         </button>
         <!-- BOTÓN DE REPORTE -->
-        <button class="nav-btn-circle" id="reportBtn" onclick="reportContent()" title="Reportar contenido inapropiado"
-            style="background: #f43f5e;">
+        <button class="top-control-btn" id="reportBtn" onclick="reportContent()" title="Reportar contenido inapropiado" style="color: #f43f5e;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
@@ -357,8 +406,7 @@
             </svg>
         </button>
         <!-- BOTÓN DE PDF (LIBRO REAL) -->
-        <button class="nav-btn-circle" id="pdfBtn" onclick="generateStoryPDF()" title="Descargar Libro Real (PDF)"
-            style="background: #0ea5e9;">
+        <button class="top-control-btn" id="pdfBtn" onclick="generateStoryPDF()" title="Descargar Libro Real (PDF)" style="color: #0ea5e9;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -534,19 +582,12 @@
             const btn = document.getElementById('speakBtn');
 
             if (active) {
-                btn.style.boxShadow = "0 0 20px rgba(236, 72, 153, 0.6)";
-                btn.style.background = "#ec4899";
+                btn.classList.add('active-speaker');
                 icon.innerHTML = `
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                    <path d="M9 9l-5 5H2v-4h2l5 5z" />
-                    <path d="M11 5v14l-5-5H2v-4h4l5-5z" />
-                `; // Simplificado, mejor usar un icono de "stop" o "mute"
-                icon.innerHTML = `
-                    <rect x="6" y="6" width="12" height="12" fill="currentColor" />
+                    <rect x="6" y="6" width="12" height="12" fill="currentColor" opacity="0.8" />
                 `;
             } else {
-                btn.style.boxShadow = "0 10px 20px rgba(99, 102, 241, 0.3)";
-                btn.style.background = "var(--primary)";
+                btn.classList.remove('active-speaker');
                 icon.innerHTML = `
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
                     <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
@@ -714,7 +755,7 @@
                         isMusicPlaying = true;
                     }).catch(() => {
                         isMusicPlaying = false;
-                        document.getElementById('musicBtn').style.background = '#64748b';
+                        document.getElementById('musicBtn').classList.remove('active');
                     });
 
                     updateUI();
@@ -795,12 +836,14 @@
                 `;
                 nextBtn.onclick = () => window.location.href = 'dashboard.html';
                 nextBtn.style.background = '#ef4444'; // Rojo para salir
+                nextBtn.style.boxShadow = '0 6px 15px rgba(239, 68, 68, 0.4)';
             } else {
                 nextBtn.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 `;
                 nextBtn.onclick = () => changePage(1);
                 nextBtn.style.background = 'var(--primary)';
+                nextBtn.style.boxShadow = '0 10px 20px rgba(99, 102, 241, 0.3)';
             }
         }
 
@@ -846,11 +889,16 @@
         }
 
         async function toggleLanguage() {
+            const storyId = localStorage.getItem('currentStoryId');
+            if (!storyId) return;
+
             if (isEnglish) {
                 isEnglish = false;
-                document.getElementById('langText').innerText = 'EN';
+                const langBtn = document.getElementById('langBtn');
+                const langText = document.getElementById('langText');
+                if (langText) langText.innerText = 'EN';
+                
                 // Restaurar páginas originales (ES) - recargar desde localStorage si es necesario
-                const storyId = new URLSearchParams(window.location.search).get('id');
                 const cachedES = localStorage.getItem(`cached_story_es_${storyId}`);
                 if (cachedES) {
                     storyPages = JSON.parse(cachedES);
@@ -860,57 +908,87 @@
                 }
             } else {
                 const btn = document.getElementById('langBtn');
+                const langText = document.getElementById('langText');
                 const originalContent = btn.innerHTML;
                 
-                // Guardar ES antes de traducir
-                const storyId = new URLSearchParams(window.location.search).get('id');
-                localStorage.setItem(`cached_story_es_${storyId}`, JSON.stringify(storyPages));
+                // Guardar ES antes de traducir si no está guardado
+                if (!localStorage.getItem(`cached_story_es_${storyId}`)) {
+                    localStorage.setItem(`cached_story_es_${storyId}`, JSON.stringify(storyPages));
+                }
 
-                btn.innerHTML = '🪄';
+                if (langText) langText.innerText = '🪄';
                 btn.disabled = true;
 
                 try {
                     if (!englishPages) {
-                        // Traducir dinámicamente usando AI
+                        // Cargar traducción del caché si existe
+                        const cachedEN = localStorage.getItem(`cached_story_en_${storyId}`);
+                        if (cachedEN) {
+                            englishPages = JSON.parse(cachedEN);
+                        }
+                    }
+
+                    if (!englishPages) {
+                        // Traducir dinámicamente usando AI - Simplificado para evitar 502
                         const fullContent = storyPages.filter(p => p.type === 'story').map(p => p.body).join(' ');
-                        const prompt = `Translate this children's story to English. Keep it simple and magical for kids: "${fullContent}"`;
                         
-                        const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                        if (!response.ok) throw new Error("Translation failed");
+                        // Limitamos el prompt para mayor estabilidad
+                        const prompt = `Translate this children's story to English (Keep it magical): "${fullContent}"`;
+                        
+                        // Usamos un timeout y manejo de errores proactivo
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seg timeout
+
+                        const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`, {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
                         const translatedText = await response.text();
                         
-                        // Procesar el cuento en inglés
-                        const sentences = translatedText.replace(/\s+/g, ' ').trim().split(/(?<=[.!?])\s+/);
+                        if (!translatedText || translatedText.length < 10) throw new Error("Translation too short or empty");
+
+                        // Procesar el cuento en inglés (Dividir por oraciones, similar al original)
+                        const sentences = translatedText.replace(/(\r\n|\n|\r)/gm, " ").trim().match(/[^.!?]+[.!?]+/g) || [translatedText];
                         englishPages = [];
-                        for (let i = 0; i < sentences.length; i += 2) {
-                            const combined = sentences.slice(i, i + 2).join(' ');
-                            englishPages.push(combined);
-                        }
+                        let currentChunk = "";
+                        let count = 0;
+                        sentences.forEach((s, idx) => {
+                            currentChunk += s + " ";
+                            count++;
+                            if (count >= 3 || idx === sentences.length - 1) {
+                                englishPages.push(currentChunk.trim());
+                                currentChunk = "";
+                                count = 0;
+                            }
+                        });
                         localStorage.setItem(`cached_story_en_${storyId}`, JSON.stringify(englishPages));
                     }
 
-                    // Aplicar traducción
+                    // Aplicar traducción conservando estructura
                     let storyIdx = 0;
                     storyPages.forEach(p => {
                         if (p.type === 'story' && englishPages[storyIdx]) {
                             p.body = englishPages[storyIdx];
                             storyIdx++;
                         } else if (p.type === 'cover') {
-                            p.title = "A Magic Adventure";
+                            p.title = "A Magic Adventure"; // Podríamos traducir el título real si quisiéramos
                             p.body = "A story created with magic ✨";
                         } else if (p.type === 'end') {
-                            p.body = "The End of the Adventure!";
+                            p.title = "The End";
+                            p.body = "The adventure was wonderful! Ready for another?";
                         }
                     });
 
                     isEnglish = true;
-                    document.getElementById('langText').innerText = 'ES';
+                    if (langText) langText.innerText = 'ES';
                     updateUI();
                 } catch (err) {
                     console.error(err);
                     alert("¡Ops! Las hadas están cansadas. Intenta más tarde.");
                 } finally {
-                    btn.innerHTML = isEnglish ? '<span style="font-weight: 800; font-size: 0.9rem;">ES</span>' : originalContent;
+                    if (langText && !isEnglish) langText.innerText = 'EN';
                     btn.disabled = false;
                 }
             }
@@ -923,13 +1001,11 @@
             if (isMusicPlaying) {
                 music.pause();
                 isMusicPlaying = false;
-                btn.style.background = '#64748b';
-                btn.style.boxShadow = 'none';
+                btn.classList.remove('active');
             } else {
                 music.play().then(() => {
                     isMusicPlaying = true;
-                    btn.style.background = '#10b981';
-                    btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+                    btn.classList.add('active');
                 }).catch(e => {
                     console.log("Error playing music:", e);
                     alert("⚠️ Pulsa cualquier parte de la pantalla primero para activar la música.");
@@ -991,10 +1067,10 @@
             
             if (img.classList.contains('coloring-mode')) {
                 img.classList.remove('coloring-mode');
-                btn.style.boxShadow = "0 10px 20px rgba(99, 102, 241, 0.3)";
+                btn.classList.remove('active');
             } else {
                 img.classList.add('coloring-mode');
-                btn.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.6)";
+                btn.classList.add('active');
                 
                 if (confirm("✨ ¡Modo Dibujo activado! ¿Quieres imprimir esta imagen para colorearla a mano?")) {
                     window.print();
