@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Story Creator Kids</title>
+    <title>Dashboard (v5) - Story Creator Kids</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
@@ -203,6 +203,10 @@
             flex-direction: column;
             padding: 2rem 1.5rem;
             border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar.active {
+            left: 0;
         }
 
         /* Switch Styles */
@@ -838,13 +842,13 @@
                 <input type="text" id="gallerySearch"
                     placeholder="Busca lo que imagines (ej. superman, robot, playa)..."
                     onkeyup="if(event.key === 'Enter') filterGallery()" oninput="liveGallerySearch()"
-                    style="flex: 1; border: none; background: transparent; padding: 0.5rem 1rem; outline: none; font-size: 1rem;">
+                    style="flex: 1; border: 3px solid #94a3b8 !important; background: transparent; padding: 0.5rem 1rem; outline: none; font-size: 1rem;">
                 <button id="clearGallerySearch" onclick="clearGallerySearch()"
                     style="background: #cbd5e1; border: none; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; font-size: 0.8rem; margin-right: 0.5rem;">✕</button>
                 <button onclick="filterGallery()"
                     style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0.6rem 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨
-                    Magia</button>
+                    Magia (v11)</button>
             </div>
 
             <div class="image-gallery-grid" id="galleryGrid" style="margin-top: 1.5rem; min-height: 200px;">
@@ -896,7 +900,7 @@
         <nav class="nav-bar">
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids</h2>
+                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids <span style="background: #e2e8f0; color: #1e293b; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 1px solid #94a3b8; margin-left: 5px;">V11 PLATINUM</span></h2>
             </div>
             
             <div class="user-profile" style="background: white; border: 1px solid #e2e8f0; max-width: fit-content;">
@@ -1228,7 +1232,6 @@
                         <p style="color: var(--text-muted);">${msg}</p>
                     </div>
                 `;
-                return;
             }
 
             items.forEach(story => {
@@ -1493,42 +1496,7 @@
         ];
 
         // Biblioteca curada - Iconos de alta calidad
-        const curatedImages = {
-            // Personajes Icónicos - Twemoji (SVG de alta calidad y 100% confiables)
-            'superman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8.svg',
-            'batman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f987.svg',
-            'spiderman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f577.svg',
-            'kaliman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
-            'kalimán': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
-            'disney': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
-            'disneylandia': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
-            'flash': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26a1.svg',
-
-            // Animales Instantáneos (Evitan el avatar humano)
-            'raton': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
-            'ratón': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
-            'gallo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f413.svg',
-            'perro': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f436.svg',
-            'gato': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f431.svg',
-            'lion': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
-            'león': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
-            'tigre': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42f.svg',
-
-            // Otros Curry
-            'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'ironman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8-200d-2642-fe0f.svg',
-            'iron man': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8-200d-2642-fe0f.svg',
-            'hulk': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg',
-            'thor': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f528.svg',
-            'wonder woman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2b50.svg',
-            'princesa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg',
-            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg',
-            'robocop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'robotcop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'parque': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
-            'montaña': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26f0.svg',
-            'castillo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg'
-        };
+        const curatedImages = {};
 
         function openImageModal(storyId) {
             storyToUpdateImage = storyId;
@@ -1580,55 +1548,30 @@
             'sapo': { en: 'frog', cat: 'subject', sub: 'animal' },
             'rana': { en: 'frog', cat: 'subject', sub: 'animal' },
             'sapito': { en: 'cute frog', cat: 'subject', sub: 'animal' },
-            'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject', sub: 'hero' },
-            'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject', sub: 'hero' },
-            'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject', sub: 'hero' },
-            'ironman': { en: 'Ironman superhero in full armored red and gold power suit, Tony Stark, heroic pose, comic style', cat: 'subject', sub: 'hero' },
-            'iron man': { en: 'Ironman superhero in full armored red and gold power suit, Tony Stark, heroic pose, comic style', cat: 'subject', sub: 'hero' },
-            'hulk': { en: 'giant green muscular superhero hulk, smasghing, comic style', cat: 'subject', sub: 'hero' },
-            'thor': { en: 'viking superhero thor with glowing lightning and hammer, comic style', cat: 'subject', sub: 'hero' },
-            'robot': { en: 'friendly shiny metallic robot character with glowing eyes, silver and blue colors', cat: 'subject', sub: 'robot' },
-            'princesa': { en: 'princess', cat: 'subject' },
-            'principe': { en: 'prince', cat: 'subject' },
-            'príncipe': { en: 'prince', cat: 'subject' },
-            'hada': { en: 'fairy', cat: 'subject' },
-            'mago': { en: 'wizard', cat: 'subject' },
-            'pirata': { en: 'pirate', cat: 'subject' },
-            'ninja': { en: 'ninja', cat: 'subject' },
-            'caballero': { en: 'knight', cat: 'subject' },
-            'astronauta': { en: 'astronaut', cat: 'subject' },
-            'robocop': { en: 'robocop robot police officer', cat: 'subject', sub: 'robot' },
-            'robotcop': { en: 'robocop robot police officer', cat: 'subject', sub: 'robot' },
-            'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject', sub: 'hero' },
-            'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject', sub: 'hero' },
-            'wonder woman': { en: 'amazonian superhero wonder woman with lasso and shield', cat: 'subject', sub: 'hero' },
-            'marciano': { en: 'alien martian', cat: 'subject' },
-            'alien': { en: 'alien character', cat: 'subject' },
-            'extraterrestre': { en: 'alien creature', cat: 'subject' },
-            'bombero': { en: 'firefighter', cat: 'subject' },
-            'policia': { en: 'police officer', cat: 'subject' },
-            'policía': { en: 'police officer', cat: 'subject' },
-            // CATEGORÍA: PAISAJES / OBJETOS -> Fallback: LoremFlickr
-            'bosque': { en: 'enchanted forest', cat: 'landscape' },
-            'playa': { en: 'tropical beach', cat: 'landscape' },
-            'mar': { en: 'deep blue sea', cat: 'landscape' },
-            'espacio': { en: 'outer space stars', cat: 'landscape' },
-            'zoologico': { en: 'zoo animals', cat: 'landscape' },
-            'zoo': { en: 'zoo background', cat: 'landscape' },
-            'hospital': { en: 'medical hospital', cat: 'landscape' },
-            'escuela': { en: 'school building', cat: 'landscape' },
-            'colegio': { en: 'school building', cat: 'landscape' },
-            'rusia': { en: 'russia red square', cat: 'landscape' },
-            'china': { en: 'great wall china', cat: 'landscape' },
-            'mexico': { en: 'mexico landscape', cat: 'landscape' },
-            'méxico': { en: 'mexico landscape', cat: 'landscape' },
-            'parque de diversiones': { en: 'amusement park', cat: 'landscape' },
-            'parque de atracciones': { en: 'amusement park', cat: 'landscape' },
-            'parque': { en: 'beautiful park', cat: 'landscape' },
-            'feria': { en: 'carnival fair', cat: 'landscape' },
-            'selva': { en: 'tropical jungle', cat: 'landscape' },
-            'castillo': { en: 'magic castle', cat: 'landscape' },
-            'ciudad': { en: 'colorful city', cat: 'landscape' },
+            'superman': { en: 'Superman superhero, iconic blue suit and red cape', cat: 'subject', sub: 'hero' },
+            'batman': { en: 'Batman superhero, black tactical suit and cape', cat: 'subject', sub: 'hero' },
+            'spiderman': { en: 'Spiderman superhero, red and blue web suit', cat: 'subject', sub: 'hero' },
+            'ironman': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor', cat: 'subject', sub: 'hero' },
+            'iron man': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor', cat: 'subject', sub: 'hero' },
+            'hulk': { en: 'giant green muscular superhero hulk', cat: 'subject', sub: 'hero' },
+            'thor': { en: 'thor superhero with hammer and lightning', cat: 'subject', sub: 'hero' },
+            'gato con botas': { en: 'Puss in Boots cat, hat, boots and sword', cat: 'subject', sub: 'animal' },
+            'robot': { en: 'friendly high-tech shiny robot', cat: 'subject', sub: 'robot' },
+            'princesa': { en: 'beautiful fairytale princess with elegant dress and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
+            'principe': { en: 'handsome fairytale prince with royal tunic and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
+            'príncipe': { en: 'handsome fairytale prince with royal tunic and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
+            'hada': { en: 'magical glowing fairy with wings and wand, sparkles, cinematic 3D animation', cat: 'subject' },
+            'mago': { en: 'wise old wizard with pointy hat and magical staff, cinematic 3D animation style', cat: 'subject' },
+            'pirata': { en: 'charismatic pirate with hat and eye patch, cinematic 3D animation style', cat: 'subject' },
+            'ninja': { en: 'cool ninja in black outfit, cinematic 3D animation style', cat: 'subject' },
+            'caballero': { en: 'brave knight in shiny silver armor with sword, cinematic 3D animation style', cat: 'subject' },
+            'astronauta': { en: 'brave astronaut in detailed white spacesuit, cinematic 3D animation style', cat: 'subject' },
+            'bosque': { en: 'breathtaking enchanted forest with glowing plants and magical atmosphere, cinematic 3D landscape, unreal engine 5 render', cat: 'landscape' },
+            'playa': { en: 'tropical paradise beach with crystal clear water and golden sand, 3D cinematic lighting', cat: 'landscape' },
+            'mar': { en: 'deep blue ocean with underwater coral reef, cinematic 3D render', cat: 'landscape' },
+            'espacio': { en: 'epic outer space with colorful nebulae and bright stars, cinematic 3D render', cat: 'landscape' },
+            'castillo': { en: 'grand magical fairytale castle on a hill, cinematic 3D animation style, Disney style', cat: 'landscape' },
+            'ciudad': { en: 'colorful futuristic city with flying vehicles, cinematic 3D animation style', cat: 'landscape' },
             'nieve': { en: 'snowy landscape', cat: 'landscape' },
             'volcan': { en: 'erupting volcano', cat: 'landscape' },
             'volcán': { en: 'erupting volcano', cat: 'landscape' },
@@ -1698,8 +1641,21 @@
 
                 const imgElement = item.querySelector('img');
                 imgElement.onerror = () => {
+                    // PLATINUM V11: Smart-Retry (Directo -> Proxy -> Magenta)
+                    if (!imgElement.dataset.retryLevel) imgElement.dataset.retryLevel = '0';
+                    const currentSrc = imgElement.src;
+
+                    if (imgElement.dataset.retryLevel === '0' && currentSrc.includes('pollinations.ai')) {
+                        imgElement.dataset.retryLevel = '1';
+                        imgElement.src = `https://corsproxy.io/?${encodeURIComponent(currentSrc)}`;
+                        console.log('V11 Dashboard: Reintentando con Proxy...');
+                        return;
+                    }
+
+                    // Si falla el proxy o ya se intentó, proceder al fallback normal
+
                     const query = img.tags || 'magic';
-                    const cleanQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |la |mi |un |el )+/, '').trim();
+                    const cleanQuery = query.toLowerCase().replace(/^(en |de |un |una |la |el |al |de |los |las )+/, '').trim();
 
                     // Prioridad de Fallback: 1. Curated (SOLO PARA LA PRIMERA POSICIÓN) -> 2. AI Dictionary -> 3. Generic
                     if (curatedImages[cleanQuery] && index === 0) {
@@ -1727,11 +1683,18 @@
                                     const bgColor = colors[index % colors.length];
                                     imgElement.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${uniqueSeed}&backgroundColor=${bgColor}`;
                                 }
-                            } else if (subcategory === 'hero' || subcategory === 'tech-hero' || cleanQuery.match(/niño|niña|hijo|hija|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/) || (entry && category === 'subject' && subcategory !== 'animal')) {
+                            } else if (cleanQuery.includes('superman') || cleanQuery.includes('batman') || cleanQuery.includes('spiderman') || cleanQuery.includes('ironman') || cleanQuery.includes('iron man') || cleanQuery.includes('hulk') || cleanQuery.includes('thor') || subcategory === 'hero') {
                                 // Si es un humano/héroe (incluyendo Ironman), usar estilo Aventurero
                                 const skinColors = ['f2d3b1', 'ecad80', 'd1a3a4', '825c44'];
                                 const skin = skinColors[index % skinColors.length];
-                                imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ffd5dc&skinColor=${skin}`;
+                                // PRUEBA VISUAL: Color MAGENTA (ff00ff) para confirmar que estamos en el FALLBACK V6
+                                imgElement.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=ff00ff&skinColor=${skin}`;
+                                
+                                // DIAGNÓSTICO VISUAL sobre la imagen
+                                const errorBadge = document.createElement('div');
+                                errorBadge.innerText = "¡IA ERROR!";
+                                errorBadge.style.cssText = "position: absolute; top: 0; left: 0; background: red; color: white; padding: 2px 5px; font-size: 0.6rem; font-weight: bold; z-index: 100;";
+                                imgElement.parentElement.appendChild(errorBadge);
                             } else {
                                 // Default neutral para otros sujetos desconocidos (Magia/Destellos)
                                 imgElement.src = `https://api.dicebear.com/7.x/initials/svg?seed=${uniqueSeed}&backgroundColor=c084fc&fontSize=40&chars=✨`;
@@ -1789,8 +1752,8 @@
             }
 
             const typeKeywords = currentCategory === 'landscape'
-                ? "stunning digital 2D illustration, fairytale children's book style, whimsical and magical, no people, no real photos"
-                : "hyper-detailed 2D cartoon illustration, storybook style, vibrant colors, clean lines, white background, no real photos";
+                ? "epic 3D cinematic landscape, fairytale, unreal engine render, masterpiece, high quality"
+                : "high-quality 3D Disney Pixar movie style character, cinematic lighting, 8k resolution, white background, masterpiece";
 
             const aiResults = [];
 
@@ -1803,9 +1766,11 @@
             for (let i = aiResults.length; i < 8; i++) {
                 const seed = Math.floor(Math.random() * 999999);
                 const variationIndex = i + 1;
-                const cacheBust = Date.now();
+                // PLATINUM: Directo Primero
+                let safe = translated.replace(/ironman|iron man/gi, 'super hero red armor').replace(/spiderman|spider man/gi, 'hero red blue').replace(/batman/gi, 'hero black bat');
+                let raw = `https://pollinations.ai/p/${encodeURIComponent('3D Pixar style of ' + safe + ' variation ' + variationIndex)}?width=512&height=512&seed=${seed}`;
                 aiResults.push({
-                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(translated + ' variation ' + variationIndex + ', ' + typeKeywords)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`,
+                    url: raw,
                     tags: query
                 });
             }

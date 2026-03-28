@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creador de Historias - Story Creator Kids</title>
+    <title>Creador de Historias (v5) - Story Creator Kids</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
@@ -339,8 +339,8 @@
         <!-- Paso 1: Personaje -->
         <div class="step active" id="step1">
             <h2
-                style="margin-bottom: 0.5rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">
-                Elige a tu protagonista</h2>
+                style="margin-bottom: 0.5rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, #06b6d4 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">
+                Elige a tu protagonista <span style="background: black !important; color: cyan !important; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 2px solid cyan !important; margin-left: 5px; box-shadow: 0 0 10px cyan;">V13 ULTIMATE</span></h2>
             <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">¿Quién vivirá esta gran
                 aventura?</p>
 
@@ -356,7 +356,7 @@
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                         <input type="text" id="characterSearch" class="search-input"
-                            style="border: none; background: transparent; box-shadow: none; padding-right: 3rem;"
+                            style="border: 3px solid #06b6d4 !important; background: transparent; box-shadow: 0 0 15px rgba(6,182,212,0.3); padding-right: 3rem;"
                             placeholder="Ej: Un gato valiente, un robot..."
                             onkeyup="if(event.key === 'Enter') searchMagicCharacter()"
                             oninput="filterCharacters(); toggleClearBtn('characterSearch')">
@@ -365,7 +365,7 @@
                     </div>
                     <button id="searchCharBtn" type="button" class="btn-action"
                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                        onclick="searchMagicCharacter()">✨ Magia</button>
+                        onclick="searchMagicCharacter()">✨ Magia (v13)</button>
 
                     <div id="magicLoader"
                         style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
@@ -398,7 +398,7 @@
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                         <input type="text" id="placeSearch" class="search-input"
-                            style="border: none; background: transparent; box-shadow: none; padding-right: 3rem;"
+                            style="border: 3px solid red !important; background: transparent; box-shadow: none; padding-right: 3rem;"
                             placeholder="Ej: El espacio, un castillo..."
                             onkeyup="if(event.key === 'Enter') searchMagicPlace()"
                             oninput="filterPlaces(); toggleClearBtn('placeSearch')">
@@ -407,7 +407,7 @@
                     </div>
                     <button type="button" class="btn-action place-magic-btn"
                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                        onclick="searchMagicPlace()">✨ Magia</button>
+                        onclick="searchMagicPlace()">✨ Magia (v5)</button>
 
                     <div id="placeMagicLoader"
                         style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
@@ -576,7 +576,7 @@
             card.innerHTML = `
                 <div style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden; margin: 0 auto 1rem; background: #fdf2f8; border: 4px solid white; box-shadow: 0 8px 20px rgba(99,102,241,0.15); position: relative; display: flex; align-items: center; justify-content: center;">
                     <div class="img-loader-text" style="position: absolute; font-size: 1.2rem; font-weight: bold; color: #8b5cf6; z-index: 1; animation: pulse 1s infinite; text-align: center; width: 80%;">Buscando Magia...</div>
-                    <img src="${url}" alt="${name}" 
+                    <img src="${url}" alt="${name}"
                          style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; display: block; transition: opacity 0.8s ease-in-out;" 
                          onload="this.previousElementSibling.style.display='none'; this.style.opacity='1'; selections['${type}Img'] = this.src;"
                          onerror="handleImageError(this, '${name}', '${type}', ${index})">
@@ -589,10 +589,22 @@
         // --- SISTEMA DE ERRORES INTELIGENTE ---
         function handleImageError(img, name, type, index) {
             console.log("Magic Fallback for:", name);
-            const cleanName = name.toLowerCase().replace(/^(un |una |el |la |mi |un |el )+/, '').trim();
+            if (!img.dataset.tried) img.dataset.tried = "";
+            
+            // PRIORIDAD 0: Reintento con la misma URL (una vez)
+            if (index === 0 && !img.dataset.retried) {
+                img.dataset.retried = "true";
+                setTimeout(() => {
+                    img.src = img.src + "&retry=" + Date.now();
+                }, 2000);
+                return;
+            }
 
-            // PRIORIDAD 1: Curated Library (Exact Match) - Solo para el borrador principal (index 0)
-            if (curatedImages[cleanName] && index === 0) {
+            const cleanName = name.toLowerCase().replace(/^(un |una |el |la |mi |un |el |al |de |los |las )+/, '').trim();
+
+            // PRIORIDAD 1: Curated Library (solo si no se ha intentado ya)
+            if (curatedImages[cleanName] && index === 0 && !img.dataset.tried.includes("curated")) {
+                img.dataset.tried += "curated,";
                 img.src = curatedImages[cleanName];
                 return;
             }
@@ -603,33 +615,33 @@
             const subcategory = entry ? entry[1].sub : '';
 
             if (category === 'landscape' || subcategory === 'animal') {
-                // EVITAR LOREMFLICKR (Causa de los gatos aleatorios)
-                // Si la IA falla, usamos un estilo artístico de aventura neutro pero seguro
                 const unique_seed = encodeURIComponent(cleanName) + "_" + Math.floor(Math.random() * 9999);
-                img.src = `https://api.dicebear.com/7.x/initials/svg?seed=${unique_seed}&backgroundColor=c084fc&fontSize=40&chars=✨`;
-                console.log("Fallback: Usando fondo mágico para evitar imágenes erróneas.");
+                img.src = `https://api.dicebear.com/7.x/initials/svg?seed=${unique_seed}&backgroundColor=c084fc&fontSize=40&chars=A`;
             } else {
-                // EVITAR HUMANOS PARA ROBOTS: Seed único por índice
-                const unique_seed = encodeURIComponent(cleanName) + "_" + index + "_" + Math.floor(Math.random() * 1000);
+                // ULTIMATE V13: The Weserv Bridge
+                const currentSrc = img.src;
+                if (!img.dataset.retryLevel) img.dataset.retryLevel = '0';
+                
+                if (img.dataset.retryLevel === '0' && currentSrc.includes('pollinations.ai') && !img.dataset.tried.includes("weserv")) {
+                    img.dataset.retryLevel = '1';
+                    img.dataset.tried += "weserv,";
+                    img.src = `https://images.weserv.nl/?url=${encodeURIComponent(currentSrc.replace('https://', ''))}&fallback=https://api.dicebear.com/7.x/initials/svg?seed=error`;
+                    return;
+                }
 
-                // Lógica de fallback diferenciada para evitar confusión
-                if (cleanName.includes('robot') || subcategory === 'robot') {
-                    // Los robots usan estilos puramente mecánicos (Robohash o Bottts coloreado)
-                    if (index % 2 === 0) {
-                        img.src = `https://robohash.org/${unique_seed}?set=set1&bgset=bg1`;
-                    } else {
-                        const colors = ['c084fc', '38bdf8', 'fbbf24', 'f87171'];
-                        const bgColor = colors[index % colors.length];
-                        img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${unique_seed}&backgroundColor=${bgColor}`;
-                    }
-                } else if (subcategory === 'hero' || subcategory === 'tech-hero' || cleanName.match(/niño|niña|hijo|hija|héroe|heroe|principe|princesa|caballero|hada|mago|bruja|pirata|ninja|astronauta|superman|batman|spiderman|kaliman|ironman|hulk/) || (entry && category === 'subject' && subcategory !== 'animal')) {
-                    // Si es un humano/héroe (incluyendo Ironman), usar estilo Aventurero
+                const unique_seed = encodeURIComponent(cleanName) + "_" + index + "_" + Math.floor(Math.random() * 1000);
+                if ((cleanName.includes('robot') || subcategory === 'robot') && !img.dataset.tried.includes("robot")) {
+                    img.dataset.tried += "robot,";
+                    if (index % 2 === 0) img.src = `https://robohash.org/${unique_seed}?set=set1&bgset=bg1`;
+                    else img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${unique_seed}&backgroundColor=fbbf24`;
+                } else if ((subcategory === 'hero' || subcategory === 'tech-hero' || cleanName.match(/niño|niña|héroe|spiderman|ironman|batman/)) && !img.dataset.tried.includes("hero")) {
+                    img.dataset.tried += "hero,";
                     const skinColors = ['f2d3b1', 'ecad80', 'd1a3a4', '825c44'];
-                    const skin = skinColors[index % skinColors.length];
-                    img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${unique_seed}&backgroundColor=ffd5dc&skinColor=${skin}`;
+                    img.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${unique_seed}&backgroundColor=c084fc&skinColor=${skinColors[index % 4]}`;
+                    img.parentElement.style.background = '#c084fc';
                 } else {
-                    // Default neutral para otros sujetos desconocidos (Magia/Destellos)
-                    img.src = `https://api.dicebear.com/7.x/initials/svg?seed=${unique_seed}&backgroundColor=c084fc&fontSize=40&chars=✨`;
+                    // Final fallback: Initials
+                    img.src = `https://api.dicebear.com/7.x/initials/svg?seed=${unique_seed}&backgroundColor=c084fc&fontSize=40&chars=✨`.replace('✨', 'M');
                 }
             }
         }
@@ -668,70 +680,30 @@
             'sapo': { en: 'frog', cat: 'subject' },
             'rana': { en: 'frog', cat: 'subject' },
             'sapito': { en: 'cute frog', cat: 'subject' },
-            'hormiga': { en: 'tiny ant', cat: 'subject', sub: 'animal' },
-            'abeja': { en: 'busy bumblebee', cat: 'subject', sub: 'animal' },
-            'mariposa': { en: 'colorful butterfly', cat: 'subject', sub: 'animal' },
-            'araña': { en: 'friendly spider', cat: 'subject', sub: 'animal' },
-            'arana': { en: 'friendly spider', cat: 'subject', sub: 'animal' },
-            'pinguino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
-            'pingüino': { en: 'cute penguin', cat: 'subject', sub: 'animal' },
-            'delfin': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
-            'delfín': { en: 'happy dolphin', cat: 'subject', sub: 'animal' },
-            'dinosaurio': { en: 'dinosaur', cat: 'subject', sub: 'animal' },
-            'dragon': { en: 'dragon', cat: 'subject', sub: 'animal' },
-            'dragón': { en: 'dragon', cat: 'subject', sub: 'animal' },
-            'superman': { en: 'classic superhero with red cape and blue suit flying, comic book style', cat: 'subject', sub: 'hero' },
-            'batman': { en: 'superhero batman in black suit with cape, dark comic style', cat: 'subject', sub: 'hero' },
-            'spiderman': { en: 'superhero spiderman in red and blue suit, comic book style', cat: 'subject', sub: 'hero' },
-            'ironman': { en: 'Ironman superhero in full armored red and gold power suit, Tony Stark, heroic pose, comic style', cat: 'subject', sub: 'hero' },
-            'iron man': { en: 'Ironman superhero in full armored red and gold power suit, Tony Stark, heroic pose, comic style', cat: 'subject', sub: 'hero' },
-            'hulk': { en: 'giant green muscular superhero hulk, smashing, comic style', cat: 'subject', sub: 'hero' },
-            'thor': { en: 'viking superhero thor with hammer and glowing lightning, comic style', cat: 'subject', sub: 'hero' },
-            'wonder woman': { en: 'amazonian superhero wonder woman with lasso and shield', cat: 'subject', sub: 'hero' },
-            'robot': { en: 'friendly shiny metallic robot character with glowing eyes, silver and blue colors', cat: 'subject', sub: 'robot' },
-            'princesa': { en: 'princess', cat: 'subject' },
-            'principe': { en: 'prince', cat: 'subject' },
-            'príncipe': { en: 'prince', cat: 'subject' },
-            'hada': { en: 'fairy', cat: 'subject' },
-            'mago': { en: 'wizard', cat: 'subject' },
-            'pirata': { en: 'pirate', cat: 'subject' },
-            'ninja': { en: 'ninja', cat: 'subject' },
-            'caballero': { en: 'knight', cat: 'subject' },
-            'astronauta': { en: 'astronaut', cat: 'subject' },
-            'robocop': { en: 'robocop robot police officer', cat: 'subject', sub: 'robot' },
-            'robotcop': { en: 'robocop robot police officer', cat: 'subject', sub: 'robot' },
-            'capitán américa': { en: 'superhero Captain America with blue suit and star shield, comic style', cat: 'subject', sub: 'hero' },
-            'kaliman': { en: 'muscular hero with white turban, blue cape, and blue eyes, comic book style', cat: 'subject', sub: 'hero' },
-            'marciano': { en: 'alien martian', cat: 'subject' },
-            'alien': { en: 'alien character', cat: 'subject' },
-            'extraterrestre': { en: 'alien creature', cat: 'subject' },
-            'bombero': { en: 'firefighter', cat: 'subject' },
-            'policia': { en: 'police officer', cat: 'subject' },
-            'policía': { en: 'police officer', cat: 'subject' },
-            // CATEGORÍA: PAISAJES / OBJETOS -> Fallback: LoremFlickr
-            'bosque': { en: 'enchanted forest', cat: 'landscape' },
-            'playa': { en: 'tropical beach', cat: 'landscape' },
-            'mar': { en: 'deep blue sea', cat: 'landscape' },
-            'espacio': { en: 'outer space stars', cat: 'landscape' },
-            'zoologico': { en: 'zoo animals', cat: 'landscape' },
-            'zoo': { en: 'zoo background', cat: 'landscape' },
-            'hospital': { en: 'medical hospital', cat: 'landscape' },
-            'escuela': { en: 'school building', cat: 'landscape' },
-            'colegio': { en: 'school building', cat: 'landscape' },
-            'rusia': { en: 'russia red square', cat: 'landscape' },
-            'china': { en: 'great wall china', cat: 'landscape' },
-            'mexico': { en: 'mexico landscape', cat: 'landscape' },
-            'méxico': { en: 'mexico landscape', cat: 'landscape' },
-            'parque de diversiones': { en: 'amusement park', cat: 'landscape' },
-            'parque de atracciones': { en: 'amusement park', cat: 'landscape' },
-            'parque': { en: 'beautiful park', cat: 'landscape' },
-            'feria': { en: 'carnival fair', cat: 'landscape' },
-            'selva': { en: 'tropical jungle', cat: 'landscape' },
-            'castillo': { en: 'fairytale magic castle with many towers', cat: 'landscape' },
-            'palacio': { en: 'majestic royal palace', cat: 'landscape' },
-            'casa': { en: 'cozy little cottage house', cat: 'landscape' },
-            'cabaña': { en: 'wooden cabin in the forest', cat: 'landscape' },
-            'ciudad': { en: 'colorful whimsical city', cat: 'landscape' },
+            'superman': { en: 'Superman superhero, iconic blue suit and red cape', cat: 'subject', sub: 'hero' },
+            'batman': { en: 'Batman superhero, black tactical suit and cape', cat: 'subject', sub: 'hero' },
+            'spiderman': { en: 'Spiderman superhero, red and blue web suit', cat: 'subject', sub: 'hero' },
+            'ironman': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor', cat: 'subject', sub: 'hero' },
+            'iron man': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor', cat: 'subject', sub: 'hero' },
+            'hulk': { en: 'giant green muscular superhero hulk', cat: 'subject', sub: 'hero' },
+            'thor': { en: 'thor superhero with hammer and lightning', cat: 'subject', sub: 'hero' },
+            'gato con botas': { en: 'Puss in Boots cat, hat, boots and sword', cat: 'subject', sub: 'animal' },
+            'robot': { en: 'friendly high-tech shiny robot', cat: 'subject', sub: 'robot' },
+            'princesa': { en: 'beautiful fairytale princess with elegant dress and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
+            'principe': { en: 'handsome fairytale prince with royal tunic and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
+            'príncipe': { en: 'handsome fairytale prince with royal tunic and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
+            'hada': { en: 'magical glowing fairy with wings and wand, sparkles, cinematic 3D animation', cat: 'subject' },
+            'mago': { en: 'wise old wizard with pointy hat and magical staff, cinematic 3D animation style', cat: 'subject' },
+            'pirata': { en: 'charismatic pirate with hat and eye patch, cinematic 3D animation style', cat: 'subject' },
+            'ninja': { en: 'cool ninja in black outfit, cinematic 3D animation style', cat: 'subject' },
+            'caballero': { en: 'brave knight in shiny silver armor with sword, cinematic 3D animation style', cat: 'subject' },
+            'astronauta': { en: 'brave astronaut in detailed white spacesuit, cinematic 3D animation style', cat: 'subject' },
+            'bosque': { en: 'breathtaking enchanted forest with glowing plants and magical atmosphere, cinematic 3D landscape, unreal engine 5 render', cat: 'landscape' },
+            'playa': { en: 'tropical paradise beach with crystal clear water and golden sand, 3D cinematic lighting', cat: 'landscape' },
+            'mar': { en: 'deep blue ocean with underwater coral reef, cinematic 3D render', cat: 'landscape' },
+            'espacio': { en: 'epic outer space with colorful nebulae and bright stars, cinematic 3D render', cat: 'landscape' },
+            'castillo': { en: 'grand magical fairytale castle on a hill, cinematic 3D animation style, Disney style', cat: 'landscape' },
+            'ciudad': { en: 'colorful futuristic city with flying vehicles, cinematic 3D animation style', cat: 'landscape' },
             'nieve': { en: 'snowy landscape', cat: 'landscape' },
             'volcan': { en: 'erupting volcano', cat: 'landscape' },
             'volcán': { en: 'erupting volcano', cat: 'landscape' },
@@ -769,6 +741,28 @@
             'luna': { en: 'moon surface with craters', cat: 'landscape' },
             'estrella': { en: 'bright shining star in space', cat: 'landscape' }
         };
+
+        const modifierDictionary = {
+            'rojo': 'red', 'azul': 'blue', 'verde': 'green', 'amarillo': 'yellow',
+            'blanco': 'white', 'negro': 'black', 'rosa': 'pink', 'morado': 'purple',
+            'naranja': 'orange', 'gris': 'gray', 'marrón': 'brown', 'cafe': 'brown',
+            'café': 'brown', 'grande': 'large', 'gigante': 'giant', 'pequeño': 'small',
+            'diminuto': 'tiny', 'valiente': 'brave', 'feliz': 'happy', 'triste': 'sad',
+            'enojado': 'angry', 'furioso': 'furious', 'lindo': 'cute', 'tierno': 'cute',
+            'hermoso': 'beautiful', 'feo': 'ugly', 'fuerte': 'strong', 'rapido': 'fast',
+            'rápido': 'fast', 'lento': 'slow', 'volador': 'flying', 'fuego': 'fire',
+            'hielo': 'ice', 'agua': 'water', 'tierra': 'earth', 'luz': 'light', 'oscuro': 'dark',
+            'magico': 'magical', 'mágico': 'magical'
+        };
+
+        function generateMagicSeed(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
 
 
         window.onload = function () {
@@ -1078,6 +1072,16 @@
             }
         }
 
+        function sanitizeText(text) {
+            if (!text) return "";
+            // Eliminar asteriscos de negrita/itálica, almohadillas de títulos y otros símbolos de MD comunes
+            return text.replace(/\*\*+/g, '')  // Eliminar ** (negrita)
+                       .replace(/#+/g, '')    // Eliminar # (títulos)
+                       .replace(/__+/g, '')   // Eliminar __ (itálica)
+                       .replace(/`+/g, '')    // Eliminar backticks
+                       .trim();
+        }
+
         // --- GUARDADO FINAL (Aprobación) ---
         async function saveFinalStory() {
             const user = firebase.auth().currentUser;
@@ -1092,7 +1096,10 @@
             loader.querySelector('p').innerText = "Sellando el libro con magia eterna.";
             loader.style.display = 'flex';
 
-            const finalContent = document.getElementById('storyPreview').value;
+            // Sanear contenido antes de guardar
+            const rawContent = document.getElementById('storyPreview').value;
+            const finalContent = sanitizeText(rawContent);
+            const finalTitle = sanitizeText(selections.Titulo);
 
             try {
                 // Usar la imagen elegida del protagonista como portada por defecto para que coincida con la tarjeta
@@ -1100,7 +1107,7 @@
 
                 await db.collection("stories").add({
                     userId: user.uid,
-                    title: selections.Titulo,
+                    title: finalTitle,
                     character: selections.Personaje,
                     place: selections.Lugar,
                     characterImg: selections.PersonajeImg,
@@ -1169,62 +1176,14 @@
 
         // Biblioteca curada - Emojis SVG de alta calidad (Twemoji)
         const curatedImages = {
-            'superman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8.svg',
-            'batman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f987.svg',
-            'spiderman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f577.svg',
-            'ironman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'iron man': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'hulk': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg',
-            'thor': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f528.svg',
-            'wonder woman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2b50.svg',
-            'kaliman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
-            'kalimán': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f473-200d-2642-fe0f.svg',
-            'disney': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
-            'disneylandia': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
-            'flash': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26a1.svg',
-            'ironman': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8-200d-2642-fe0f.svg',
-            'iron man': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9b8-200d-2642-fe0f.svg',
-            'raton': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
-            'ratón': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42d.svg',
-            'gallo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f413.svg',
-            'perro': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f436.svg',
-            'gato': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f431.svg',
-            'lion': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
-            'león': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f981.svg',
-            'tigre': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f42f.svg',
-            'robot': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'princesa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg',
-            'hada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg',
-            'robocop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            'robotcop': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f916.svg',
-            // ESCENARIOS CURADOS (Precisión 100%)
-            'castillo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3f0.svg',
-            'bosque': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f332.svg',
-            'playa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3dd.svg',
-            'espacio': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f680.svg',
-            'selva': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f334.svg',
-            'nieve': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2744.svg',
-            'jupiter': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30c.svg',
-            'júpiter': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30c.svg',
-            'marte': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg',
-            'luna': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg',
-            'sol': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg',
-            'planeta': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f310.svg',
-            'parque': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
-            'escuela': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3eb.svg',
-            'hospital': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3e5.svg',
-            'zoologico': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f992.svg',
-            'zoo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f992.svg',
-            'feria': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3a1.svg',
-            'ciudad': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3d9.svg',
-            'montaña': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/26f0.svg',
-            'montañas': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3d4.svg',
-            'campo': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33e.svg',
-            'rio': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
-            'río': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3de.svg',
-            'casa': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3e0.svg',
-            'cascada': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30a.svg',
-            'isla': 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3dd.svg'
+            'ironman': 'https://image.pollinations.ai/prompt/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux',
+            'iron man': 'https://image.pollinations.ai/prompt/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux',
+            'spiderman': 'https://image.pollinations.ai/prompt/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux',
+            'spider man': 'https://image.pollinations.ai/prompt/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux',
+            'batman': 'https://image.pollinations.ai/prompt/Batman%20superhero%20dark%20black%20cape%20and%20mask%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=13&nologo=true&model=flux',
+            'hulk': 'https://image.pollinations.ai/prompt/Hulk%20giant%20green%20muscular%20superhero%20raging%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=22&nologo=true&model=flux',
+            'superman': 'https://image.pollinations.ai/prompt/Superman%20superhero%20blue%20red%20cape%20S%20logo%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=5&nologo=true&model=flux',
+            'thor': 'https://image.pollinations.ai/prompt/Thor%20Norse%20god%20superhero%20with%20hammer%20and%20lightning%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=15&nologo=true&model=flux'
         };
 
         async function searchMagicCharacter(isLive = false) {
@@ -1261,7 +1220,7 @@
                 });
 
                 let magicUrl;
-                if (curatedKey) {
+                if (curatedKey) { // Usar imagen curada si existe para mayor velocidad y precisión
                     magicUrl = curatedImages[curatedKey];
                 } else {
                     // Limpieza de query: Quitar preposiciones y símbolos (igual que en lugares)
@@ -1276,24 +1235,36 @@
                         if (regex.test(translatedQuery)) {
                             translatedQuery = translatedQuery.replace(regex, masterDictionary[key].en);
                             currentCategory = masterDictionary[key].cat;
-                            // Removemos el break para permitir múltiples traducciones en la misma frase
+                        }
+                    }
+                    
+                    // Traducción de adjetivos y colores
+                    const sortedModKeys = Object.keys(modifierDictionary).sort((a, b) => b.length - a.length);
+                    for (let modKey of sortedModKeys) {
+                        const regex = new RegExp(`\\b${modKey}\\b`, 'gi');
+                        if (regex.test(translatedQuery)) {
+                            translatedQuery = translatedQuery.replace(regex, modifierDictionary[modKey]);
                         }
                     }
 
                     // Prompt Engineering especializado por categoría
                     let qualityKeywords;
                     if (currentCategory === 'landscape') {
-                        qualityKeywords = "stunning 2D fairytale illustration, whimsical storybook background, magical environment, vibrant watercolors and digital art style, empty landscape, no characters, no people, no real life photos, artistic drawing, very high quality, sharp focus on the architecture";
+                        qualityKeywords = "epic 3D cinematic landscape, fairytale, unreal engine render, masterpiece, high quality";
                     } else {
-                        // Promts para personajes: Sujeto al principio + estilo 2D limpio
-                        qualityKeywords = "hyper-detailed 2D cartoon illustration, storybook style, vibrant colors, clean lines, white background, no real photos, no shadows, child-friendly, sharp focus, high resolution";
+                        qualityKeywords = "high-quality 3D Disney Pixar movie style character, cinematic lighting, 8k resolution, white background, masterpiece";
                     }
 
-                    const seed = Math.floor(Math.random() * 1000000);
-                    const cacheBust = Date.now();
+                    // Semilla basada en el nombre para consistencia de personaje
+                    const seed = generateMagicSeed(cleanedQuery);
                     // IMPORTANTE: Colocar el nombre traducido AL PRINCIPIO para máxima precisión de la IA
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedQuery + ', ' + qualityKeywords + ', 2D art')}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
+                    let safeQuery = translatedQuery.replace(/ironman|iron man/gi, 'super hero with red and gold armor').replace(/spiderman|spider man/gi, 'hero with red and blue suit').replace(/batman/gi, 'hero with black bat suit');
+                    
+                    // CORRECCIÓN V14: Prompt mejorado con URL correcta de Pollinations
+                    const finalPrompt = `${safeQuery}, 3D character portrait, Disney Pixar animation style, vibrant colors, soft cinematic lighting, white background, highly detailed, 8K quality, friendly expression, professional illustration, NO TEXT, NO WATERMARKS, NO LOGOS`;
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
                 }
+
 
                 // BLINDAJE: Guardar URL inmediatamente para evitar guardados vacíos
                 selections.PersonajeImg = magicUrl;
@@ -1304,6 +1275,15 @@
                     draftCard.id = 'charDraftCard';
                     draftCard.style.border = '2px solid #8b5cf6'; // Borde mágico
                     grid.prepend(draftCard);
+                    
+                    // Añadir protección de timeout
+                    setTimeout(() => {
+                        const newImg = draftCard.querySelector('img');
+                        if (newImg && newImg.style.opacity === '0') {
+                            console.warn("Timeout on character image, falling back");
+                            handleImageError(newImg, name, 'Personaje', 0);
+                        }
+                    }, 10000);
                 } else {
                     draftCard.style.border = '2px solid #8b5cf6';
                     draftCard.querySelector('h3').innerText = name;
@@ -1326,7 +1306,13 @@
                         img.src = magicUrl;
                         // Actualizar los atributos para handleImageError
                         img.alt = name;
-                        // Forzar el index a 0 para el draft card
+                        // Añadir protección de timeout
+                        setTimeout(() => {
+                            if (img.style.opacity === '0') {
+                                console.warn("Timeout on character image, falling back");
+                                handleImageError(img, name, 'Personaje', 0);
+                            }
+                        }, 10000);
                     }, 50);
                 }
 
@@ -1397,8 +1383,8 @@
                 if (curatedKey) {
                     magicUrl = curatedImages[curatedKey];
                 } else {
-                    // PROMPT ULTRA-PRECISO: Sujeto al principio + estilo 2D artístico
-                    const style = "stunning digital 2D illustration, fairytale children's book style, whimsical and magical, vibrant colors, clean sharp lines, no people, no real photos, high quality, panoramic view";
+                    // PROMPT ULTRA-PRECISO: Sujeto al principio + estilo 3D Cinemático
+                    const style = "epic 3D cinematic landscape, unreal engine 5 render, fairytale children's movie style, whimsical and magical, high definition, volumetric lighting, masterpiece, no people";
 
                     let translatedPlace = cleanedQuery;
                     let currentCategory = 'landscape';
@@ -1413,8 +1399,9 @@
                     }
 
                     const seed = Math.floor(Math.random() * 999999);
-                    const cacheBust = Date.now();
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPlace + ' scenario, ' + style)}?width=512&height=512&nologo=true&seed=${seed}&v=${cacheBust}`;
+                    // CORRECCIÓN V14: URL correcta de Pollinations + prompt cinematográfico mejorado
+                    const placePrompt = `Epic 3D Pixar Disney cinematic landscape of ${translatedPlace}, magical fairytale atmosphere, volumetric golden lighting, dreamlike, ultra-detailed, professional render, masterpiece, NO PEOPLE, NO TEXT`;
+                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(placePrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
                 }
 
                 // BLINDAJE: Guardar URL inmediatamente
@@ -1572,6 +1559,11 @@
             }
         });
     </script>
+    <script src="create-story.js"></script>
+    <script src="firebase.js"></script>
+</body>
+</html>
+
 </body>
 
 </html>

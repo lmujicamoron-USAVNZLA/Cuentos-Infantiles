@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Creator Kids - Cuentos Mágicos con IA</title>
+    <title>Story Creator Kids (v13) - Cuentos Mágicos con IA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
@@ -124,7 +124,7 @@
 
     <main class="hero-section">
         <span class="feature-tag">✨ Inteligencia Artificial Mágica</span>
-        <h1 class="hero-title">Crea Historias Mágicas en Segundos</h1>
+        <h1 class="hero-title">Crea Historias Mágicas en Segundos <span style="background: black !important; color: cyan !important; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 2px solid cyan !important; vertical-align: middle; box-shadow: 0 0 10px cyan;">V13 ULTIMATE</span></h1>
         <p class="hero-description">
             Deja volar la imaginación de tus hijos con cuentos personalizados,
             ilustraciones automáticas y narración por voz. ¡Cada cuento es una nueva aventura!
@@ -142,10 +142,27 @@
         </div>
     </main>
     <script>
+        // nuclear_reset_v11: Limpiar caché y desregistrar SW antiguo para forzar la v11
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister().then(() => console.log('SW desregistrado para limpieza 🧹'));
+                }
+            });
+        }
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                for (let name of names) {
+                    caches.delete(name).then(() => console.log('Caché borrada:', name));
+                }
+            });
+            console.log('🧹 Limpieza nuclear de caché v13 completada');
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrado ✨'))
+                    .then(reg => console.log('Nuevo Service Worker v13 registrado ✨'))
                     .catch(err => console.log('Error registro SW', err));
             });
         }

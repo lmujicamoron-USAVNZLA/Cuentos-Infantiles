@@ -596,6 +596,16 @@
             }
         }
 
+        // --- SISTEMA DE LIMPIEZA DE TEXTO (Markdown strip) ---
+        function sanitizeText(text) {
+            if (!text) return "";
+            return text.replace(/\*\*+/g, '')  // Eliminar **
+                       .replace(/#+/g, '')    // Eliminar #
+                       .replace(/__+/g, '')   // Eliminar __
+                       .replace(/`+/g, '')    // Eliminar backticks
+                       .trim();
+        }
+
         // --- SISTEMA DE PARTÍCULAS MÁGICAS ---
         const canvas = document.getElementById('magicCanvas');
         const ctx = canvas.getContext('2d');
@@ -674,19 +684,28 @@
             if (!storyId) { window.location.href = 'dashboard.html'; return; }
 
             try {
-                // 🛠️ MODO OFFLINE FIRST: Intentar cargar del cache primero
-                const cached = localStorage.getItem(`cached_story_${storyId}`);
+                // 🛠️ MODO NETWORK-FIRST: Intentar cargar de la DB si hay internet
                 let data = null;
 
-                if (cached) {
-                    data = JSON.parse(cached);
-                    console.log("📖 Cuento cargado desde el cofre mágico (Offline)");
-                } else {
-                    const doc = await db.collection("stories").doc(storyId).get();
-                    if (doc.exists) {
-                        data = doc.data();
-                        // Guardar para lectura offline posterior
-                        localStorage.setItem(`cached_story_${storyId}`, JSON.stringify(data));
+                if (navigator.onLine) {
+                    try {
+                        const doc = await db.collection("stories").doc(storyId).get();
+                        if (doc.exists) {
+                            data = doc.data();
+                            // Actualizar cache para uso offline posterior
+                            localStorage.setItem(`cached_story_${storyId}`, JSON.stringify(data));
+                            console.log("🔄 Cuento sincronizado con la biblioteca real");
+                        }
+                    } catch (netErr) {
+                        console.warn("⚠️ Error de red, cayendo en el cache mágico:", netErr);
+                    }
+                }
+
+                if (!data) {
+                    const cached = localStorage.getItem(`cached_story_${storyId}`);
+                    if (cached) {
+                        data = JSON.parse(cached);
+                        console.log("📖 Cuento cargado desde el cofre mágico (Offline)");
                     }
                 }
 
@@ -702,14 +721,14 @@
                     // 1. PORTADA MÁGICA
                     storyPages.push({
                         type: 'cover',
-                        title: data.title,
-                        body: `Una historia sobre un ${data.character} en ${data.place}`,
+                        title: sanitizeText(data.title),
+                        body: sanitizeText(`Una historia sobre un ${data.character} en ${data.place}`),
                         img: data.coverImg || charImg  // Usar imagen del protagonista en portada
                     });
 
                     // 2. CUERPO DEL CUENTO (Dividir por puntos pero agrupar)
-                    // Limpiamos el texto de saltos de línea raros
-                    let cleanContent = data.content.replace(/(\r\n|\n|\r)/gm, " ");
+                    // Limpiamos el texto de saltos de línea raros y Markdown
+                    let cleanContent = sanitizeText(data.content.replace(/(\r\n|\n|\r)/gm, " "));
 
                     // Dividimos por oraciones completas
                     let sentences = cleanContent.match(/[^.!?]+[.!?]+/g) || [cleanContent];
@@ -888,6 +907,35 @@
             }
         }
 
+        async function translateText(text, target) {
+            try {
+                // Intento 1: Pollinations (Magical context)
+                const prompt = `Translate this children's story to English (Keep it magical): "${text}"`;
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); 
+
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error("Pollinations Down");
+                const translated = await response.text();
+                if (!translated || translated.length < 10) throw new Error("Short response");
+                return translated;
+            } catch (e) {
+                console.warn("Pollinations failed, using fallback magic:", e);
+                // Intento 2: Google Translate Fallback (Reliable)
+                try {
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(text)}`);
+                    const data = await res.json();
+                    return data[0].map(s => s[0]).join('');
+                } catch (err) {
+                    throw new Error("All magic exhausted");
+                }
+            }
+        }
+
         async function toggleLanguage() {
             const storyId = localStorage.getItem('currentStoryId');
             if (!storyId) return;
@@ -898,7 +946,6 @@
                 const langText = document.getElementById('langText');
                 if (langText) langText.innerText = 'EN';
                 
-                // Restaurar páginas originales (ES) - recargar desde localStorage si es necesario
                 const cachedES = localStorage.getItem(`cached_story_es_${storyId}`);
                 if (cachedES) {
                     storyPages = JSON.parse(cachedES);
@@ -909,9 +956,7 @@
             } else {
                 const btn = document.getElementById('langBtn');
                 const langText = document.getElementById('langText');
-                const originalContent = btn.innerHTML;
                 
-                // Guardar ES antes de traducir si no está guardado
                 if (!localStorage.getItem(`cached_story_es_${storyId}`)) {
                     localStorage.setItem(`cached_story_es_${storyId}`, JSON.stringify(storyPages));
                 }
@@ -921,7 +966,6 @@
 
                 try {
                     if (!englishPages) {
-                        // Cargar traducción del caché si existe
                         const cachedEN = localStorage.getItem(`cached_story_en_${storyId}`);
                         if (cachedEN) {
                             englishPages = JSON.parse(cachedEN);
@@ -929,27 +973,11 @@
                     }
 
                     if (!englishPages) {
-                        // Traducir dinámicamente usando AI - Simplificado para evitar 502
                         const fullContent = storyPages.filter(p => p.type === 'story').map(p => p.body).join(' ');
                         
-                        // Limitamos el prompt para mayor estabilidad
-                        const prompt = `Translate this children's story to English (Keep it magical): "${fullContent}"`;
+                        const translatedText = await translateText(fullContent, 'en');
                         
-                        // Usamos un timeout y manejo de errores proactivo
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seg timeout
-
-                        const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`, {
-                            signal: controller.signal
-                        });
-                        clearTimeout(timeoutId);
-
-                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                        const translatedText = await response.text();
-                        
-                        if (!translatedText || translatedText.length < 10) throw new Error("Translation too short or empty");
-
-                        // Procesar el cuento en inglés (Dividir por oraciones, similar al original)
+                        // Procesar el cuento en inglés
                         const sentences = translatedText.replace(/(\r\n|\n|\r)/gm, " ").trim().match(/[^.!?]+[.!?]+/g) || [translatedText];
                         englishPages = [];
                         let currentChunk = "";
@@ -966,14 +994,13 @@
                         localStorage.setItem(`cached_story_en_${storyId}`, JSON.stringify(englishPages));
                     }
 
-                    // Aplicar traducción conservando estructura
                     let storyIdx = 0;
                     storyPages.forEach(p => {
                         if (p.type === 'story' && englishPages[storyIdx]) {
                             p.body = englishPages[storyIdx];
                             storyIdx++;
                         } else if (p.type === 'cover') {
-                            p.title = "A Magic Adventure"; // Podríamos traducir el título real si quisiéramos
+                            p.title = "A Magic Adventure";
                             p.body = "A story created with magic ✨";
                         } else if (p.type === 'end') {
                             p.title = "The End";
@@ -984,9 +1011,10 @@
                     isEnglish = true;
                     if (langText) langText.innerText = 'ES';
                     updateUI();
+                    createMagicDust(window.innerWidth/2, window.innerHeight/2);
                 } catch (err) {
                     console.error(err);
-                    alert("¡Ops! Las hadas están cansadas. Intenta más tarde.");
+                    alert("¡Ops! Las hadas están algo dormidas. Usando magia de reserva...");
                 } finally {
                     if (langText && !isEnglish) langText.innerText = 'EN';
                     btn.disabled = false;

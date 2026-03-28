@@ -1,4 +1,4 @@
-const CACHE_NAME = 'story-creator-kids-v3';
+const CACHE_NAME = 'story-creator-kids';
 const ASSETS = [
     './',
     'index.html',
@@ -45,9 +45,14 @@ self.addEventListener('activate', (event) => {
     );
     self.clients.claim();
 });
-
 // Fetch: Network First for HTML, Cache First for assets
 self.addEventListener('fetch', (event) => {
+    // BLINDAJE: No interceptar peticiones a la IA ni Proxies para evitar bloqueos
+    if (event.request.url.includes('pollinations.ai') || 
+        event.request.url.includes('corsproxy.io') || 
+        event.request.url.includes('googleusercontent.com')) {
+        return; 
+    }
     // Para navegación HTML: Network First (para tener datos Firestore frescos si hay red)
     if (event.request.mode === 'navigate') {
         event.respondWith(
