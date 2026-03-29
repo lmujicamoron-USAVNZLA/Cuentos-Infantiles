@@ -848,7 +848,7 @@
                 <button onclick="filterGallery()"
                     style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0.6rem 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨
-                    Magia (v11)</button>
+                    Magia (v16)</button>
             </div>
 
             <div class="image-gallery-grid" id="galleryGrid" style="margin-top: 1.5rem; min-height: 200px;">
@@ -900,7 +900,7 @@
         <nav class="nav-bar">
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids <span style="background: #e2e8f0; color: #1e293b; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 1px solid #94a3b8; margin-left: 5px;">V11 PLATINUM</span></h2>
+                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids <span style="background: #e2e8f0; color: #1e293b; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 1px solid #94a3b8; margin-left: 5px;">V16.3 PLATINUM</span></h2>
             </div>
             
             <div class="user-profile" style="background: white; border: 1px solid #e2e8f0; max-width: fit-content;">
@@ -1373,7 +1373,7 @@
                 // 3. Info Protas
                 pdf.setFontSize(14);
                 pdf.setFont("helvetica", "italic");
-                pdf.setTextColor(100, 116, 139);
+                pdf.setTextColor(100, 146, 139);
                 pdf.text(`Una aventura mágica de ${story.character} en ${story.place}`, pageWidth/2, cursorY, { align: 'center' });
                 cursorY += 20;
 
@@ -1479,15 +1479,15 @@
             { url: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=400", tags: "animal perro cachorro mascota can tierno peludo oido orejas fiel amigo guau" },
             { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=400", tags: "animal gato minino mascota felino orejas bigotes gatito miau ronroneo casa" },
             // Fantasía
-            { url: "https://images.unsplash.com/photo-1516331138075-f3ad16d49f25?auto=format&fit=crop&q=80&w=400", tags: "fantasia estrellas brillante noche cielo luz polvo hadas centelleo universo" },
-            { url: "https://images.unsplash.com/photo-1519074063912-211c5f66be0f?auto=format&fit=crop&q=80&w=400", tags: "fantasia hada bosque magia peque volando alas criatura bosque encantado" },
+            { url: "https://images.unsplash.com/photo-1516331438075-f3ad16d49f25?auto=format&fit=crop&q=80&w=400", tags: "fantasia estrellas brillante noche cielo luz polvo hadas centelleo universo" },
+            { url: "https://images.unsplash.com/photo-1519074063912-214c5f66be0f?auto=format&fit=crop&q=80&w=400", tags: "fantasia hada bosque magia peque volando alas criatura bosque encantado" },
             { url: "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?auto=format&fit=crop&q=80&w=400", tags: "fantasia cristal castillo brillante diamante joya luz palacio reluciente" },
             { url: "https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=400", tags: "fantasia mundo magico surrealista sueño arte colores imaginacion viaje" },
             // Espacio
-            { url: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400", tags: "espacio tierra planeta nasa astronauta naves estrellas galaxia orbita mundo cohete" },
-            { url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=400", tags: "espacio galaxia azul cosmos estrellas infinito universo red sistema solar" },
+            { url: "https://images.unsplash.com/photo-1446776814953-b23d57bd21aa?auto=format&fit=crop&q=80&w=400", tags: "espacio tierra planeta nasa astronauta naves estrellas galaxia orbita mundo cohete" },
+            { url: "https://images.unsplash.com/photo-1451487580459-43490279c0fa?auto=format&fit=crop&q=80&w=400", tags: "espacio galaxia azul cosmos estrellas infinito universo red sistema solar" },
             { url: "https://images.unsplash.com/photo-1447433589675-4aaa56a4010a?auto=format&fit=crop&q=80&w=400", tags: "espacio estrellas nebulosa polvo gas colores vacio profundo" },
-            { url: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bac4?auto=format&fit=crop&q=80&w=400", tags: "espacio luna noche crater astronauta bandera satelite blanco negro" },
+            { url: "https://images.unsplash.com/photo-1614730321446-b6fa6a46bac4?auto=format&fit=crop&q=80&w=400", tags: "espacio luna noche crater astronauta bandera satelite blanco negro" },
             // Naturaleza / Paisajes
             { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400", tags: "paisaje bosque verde arboles bosque madera sol rayos luz pinos paz" },
             { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=400", tags: "paisaje rio agua montañas lago canoa paz reflejo naturaleza" },
@@ -1496,7 +1496,17 @@
         ];
 
         // Biblioteca curada - Iconos de alta calidad
-        const curatedImages = {};
+        const curatedImages = {
+            'ironman': 'https://gen.pollinations.ai/image/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'iron man': 'https://gen.pollinations.ai/image/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'spiderman': 'https://gen.pollinations.ai/image/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'spider man': 'https://gen.pollinations.ai/image/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'batman': 'https://gen.pollinations.ai/image/Batman%20superhero%20dark%20black%20cape%20and%20mask%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=13&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'hulk': 'https://gen.pollinations.ai/image/Hulk%20giant%20green%20muscular%20superhero%20raging%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=22&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'superman': 'https://gen.pollinations.ai/image/Superman%20superhero%20blue%20red%20cape%20S%20logo%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=5&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'thor': 'https://gen.pollinations.ai/image/Thor%20Norse%20god%20superhero%20with%20hammer%20and%20lightning%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=15&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'kaliman': 'https://gen.pollinations.ai/image/Kaliman%20superhero%20with%20white%20turban%20and%20ruby%2C%20blue%20eyes%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=100&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm'
+        };
 
         function openImageModal(storyId) {
             storyToUpdateImage = storyId;
@@ -1641,14 +1651,14 @@
 
                 const imgElement = item.querySelector('img');
                 imgElement.onerror = () => {
-                    // PLATINUM V11: Smart-Retry (Directo -> Proxy -> Magenta)
+                    // PLATINUM V14: Smart-Retry (Directo -> Proxy -> Magenta)
                     if (!imgElement.dataset.retryLevel) imgElement.dataset.retryLevel = '0';
                     const currentSrc = imgElement.src;
 
                     if (imgElement.dataset.retryLevel === '0' && currentSrc.includes('pollinations.ai')) {
                         imgElement.dataset.retryLevel = '1';
                         imgElement.src = `https://corsproxy.io/?${encodeURIComponent(currentSrc)}`;
-                        console.log('V11 Dashboard: Reintentando con Proxy...');
+                        console.log('V14 Dashboard: Reintentando con Proxy...');
                         return;
                     }
 
@@ -1768,7 +1778,7 @@
                 const variationIndex = i + 1;
                 // PLATINUM: Directo Primero
                 let safe = translated.replace(/ironman|iron man/gi, 'super hero red armor').replace(/spiderman|spider man/gi, 'hero red blue').replace(/batman/gi, 'hero black bat');
-                let raw = `https://pollinations.ai/p/${encodeURIComponent('3D Pixar style of ' + safe + ' variation ' + variationIndex)}?width=512&height=512&seed=${seed}`;
+                let raw = `https://gen.pollinations.ai/image/${encodeURIComponent('3D Pixar style of ' + safe + ' variation ' + variationIndex)}?width=512&height=512&seed=${seed}&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm`;
                 aiResults.push({
                     url: raw,
                     tags: query

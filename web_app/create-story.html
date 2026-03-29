@@ -365,7 +365,7 @@
                     </div>
                     <button id="searchCharBtn" type="button" class="btn-action"
                         style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                        onclick="searchMagicCharacter()">✨ Magia (v13)</button>
+                        onclick="searchMagicCharacter()">✨ Magia (v16.3)</button>
 
                     <div id="magicLoader"
                         style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
@@ -1024,16 +1024,28 @@
                 // Backup por si falla la IA
                 let storyContent = `Había una vez un ${character} muy valiente llamado ${selections.Titulo.split(' ')[0] || 'Héroe'}, que vivía en un asombroso lugar: ${place}. Un día, mientras exploraba, descubrió un secreto mágico...`;
 
-                const aiPrompt = `Escribe un cuento infantil muy breve (aprox 60-80 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. 
-                REGLAS: Responde ÚNICAMENTE con el cuento. Sin introducciones ni comentarios.
+                const aiPrompt = `Escribe un cuento infantil mágico y detallado (aprox 200-300 palabras) en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. 
+                REGLAS: Divide el cuento en varios párrafos. Responde ÚNICAMENTE con el cuento. Sin introducciones ni comentarios.
                 SEGURIDAD: Tono mágico y 100% apto para niños. PROHIBIDO contenido adulto, violento o inapropiado.`;
 
                 // Llamada a Pollinations AI (Texto)
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(aiPrompt)}`);
+                const response = await fetch(`https://gen.pollinations.ai/text/${encodeURIComponent(aiPrompt)}?model=mistral&key=pk_iOJLArs0DLNG7EGm`);
                 if (response.ok) {
                     const text = await response.text();
                     if (text && text.length > 20) storyContent = text;
                 }
+
+                // --- SISTEMA DE MÚSICA DINÁMICA ---
+                // Determinar el tema musical basado en el contenido generado
+                const bodyLower = storyContent.toLowerCase();
+                let theme = 'happy';
+                if (bodyLower.includes('hada') || bodyLower.includes('magia') || bodyLower.includes('castillo') || bodyLower.includes('dragón') || bodyLower.includes('fantasia')) theme = 'fantasy';
+                else if (bodyLower.includes('espacio') || bodyLower.includes('estrella') || bodyLower.includes('galaxia') || bodyLower.includes('universo') || bodyLower.includes('astronave')) theme = 'space';
+                else if (bodyLower.includes('bosque') || bodyLower.includes('árbol') || bodyLower.includes('selva') || bodyLower.includes('animal') || bodyLower.includes('naturaleza')) theme = 'forest';
+                else if (bodyLower.includes('tesoro') || bodyLower.includes('mapa') || bodyLower.includes('aventura') || bodyLower.includes('explorar') || bodyLower.includes('pirata')) theme = 'adventure';
+                
+                selections.musicTheme = theme;
+                console.log("🎵 Música seleccionada:", theme);
 
                 textarea.value = storyContent;
 
@@ -1042,20 +1054,20 @@
                 if (!safetyResult.valid) {
                     console.warn("⚠️ Contenido IA bloqueado por seguridad:", safetyResult.word);
                     loaderText.innerText = "Recalibrando magia...";
-                    loaderSub.innerText = "Las hadas cometieron un error, estamos reescribiendo tu historia.";
+                    loaderSub.innerText = "Las hadas han detectado algo inusual. Estamos reescribiendo tu aventura.";
                     
                     // Reintentar con un prompt más estricto una vez
                     const strictPrompt = aiPrompt + " REGLA ABSOLUTA: No menciones nada que pueda interpretarse como '" + safetyResult.word + "'. Mantén el cuento extremadamente infantil y dulce.";
-                    const retryResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(strictPrompt)}`);
+                    const retryResponse = await fetch(`https://gen.pollinations.ai/text/${encodeURIComponent(strictPrompt)}?model=mistral&key=pk_iOJLArs0DLNG7EGm`);
                     if (retryResponse.ok) {
                         const retryText = await retryResponse.text();
                         if (validateContent(retryText).valid) {
                             textarea.value = retryText;
                         } else {
-                            textarea.value = "Había una vez una aventura mágica llena de flores y estrellas. Todos vivieron muy felices en un mundo de colores. ✨";
+                            textarea.value = `Había una vez un ${character} muy especial llamado ${selections.Titulo.split(' ')[0] || 'Héroe'} que vivía una aventura mágica en ${place}. ¡Fue el día más feliz de su vida! ✨`;
                         }
                     } else {
-                        textarea.value = "Había una vez una aventura mágica llena de flores y estrellas. Todos vivieron muy felices en un mundo de colores. ✨";
+                        textarea.value = `Había una vez un ${character} muy especial llamado ${selections.Titulo.split(' ')[0] || 'Héroe'} que vivía una aventura mágica en ${place}. ¡Fue el día más feliz de su vida! ✨`;
                     }
                 }
 
@@ -1176,14 +1188,15 @@
 
         // Biblioteca curada - Emojis SVG de alta calidad (Twemoji)
         const curatedImages = {
-            'ironman': 'https://image.pollinations.ai/prompt/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux',
-            'iron man': 'https://image.pollinations.ai/prompt/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux',
-            'spiderman': 'https://image.pollinations.ai/prompt/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux',
-            'spider man': 'https://image.pollinations.ai/prompt/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux',
-            'batman': 'https://image.pollinations.ai/prompt/Batman%20superhero%20dark%20black%20cape%20and%20mask%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=13&nologo=true&model=flux',
-            'hulk': 'https://image.pollinations.ai/prompt/Hulk%20giant%20green%20muscular%20superhero%20raging%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=22&nologo=true&model=flux',
-            'superman': 'https://image.pollinations.ai/prompt/Superman%20superhero%20blue%20red%20cape%20S%20logo%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=5&nologo=true&model=flux',
-            'thor': 'https://image.pollinations.ai/prompt/Thor%20Norse%20god%20superhero%20with%20hammer%20and%20lightning%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=15&nologo=true&model=flux'
+            'ironman': 'https://gen.pollinations.ai/image/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'iron man': 'https://gen.pollinations.ai/image/Iron%20Man%20superhero%20red%20gold%20metallic%20armor%20glowing%20arc%20reactor%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=42&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'spiderman': 'https://gen.pollinations.ai/image/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'spider man': 'https://gen.pollinations.ai/image/Spider-Man%20superhero%20red%20blue%20web%20suit%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=7&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'batman': 'https://gen.pollinations.ai/image/Batman%20superhero%20dark%20black%20cape%20and%20mask%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=13&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'hulk': 'https://gen.pollinations.ai/image/Hulk%20giant%20green%20muscular%20superhero%20raging%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=22&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'superman': 'https://gen.pollinations.ai/image/Superman%20superhero%20blue%20red%20cape%20S%20logo%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=5&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'thor': 'https://gen.pollinations.ai/image/Thor%20Norse%20god%20superhero%20with%20hammer%20and%20lightning%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=15&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm',
+            'kaliman': 'https://gen.pollinations.ai/image/Kaliman%20superhero%20with%20white%20turban%20and%20ruby%2C%20blue%20eyes%2C%203D%20Pixar%20Disney%20style%2C%20cinematic%20studio%20lighting%2C%20white%20background%2C%20highly%20detailed?width=512&height=512&seed=100&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm'
         };
 
         async function searchMagicCharacter(isLive = false) {
@@ -1262,7 +1275,7 @@
                     
                     // CORRECCIÓN V14: Prompt mejorado con URL correcta de Pollinations
                     const finalPrompt = `${safeQuery}, 3D character portrait, Disney Pixar animation style, vibrant colors, soft cinematic lighting, white background, highly detailed, 8K quality, friendly expression, professional illustration, NO TEXT, NO WATERMARKS, NO LOGOS`;
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
+                    magicUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm`;
                 }
 
 
@@ -1401,7 +1414,7 @@
                     const seed = Math.floor(Math.random() * 999999);
                     // CORRECCIÓN V14: URL correcta de Pollinations + prompt cinematográfico mejorado
                     const placePrompt = `Epic 3D Pixar Disney cinematic landscape of ${translatedPlace}, magical fairytale atmosphere, volumetric golden lighting, dreamlike, ultra-detailed, professional render, masterpiece, NO PEOPLE, NO TEXT`;
-                    magicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(placePrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
+                    magicUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(placePrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm`;
                 }
 
                 // BLINDAJE: Guardar URL inmediatamente

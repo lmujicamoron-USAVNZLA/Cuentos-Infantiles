@@ -28,20 +28,27 @@ const SAFETY_BLACKLIST = [
 function validateContent(text) {
     if (!text) return { valid: true, word: null };
     
-    // Normalize text: lowercase and remove some common obfuscation
+    // Normalize text: lowercase
     const lowerText = text.toLowerCase();
-    const normalizedText = lowerText.replace(/[\s\._\-]/g, ""); // Remove spaces, dots, underscores for substring check
     
     for (let forbidden of SAFETY_BLACKLIST) {
-        // 1. Exact or substring match in original text
-        if (lowerText.includes(forbidden.toLowerCase().trim())) {
-            return { valid: false, word: forbidden.trim() };
+        const item = forbidden.toLowerCase().trim();
+        
+        // 1. Precise Word Match (Word boundaries)
+        // This avoids false positives like "computadora" containing "puta"
+        const regex = new RegExp(`\\b${item}\\b`, 'i');
+        if (regex.test(lowerText)) {
+            return { valid: false, word: item };
         }
         
-        // 2. Match in normalized text (prevents s e x o, s.e.x.o, etc)
-        const cleanForbidden = forbidden.toLowerCase().trim().replace(/[\s\._\-]/g, "");
-        if (cleanForbidden.length > 2 && normalizedText.includes(cleanForbidden)) {
-            return { valid: false, word: forbidden.trim() };
+        // 2. Substring check for very dangerous long terms or obfuscation (s.e.x.o)
+        // Only if not using common words that are part of others
+        const normalizedText = lowerText.replace(/[\s\._\-]/g, "");
+        const cleanForbidden = item.replace(/[\s\._\-]/g, "");
+        
+        // Aggressive normalization check only for longer specific terms to avoid substrings in common words
+        if (cleanForbidden.length > 5 && normalizedText.includes(cleanForbidden)) {
+            return { valid: false, word: item };
         }
     }
 
