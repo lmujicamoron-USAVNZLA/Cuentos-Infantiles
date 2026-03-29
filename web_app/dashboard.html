@@ -889,7 +889,10 @@
                 </div>
             </div>
 
-            <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="width: 100%;">¡Genial! ✨</button>
+            <div class="modal-actions" style="gap: 1rem;">
+                <button class="modal-btn modal-btn-cancel" onclick="logout()" style="flex: 1; border: 1px solid #f43f5e; color: #f43f5e; background: transparent;">🚪 Salir</button>
+                <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="flex: 2;">¡Genial! ✨</button>
+            </div>
         </div>
     </div>
 
@@ -900,13 +903,13 @@
         <nav class="nav-bar">
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids <span style="background: #e2e8f0; color: #1e293b; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 1px solid #94a3b8; margin-left: 5px;">V16.3 PLATINUM</span></h2>
+                <h2 style="font-weight: 600; color: var(--primary); font-size: 1.4rem; margin: 0;">Story Creator Kids <span style="background: #e2e8f0; color: #1e293b; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 1px solid #94a3b8; margin-left: 5px;">V16.3.1 PLATINUM</span></h2>
             </div>
             
             <div class="user-profile" style="background: white; border: 1px solid #e2e8f0; max-width: fit-content;">
-                <span id="displayUserName" style="font-weight: 600;">Cargando...</span>
+                <span id="displayUserName" style="font-weight: 600; cursor: pointer;" onclick="openProfileModal()">Cargando...</span>
                 <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
-                    onclick="openProfileModal()" style="cursor: pointer; border: 2px solid var(--primary); width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+                    onclick="if(confirm('¿Quieres cerrar sesión de tu cuenta? ✨')) logout()" title="Cerrar Sesión" style="cursor: pointer; border: 2px solid var(--primary); width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
             </div>
         </nav>
 
