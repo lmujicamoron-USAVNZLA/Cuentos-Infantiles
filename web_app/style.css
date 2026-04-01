@@ -2,7 +2,9 @@
     --primary: #6366f1;
     --primary-hover: #4f46e5;
     --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.82);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.5);
     --text-main: #1e293b;
     --text-muted: #64748b;
     --input-border: #e2e8f0;
@@ -10,9 +12,12 @@
     --white: #ffffff;
     --error: #ef4444;
     --radius: 1.5rem;
+    --radius-lg: 2rem;
     --radius-full: 50vw;
     --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --magic-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
 }
 
 * {

@@ -25,7 +25,8 @@
         }
 
         .reader-container {
-            height: 100vh;
+            height: 100dvh; /* dvh maneja la barra de url en movil correctamente */
+            min-height: -webkit-fill-available;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -240,10 +241,21 @@
             box-shadow: 0 6px 15px rgba(236, 72, 153, 0.4);
         }
 
-        .close-reader {
+        .header-overlay {
             position: absolute;
             top: 2rem;
             left: 2rem;
+            right: 2rem;
+            z-index: 100;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .close-reader {
+            position: relative;
             padding: 0.6rem 1.2rem;
             border-radius: 2rem;
             background: rgba(255, 255, 255, 0.8);
@@ -256,11 +268,22 @@
             align-items: center;
             gap: 0.6rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            z-index: 100;
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.5);
             transition: all 0.3s;
             font-size: 0.9rem;
+            pointer-events: auto;
+            flex-shrink: 0;
+        }
+
+        .top-toolbar {
+            position: relative;
+            pointer-events: auto;
+            flex: 1;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap; /* previene superposición en movil si hay muchos botones */
+            justify-content: flex-end;
         }
 
         .close-reader:hover {
@@ -270,22 +293,25 @@
 
         @media (max-width: 768px) {
             .reader-container {
-                padding: 1rem;
+                padding: 0.5rem;
+                justify-content: flex-start; /* Para no centrar cuando es muy ajustado */
             }
 
             .book-wrapper {
                 flex-direction: column;
-                height: 90vh; /* Más alto en móvil para scroll interno */
-                margin-top: 4rem;
+                height: 82dvh; /* Dejar espacio para navs de abajo sin taparlos */
+                margin-top: 4.5rem;
                 border-radius: 1.5rem;
+                animation: none; /* Eliminar animacion 3d para evitar el flasheo en movil */
+                border: 4px solid white;
             }
 
             .page-left {
                 border-right: none;
                 border-bottom: 2px solid #f1f5f9;
                 min-height: auto;
-                height: 40%; /* La imagen ocupa el 40% superior */
-                padding: 1rem;
+                height: 35%; /* La imagen ajustada */
+                padding: 0.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -295,46 +321,67 @@
             .story-image {
                 max-height: 100%;
                 width: 100%;
-                object-fit: cover; /* Llenar el espacio en móvil para impacto visual */
+                object-fit: cover;
                 border-radius: 1rem;
             }
 
             .page-right {
                 flex: 1;
-                padding: 1.25rem;
-                overflow-y: auto;
+                padding: 1.2rem;
+                overflow-y: auto; /* Permite desplazar (scrollear) el contenido */
             }
 
             .story-text {
-                font-size: 1rem;
-                line-height: 1.6;
+                font-size: 1.1rem; /* Texto más legible */
+                line-height: 1.5;
             }
 
             .story-title-page {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
                 margin-bottom: 0.5rem;
             }
 
             .navigation-controls {
-                bottom: 1rem;
+                bottom: 0.5rem;
                 gap: 1.5rem;
+                z-index: 110;
             }
 
             .nav-btn-circle {
-                width: 50px;
-                height: 50px;
+                width: 48px;
+                height: 48px;
+            }
+
+            .header-overlay {
+                top: 0.8rem;
+                left: 0.5rem;
+                right: 0.5rem;
+                gap: 0.5rem;
             }
 
             .close-reader {
-                top: 1rem;
-                left: 1rem;
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+                gap: 0.3rem;
+            }
+            
+            .close-reader span {
+                display: none; /* Hide text on mobile to avoid overlap and shrink buttons */
             }
 
-            .nav-btn-circle svg {
-                width: 24px;
-                height: 24px;
+            .top-toolbar {
+                gap: 0.4rem;
+            }
+
+            .top-control-btn {
+                width: 36px;
+                height: 36px;
+                padding: 0.4rem;
+            }
+
+            .top-control-btn svg {
+                width: 18px;
+                height: 18px;
             }
         }
     </style>
@@ -347,24 +394,19 @@
         <div class="blob blob-3" style="background: #ddd6fe;"></div>
     </div>
 
-    <!-- BOTÓN DE REGRESO ARREGLADO -->
-    <div class="close-reader" onclick="window.location.href='dashboard.html'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m15 18-6-6 6-6" />
-        </svg>
-        <span>Volver a Biblioteca</span>
-    </div>
+    <!-- HEADER OVERLAY PARA AGRUPAR CONTROLES (Evitar superposición) -->
+    <div class="header-overlay">
+        <!-- BOTÓN DE REGRESO ARREGLADO -->
+        <div class="close-reader" onclick="window.location.href='dashboard.html'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+            </svg>
+            <span>Volver a Biblioteca</span>
+        </div>
 
-    <!-- ELEMENTOS ESCÉNICOS -->
-    <audio id="pageTurnSfx" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="bgMusic" loop preload="auto"></audio>
-    <canvas id="magicCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50;"></canvas>
-
-    <!-- BOTONES DE CONTROL SUPERIOR ESTILIZADOS -->
-    <div style="position: absolute; top: 2rem; right: 2rem; z-index: 100; display: flex; gap: 0.8rem;">
+        <!-- BOTONES DE CONTROL SUPERIOR ESTILIZADOS -->
+        <div class="top-toolbar">
         <!-- BOTÓN DE MÚSICA -->
         <button class="top-control-btn" id="musicBtn" onclick="toggleMusic()" title="Música Mágica" style="color: #10b981;">
             <svg id="musicIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -415,6 +457,14 @@
             </svg>
         </button>
     </div>
+    </div> <!-- Cierre de header-overlay -->
+
+    <!-- ELEMENTOS ESCÉNICOS -->
+    <audio id="pageTurnSfx" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgMusic" loop preload="auto"></audio>
+    <canvas id="magicCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50;"></canvas>
 
     <main class="reader-container">
         <div class="book-wrapper">
@@ -606,10 +656,11 @@
                        .trim();
         }
 
-        // --- SISTEMA DE PARTÍCULAS MÁGICAS ---
+        // --- SISTEMA DE PARTÍCULAS MÁGICAS TEMÁTICAS ---
         const canvas = document.getElementById('magicCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
+        let currentTheme = 'happy';
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -622,22 +673,46 @@
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.size = Math.random() * 4 + 1;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-                this.color = `hsl(${Math.random() * 60 + 280}, 100%, 70%)`; // Púrpuras/Rosas mágicos
+                this.size = Math.random() * 4 + 2;
+                
+                // Tema espacial: estrellas flotando hacia arriba
+                if (currentTheme === 'space') {
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = -Math.random() * 2 - 0.5;
+                    this.color = Math.random() > 0.5 ? '#ffffff' : '#67e8f9';
+                } 
+                // Tema bosque: hojas cayendo suavemente
+                else if (currentTheme === 'forest') {
+                    this.speedX = Math.random() * 2 - 1;
+                    this.speedY = Math.random() * 2 + 0.5;
+                    this.color = Math.random() > 0.5 ? '#4ade80' : '#84cc16';
+                    this.size = Math.random() * 6 + 3; 
+                }
+                // Tema fantasía/estándar: destellos en expansión
+                else {
+                    this.speedX = Math.random() * 3 - 1.5;
+                    this.speedY = Math.random() * 3 - 1.5;
+                    this.color = `hsl(${Math.random() * 60 + 280}, 100%, 70%)`; 
+                }
                 this.life = 1;
             }
             update() {
+                if (currentTheme === 'forest') {
+                    this.x += Math.sin(this.life * 10) * 0.5;
+                }
                 this.x += this.speedX;
                 this.y += this.speedY;
-                this.life -= 0.02;
+                this.life -= (currentTheme === 'space') ? 0.01 : 0.02;
             }
             draw() {
                 ctx.fillStyle = this.color;
                 ctx.globalAlpha = this.life;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                if (currentTheme === 'forest') {
+                    ctx.ellipse(this.x, this.y, this.size, this.size/2, this.life * Math.PI, 0, Math.PI * 2);
+                } else {
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                }
                 ctx.fill();
             }
         }
@@ -767,6 +842,7 @@
 
                     // --- Cargar y Reproducir Música del Cuento ---
                     const musicTheme = data.musicTheme || 'happy';
+                    currentTheme = musicTheme; // Conectar las partículas con la temática
                     const music = document.getElementById('bgMusic');
                     music.src = musicThemes[musicTheme];
                     // Intentar auto-play (muchos navegadores lo bloquean hasta el primer clic)
@@ -1041,52 +1117,105 @@
             }
         }
 
+        function getBase64ImageFromUrl(imageUrl) {
+            return new Promise((resolve, reject) => {
+                const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl.replace(/^https?:\/\//, ''))}&output=webp`;
+                
+                let img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    let canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    let ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    let dataURL = canvas.toDataURL("image/jpeg", 0.8);
+                    resolve(dataURL);
+                };
+                img.onerror = () => reject("Error loading image from proxy");
+                img.src = proxyUrl;
+            });
+        }
+
         async function generateStoryPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const title = document.getElementById('storyTitle').innerText || "Mi Cuento Mágico";
-            
-            let y = 20;
-            doc.setFontSize(22);
-            doc.setTextColor(99, 102, 241); // Color Primary
-            doc.text(title, 105, y, { align: 'center' });
-            
-            y += 20;
-            doc.setFontSize(14);
-            doc.setTextColor(100, 116, 139);
-            doc.text("Un cuento creado con Story Creator Kids", 105, y, { align: 'center' });
-            
-            y += 20;
-            // Recorrer páginas
-            for (let i = 0; i < storyPages.length; i++) {
-                const p = storyPages[i];
-                if (i > 0) doc.addPage();
+            const btn = document.getElementById('pdfBtn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '⏳';
+            btn.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a5'); // Formato A5, como un librito infantil de bolsillo
+                const title = document.getElementById('storyTitle').innerText || "Mi Cuento Mágico";
+                const pageWidth = doc.internal.pageSize.getWidth();
+                let y = 30;
+                
+                // --- PORTADA DEL LIBRITO ---
+                doc.setFillColor(248, 250, 252); // Fondo elegante blanco/hielo
+                doc.rect(0, 0, pageWidth, 250, 'F');
+
+                doc.setFontSize(22);
+                doc.setTextColor(99, 102, 241); // Color Primary #6366f1
+                
+                const splitTitle = doc.splitTextToSize(title, pageWidth - 20);
+                doc.text(splitTitle, pageWidth / 2, y, { align: 'center' });
+                y += (splitTitle.length * 10) + 10;
                 
                 doc.setFontSize(12);
-                doc.setTextColor(50, 50, 50);
-                
-                if (p.type === 'story') {
-                    const splitText = doc.splitTextToSize(p.body, 170);
-                    doc.text(splitText, 20, 160);
-                } else {
-                    doc.text(p.body, 105, 160, { align: 'center' });
-                }
-                
-                // Intentar añadir la imagen (esto puede ser lento o fallar si es cross-origin sin permisos)
-                try {
-                    // Nota: las imágenes de unsplash suelen funcionar, las de Firestorage necesitan CORS
-                    doc.addImage(p.img, 'JPEG', 30, 20, 150, 120);
-                } catch (e) {
-                    console.log("No se pudo añadir la imagen al PDF:", e);
-                    doc.text("[Imagen Mágica]", 105, 80, { align: 'center' });
+                doc.setTextColor(148, 163, 184); // Muted text
+                doc.text("Un cuento mágico ilustrado", pageWidth / 2, y, { align: 'center' });
+                y += 15;
+
+                // Extraemos la portada oficial o la primera imagen texturizada
+                const p = storyPages.find(page => page.type === 'cover' || page.type === 'story');
+                if (p && p.img) {
+                    try {
+                        const base64Img = await getBase64ImageFromUrl(p.img);
+                        const imgWidth = 100;
+                        const imgHeight = 100;
+                        doc.addImage(base64Img, 'JPEG', (pageWidth - imgWidth) / 2, y, imgWidth, imgHeight); 
+                        y += imgHeight + 20;
+                    } catch (e) {
+                        console.warn("No se pudo proxy-cachear la imagen de IA:", e);
+                        // Recuadro alternativo para dibujar
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setFillColor(255, 255, 255);
+                        doc.roundedRect(24, y, 100, 100, 5, 5, 'FD');
+                        doc.text("Dibuja a tu héroe aquí", pageWidth / 2, y + 50, { align: 'center' });
+                        y += 120;
+                    }
                 }
                 
                 doc.setFontSize(10);
-                doc.text(`Página ${i + 1}`, 105, 285, { align: 'center' });
+                doc.setTextColor(100, 116, 139);
+                doc.text("Creado en Story Creator Kids", pageWidth / 2, y, { align: 'center' });
+
+                // --- PÁGINAS DE CUENTO ---
+                const textPages = storyPages.filter(page => page.type === 'story');
+                for (let i = 0; i < textPages.length; i++) {
+                    doc.addPage();
+                    doc.setFillColor(255, 255, 255);
+                    doc.rect(0, 0, pageWidth, 250, 'F');
+                    
+                    doc.setFontSize(14);
+                    doc.setTextColor(51, 65, 85); // Slate 700 (Oscuro infantil)
+                    const splitText = doc.splitTextToSize(textPages[i].body, pageWidth - 30);
+                    doc.text(splitText, 15, 30);
+                    
+                    doc.setFontSize(10);
+                    doc.setTextColor(148, 163, 184);
+                    doc.text(`— Página ${i + 1} —`, pageWidth / 2, 195, { align: 'center' });
+                }
+                
+                doc.save(`${title.replace(/\s+/g, '_')}_Librito.pdf`);
+                alert("✨ ¡Tu libro real está listo! Ya puedes imprimirlo.");
+            } catch (err) {
+                console.error(err);
+                alert("Ops, hubo un problema mágicos al ensamblar tu libro.");
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
             }
-            
-            doc.save(`${title.replace(/\s+/g, '_')}_Libro_Real.pdf`);
-            alert("✨ ¡Tu libro real está listo! Ya puedes imprimirlo.");
         }
 
         function toggleColoringMode() {
