@@ -20,6 +20,63 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="safety.js"></script>
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --background: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius: 1.5rem;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            --magic-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        .dark-mode {
+            --background: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Utilidades Platinum */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .text-gradient {
+            background: var(--magic-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .premium-badge {
+            background: var(--magic-gradient);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
         .offline-banner {
             display: none;
             background: #f43f5e;
@@ -203,9 +260,10 @@
 
         .progress-fill {
             height: 100%;
-            background: var(--primary);
-            width: 33.33%;
-            transition: width 0.5s ease;
+            background: var(--magic-gradient);
+            width: 25%;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
         }
 
         .actions-nav {
@@ -234,15 +292,24 @@
 
         .search-input {
             width: 100%;
-            padding: 0.8rem 1rem 0.8rem 3rem;
-            border-radius: 1rem;
-            border: 2px solid #eef2ff;
+            padding: 1rem 1rem 1rem 3.5rem;
+            border-radius: 1.2rem;
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.9);
             outline: none;
             font-family: inherit;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 1.1rem;
-            color: #334155;
-            transition: all 0.3s;
+            color: #1e293b;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-input:focus {
+            background: white;
+            border-color: #6366f1;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
         }
 
         .search-input::placeholder {
@@ -395,24 +462,26 @@
 
         <!-- Paso 1: Personaje -->
         <div class="step active" id="step1">
-            <h2
-                style="margin-bottom: 0.5rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, #06b6d4 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">
-                Elige a tu protagonista <span style="background: black !important; color: cyan !important; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; border: 2px solid cyan !important; margin-left: 5px; box-shadow: 0 0 10px cyan;">V13 ULTIMATE</span></h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">¿Quién vivirá esta gran
-                aventura?</p>
+            <h2 style="margin-bottom: 0.5rem; text-align: center; font-weight: 800;">
+                <span class="text-gradient">Elige a tu protagonista</span> 
+                <span class="premium-badge">V16.3 PLATINUM</span>
+            </h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2.5rem; font-weight: 500;">
+                ¿Quién vivirá esta gran aventura mágica?
+            </p>
 
             <!-- Buscador de Protagonistas Premium -->
-            <div class="search-container" style="max-width: 500px;">
-                <div class="search-box-wrapper">
+            <div class="search-container" style="max-width: 550px;">
+                <div class="search-box-wrapper glass-effect" style="padding: 0.6rem; border-radius: 2rem;">
                     <div style="position: relative; flex: 1;">
-                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8" />
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                         <input type="text" id="characterSearch" class="search-input"
-                            style="border: 3px solid #06b6d4 !important; background: transparent; box-shadow: 0 0 15px rgba(6,182,212,0.3); padding-right: 3rem;"
+                            style="border: none !important; background: rgba(255,255,255,0.5); padding-right: 3rem;"
                             placeholder="Ej: Un gato valiente, un robot..."
                             onkeyup="if(event.key === 'Enter') searchMagicCharacter()"
                             oninput="filterCharacters(); toggleClearBtn('characterSearch')">
@@ -420,11 +489,13 @@
                             onclick="clearSearch('characterSearch')">✕</button>
                     </div>
                     <button id="searchCharBtn" type="button" class="btn-action magia-btn"
-                        style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                        onclick="searchMagicCharacter()">✨ Magia (v16.3)</button>
+                        style="background: var(--magic-gradient); color: white; border: none; border-radius: 1.5rem; padding: 0 2rem; font-weight: 700; cursor: pointer; transition: all 0.3s; height: 50px; box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);"
+                        onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 12px 20px rgba(99, 102, 241, 0.4)';"
+                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 15px rgba(99, 102, 241, 0.3)';"
+                        onclick="searchMagicCharacter()">✨ Magia</button>
 
                     <div id="magicLoader"
-                        style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
+                        style="display: none; position: absolute; left: 0; right: 0; bottom: -35px; text-align: center; font-size: 0.95rem; color: #8b5cf6; font-weight: 700; animation: pulse 1.5s infinite;">
                         🪄 Conjurando un nuevo héroe...</div>
                 </div>
             </div>
@@ -443,17 +514,17 @@
                 aventura</p>
 
             <!-- Buscador de Lugares Premium -->
-            <div class="search-container" style="max-width: 500px;">
-                <div class="search-box-wrapper">
+            <div class="search-container" style="max-width: 550px;">
+                <div class="search-box-wrapper glass-effect" style="padding: 0.6rem; border-radius: 2rem;">
                     <div style="position: relative; flex: 1;">
-                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8" />
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                         <input type="text" id="placeSearch" class="search-input"
-                            style="border: 3px solid red !important; background: transparent; box-shadow: none; padding-right: 3rem;"
+                            style="border: none !important; background: rgba(255,255,255,0.5); padding-right: 3rem;"
                             placeholder="Ej: El espacio, un castillo..."
                             onkeyup="if(event.key === 'Enter') searchMagicPlace()"
                             oninput="filterPlaces(); toggleClearBtn('placeSearch')">
@@ -461,11 +532,13 @@
                             onclick="clearSearch('placeSearch')">✕</button>
                     </div>
                     <button type="button" class="btn-action place-magic-btn magia-btn"
-                        style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                        onclick="searchMagicPlace()">✨ Magia (v5)</button>
+                        style="background: var(--magic-gradient); color: white; border: none; border-radius: 1.5rem; padding: 0 2rem; font-weight: 700; cursor: pointer; transition: all 0.3s; height: 50px; box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);"
+                        onmouseover="this.style.transform='scale(1.05) translateY(-2px)';"
+                        onmouseout="this.style.transform='scale(1)';"
+                        onclick="searchMagicPlace()">✨ Magia</button>
 
                     <div id="placeMagicLoader"
-                        style="display: none; position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;">
+                        style="display: none; position: absolute; left: 0; right: 0; bottom: -35px; text-align: center; font-size: 0.95rem; color: #8b5cf6; font-weight: 700; animation: pulse 1.5s infinite;">
                         🪄 Conjurando un nuevo mundo...</div>
                 </div>
             </div>
@@ -735,15 +808,21 @@
             'sapo': { en: 'frog', cat: 'subject' },
             'rana': { en: 'frog', cat: 'subject' },
             'sapito': { en: 'cute frog', cat: 'subject' },
-            'superman': { en: 'Superman superhero, iconic blue suit and red cape', cat: 'subject', sub: 'hero' },
-            'batman': { en: 'Batman superhero, black tactical suit and cape', cat: 'subject', sub: 'hero' },
-            'spiderman': { en: 'Spiderman superhero, red and blue web suit', cat: 'subject', sub: 'hero' },
-            'ironman': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor', cat: 'subject', sub: 'hero' },
-            'iron man': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor', cat: 'subject', sub: 'hero' },
-            'hulk': { en: 'giant green muscular superhero hulk', cat: 'subject', sub: 'hero' },
-            'thor': { en: 'thor superhero with hammer and lightning', cat: 'subject', sub: 'hero' },
+            'superman': { en: 'Superman superhero, iconic blue suit and red cape, Clark Kent', cat: 'subject', sub: 'hero' },
+            'batman': { en: 'Batman superhero, dark black tactical suit and cape, Bruce Wayne', cat: 'subject', sub: 'hero' },
+            'spiderman': { en: 'Spider-man superhero, red and blue web suit, Peter Parker', cat: 'subject', sub: 'hero' },
+            'el hombre araña': { en: 'Spider-man superhero, red and blue web suit, Peter Parker', cat: 'subject', sub: 'hero' },
+            'hombre araña': { en: 'Spider-man superhero, red and blue web suit, Peter Parker', cat: 'subject', sub: 'hero' },
+            'ironman': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor, Tony Stark', cat: 'subject', sub: 'hero' },
+            'iron man': { en: 'Ironman superhero, red and gold metallic armor, glowing arc reactor, Tony Stark', cat: 'subject', sub: 'hero' },
+            'hulk': { en: 'giant green muscular superhero hulk, Bruce Banner', cat: 'subject', sub: 'hero' },
+            'thor': { en: 'Thor superhero with hammer and lightning, god of thunder', cat: 'subject', sub: 'hero' },
+            'wonderwoman': { en: 'Wonder Woman superhero, golden tiara, red/blue suit, Lasso of Truth, Diana Prince', cat: 'subject', sub: 'hero' },
+            'wonder woman': { en: 'Wonder Woman superhero, golden tiara, red/blue suit, Lasso of Truth, Diana Prince', cat: 'subject', sub: 'hero' },
+            'la mujer maravilla': { en: 'Wonder Woman superhero, golden tiara, red/blue suit, Lasso of Truth, Diana Prince', cat: 'subject', sub: 'hero' },
+            'mujer maravilla': { en: 'Wonder Woman superhero, golden tiara, red/blue suit, Lasso of Truth, Diana Prince', cat: 'subject', sub: 'hero' },
             'gato con botas': { en: 'Puss in Boots cat, hat, boots and sword', cat: 'subject', sub: 'animal' },
-            'robot': { en: 'friendly high-tech shiny robot', cat: 'subject', sub: 'robot' },
+            'robot': { en: 'friendly high-tech shiny robot, cinematic 3D style', cat: 'subject', sub: 'robot' },
             'princesa': { en: 'beautiful fairytale princess with elegant dress and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
             'principe': { en: 'handsome fairytale prince with royal tunic and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
             'príncipe': { en: 'handsome fairytale prince with royal tunic and crown, cinematic 3D animation style, Pixar style', cat: 'subject' },
@@ -1088,24 +1167,41 @@
                 4. Responde ÚNICAMENTE con el cuento.
                 (Variante Creativa Única #${randomSeed}: Inventa giros de trama nuevos y completamente diferentes a historias anteriores. Dale máxima longitud y creatividad).`;
 
-                // Llamada a Pollinations AI usando GET (Evita bloqueos CORS de POST)
-                const safePrompt = `Escribe un cuento infantil mágico MUY LARGO en español. Protagonista: ${character}. Lugar: ${place} (Variante #${randomSeed}). 
-                REGLAS: 
-                1. Mínimo 400 palabras y 4 párrafos.
-                2. Nudo y desenlace feliz.
-                3. SOLO el cuento, sin notas.`;
+                // Prompt optimizado para MÁXIMA longitud y calidad (v16.3 Platinum)
+                const safePrompt = `Escribe un CUENTO INFANTIL MÁGICO MUY EXTENSO en español. 
+                Protagonista: ${character}. Lugar: ${place}. Título: ${title}. 
+                REGLAS CRÍTICAS: 
+                1. La historia DEBE ser muy larga (mínimo 600-800 palabras).
+                2. Divide la historia en al menos 6 o 7 párrafos bien desarrollados con diálogos y descripciones vívidas.
+                3. La trama debe tener una introducción mágica, un gran desafío o misterio que resolver, y un final feliz lleno de enseñanzas.
+                4. Usa un lenguaje tierno pero rico en vocabulario para niños.
+                5. Responde ÚNICAMENTE con el cuento, sin introducciones ni notas al final.
+                (Variante Creativa #${randomSeed}).`;
 
-                // NOTA: Usamos model=openai (el modelo "openai-large" no existe en su API y causaba el error)
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(safePrompt)}?model=openai&seed=${randomSeed}&key=pk_iOJLArs0DLNG7EGm`);
+                // Usamos mistral por defecto (más estable para español largo)
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(safePrompt)}?model=mistral&seed=${randomSeed}&key=pk_iOJLArs0DLNG7EGm`);
 
                 if (response.ok) {
                     const text = await response.text();
-                    if (text && text.length > 50 && !text.toLowerCase().includes("<!doctype html>")) {
+                    // Validación de longitud mínima para evitar fallos silenciosos
+                    if (text && text.length > 300 && !text.toLowerCase().includes("<!doctype html>")) {
                         storyContent = text;
+                    } else {
+                        throw new Error("Contenido generado demasiado corto o inválido");
                     }
                 } else {
                     console.error("Pollinations Error HTTP:", response.status);
-                    storyContent = `Hubo un pequeño contratiempo mágico, pero aquí tienes una versión especial de emergencia (Variante ${randomSeed}). Había una vez un ${character} valiente llamado ${selections.Titulo.split(' ')[0] || 'Héroe'}, que vivía en: ${place}. Un día, descubrió un portal secreto brillante... [Puedes presionar "Magia nueva" otra vez para reintentar la conexión]`;
+                    // FALLBACK MEJORADO: Una historia real y más larga en lugar de un mensaje de error seco
+                    storyContent = `¡Había una vez una sorpresa mágica en el reino de ${place}! 
+                    ${character} se despertó esa mañana sintiendo que algo increíble estaba a punto de suceder. El cielo brillaba con colores de arcoíris y las flores cantaban melodías suaves.
+                    
+                    "¡Hoy es el gran día!", exclamó ${character} con alegría. Caminó por los senderos de cristal hasta llegar al centro del lugar, donde un mapa antiguo apareció flotando ante sus ojos. El mapa mostraba el camino hacia el Tesoro de la Amistad Perdida, un secreto guardado por las hadas durante milenios.
+                    
+                    Acompañado por el suave susurro del viento, nuestro héroe superó tres grandes desafíos: el Laberinto de Espejos, el Río de la Paciencia y la Montaña de los Sueños. En cada paso, aprendió algo nuevo sobre el valor y la bondad.
+                    
+                    Finalmente, al llegar a la meta, no encontró oro ni joyas, sino un espejo mágico que mostraba que el verdadero tesoro era la valentía que llevaba en su corazón. Desde aquel día, ${character} vivió feliz en ${place}, recordando siempre que la magia habita en quien se atreve a soñar en grande. ✨
+                    
+                    [Nota Mágica: Esta es una versión especial de reserva (Variante ${randomSeed}) porque las hadas están muy ocupadas. ¡Puedes intentar generar una nueva en un momento!]`;
                 }
 
                 // --- SISTEMA DE MÚSICA DINÁMICA ---

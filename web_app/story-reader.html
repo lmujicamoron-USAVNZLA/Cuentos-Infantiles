@@ -595,7 +595,8 @@
                 document.querySelectorAll('.word-highlight').forEach(el => el.classList.remove('word-highlight'));
             };
 
-            utterance.onerror = () => {
+            utterance.onerror = (e) => {
+                console.error("TTS Error:", e);
                 isSpeaking = false;
                 updateSpeakerIcon(false);
             };
@@ -687,6 +688,12 @@
                     this.speedY = Math.random() * 2 + 0.5;
                     this.color = Math.random() > 0.5 ? '#4ade80' : '#84cc16';
                     this.size = Math.random() * 6 + 3; 
+                }
+                // Tema océano/agua: burbujas subiendo
+                else if (currentTheme === 'ocean' || currentTheme === 'beach') {
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = -Math.random() * 1.5 - 0.5;
+                    this.color = '#7dd3fc';
                 }
                 // Tema fantasía/estándar: destellos en expansión
                 else {
@@ -944,11 +951,6 @@
 
         function changePage(delta) {
             currentPage += delta;
-
-            // Efecto de Sonido
-            const sfx = document.getElementById('pageTurnSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(e => console.log("Audio interaction required"));
 
             // Efecto de Partículas (En el centro del libro)
             createMagicDust(window.innerWidth / 2, window.innerHeight / 2);

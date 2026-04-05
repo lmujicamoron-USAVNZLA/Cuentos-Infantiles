@@ -1,23 +1,27 @@
 :root {
     --primary: #6366f1;
     --primary-hover: #4f46e5;
+    --secondary: #a855f7;
+    --accent: #ec4899;
     --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.82);
-    --glass-bg: rgba(255, 255, 255, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.5);
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --glass-bg: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.6);
     --text-main: #1e293b;
     --text-muted: #64748b;
     --input-border: #e2e8f0;
     --input-focus: #6366f1;
     --white: #ffffff;
     --error: #ef4444;
-    --radius: 1.5rem;
-    --radius-lg: 2rem;
-    --radius-full: 50vw;
-    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    --radius: 1.25rem;
+    --radius-lg: 1.75rem;
+    --radius-full: 9999px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-indigo: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --magic-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --magic-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
 }
 
 * {
@@ -359,6 +363,41 @@ body {
 
 .mobile-nav {
     display: none;
+}
+
+/* Global Utilities */
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+}
+
+.text-gradient {
+    background: var(--magic-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hover-lift {
+    transition: var(--transition);
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Animations */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
 }
 
 /* Soporte para modo oscuro por sistema si se desea en el futuro */
