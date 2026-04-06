@@ -214,7 +214,8 @@
             padding: 1.5rem;
             border-right: 1px solid rgba(255, 255, 255, 0.5);
             box-sizing: border-box;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .sidebar.active {
@@ -823,6 +824,61 @@
             color: var(--text-main);
             text-align: center;
         }
+
+        /* --- Estilos para el Buscador Mágico --- */
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 2rem;
+            padding: 0.2rem 0.5rem;
+            border: 2px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+            max-width: 400px;
+            margin-right: 1rem;
+        }
+
+        .search-container:focus-within {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .search-box-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 0.7rem 1rem 0.7rem 2.8rem;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 
@@ -867,7 +923,10 @@
             <div class="sidebar-item" id="side-global" onclick="handleSidebarNav('global')">
                 <span>🌎</span> Biblioteca Global
             </div>
-            <div class="sidebar-item" onclick="openProfileModal(); toggleSidebar();">
+            <div class="sidebar-item" id="side-album" onclick="openAlbumModal()">
+                <span>💎</span> Álbum Mágico
+            </div>
+            <div class="sidebar-item" id="side-profile" onclick="openProfileModal(); toggleSidebar();">
                 <span>👤</span> Mi Perfil
             </div>
             
@@ -892,6 +951,26 @@
     </button>
 
     <!-- Modal de Confirmación -->
+    <!-- Modal de Álbum de Héroes (V17) -->
+    <div class="modal-overlay" id="albumModal">
+        <div class="modal-content" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>💎</span> Tu Álbum de Héroes
+                </h3>
+                <button class="modal-btn-cancel" onclick="closeAlbumModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+            </div>
+            
+            <div id="dashboardHeroGrid" class="options-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem;">
+                <!-- Se cargará dinámicamente -->
+            </div>
+
+            <div class="modal-actions" style="margin-top: 2rem;">
+                <button class="modal-btn modal-btn-primary" onclick="window.location.href='create-story.html'">✨ Crear Cuento con un Héroe</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Confirmación Eliminación -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-content">
@@ -987,9 +1066,8 @@
                     <span style="font-size: 0.8rem; color: var(--text-muted);">Medallas</span>
                 </div>
             </div>
-
-            <div class="modal-actions" style="gap: 1rem;">
-                <button class="modal-btn modal-btn-cancel" onclick="logout()" style="flex: 1; border: 1px solid #f43f5e; color: #f43f5e; background: transparent;">🚪 Salir</button>
+            <div class="modal-actions" style="gap: 1rem; margin-top: 1.5rem;">
+                <button class="modal-btn modal-btn-cancel" onclick="logout()" style="flex: 1; border: 1px solid #f43f5e; color: #f43f5e; background: transparent;">🚪 Salir de Cuenta</button>
                 <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="flex: 2;">¡Genial! ✨</button>
             </div>
         </div>
@@ -1000,18 +1078,31 @@
             📡 Modo Offline Activado - Estás viendo tus cuentos guardados
         </div>
         <nav class="nav-bar">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-                <h2 style="font-weight: 700; color: var(--primary); font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="text-gradient">
-                    Story Creator Kids 
-                    <span style="background: var(--magic-gradient); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);">V16.3.2 PLATINUM</span>
-                </h2>
+            <div style="display: flex; align-items: center; gap: 1rem; flex: 1; flex-wrap: wrap;">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div style="display: flex; flex-direction: column;">
+                    <h2 id="displayUserName" style="font-size: 1.2rem; font-weight: 700; color: var(--primary); margin: 0;">¡Hola, pequeño hechicero! ✨</h2>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 2px;">
+                        <span style="background: var(--magic-gradient); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);">V17 MAGIC EDITION</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="user-profile" style="background: white; border: 1px solid #e2e8f0; max-width: fit-content;">
-                <span id="displayUserName" style="font-weight: 600; cursor: pointer;" onclick="openProfileModal()">Cargando...</span>
-                <img id="userAvatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" alt="User"
-                    onclick="if(confirm('¿Quieres cerrar sesión de tu cuenta? ✨')) logout()" title="Cerrar Sesión" style="cursor: pointer; border: 2px solid var(--primary); width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+            <!-- BUSCADOR MÁGICO DE CUENTOS -->
+            <div class="search-container glass-effect">
+                <div class="search-box-wrapper">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <input type="text" id="dashboardSearch" class="search-input" placeholder="Busca un cuento por su nombre..." oninput="filterDashboardStories()">
+                </div>
+            </div>
+
+            <div class="user-profile" onclick="openProfileModal()" style="cursor: pointer;">
+                <span id="userName" style="font-weight: 600;">Cargando...</span>
+                <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid white;">
             </div>
         </nav>
 
@@ -1074,7 +1165,8 @@
         // ELEMENTOS UI
         const displayNameEl = document.getElementById('displayUserName');
         const userAvatarEl = document.getElementById('userAvatar');
-        const libraryGrid = document.getElementById('storiesGrid'); // Renamed from storiesGrid to libraryGrid for consistency with the snippet, but kept the ID.
+        const libraryGrid = document.getElementById('storiesGrid'); 
+        let currentStoriesData = []; // Guardar historias para filtrado local
 
         // LOGOUT
         function logout() {
@@ -1086,89 +1178,139 @@
         // CONTROL DE SESIÓN
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
-                // Check if superuser
                 if (user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com') {
                     const sideAdmin = document.getElementById('sideAdminItem');
                     if (sideAdmin) sideAdmin.style.display = 'block';
                 }
-                // 1. Obtener Nombre para mostrar
                 const name = user.displayName || user.email.split('@')[0];
-                displayNameEl.innerText = `Hola, ${name}`; // Added "Hola, " back for a friendly greeting.
+                if (displayNameEl) displayNameEl.innerText = `Hola, ${name}`; 
+                
+                // Actualizar también el nombre pequeño del Perfil (v17)
+                const userNameSmall = document.getElementById('userName');
+                if (userNameSmall) userNameSmall.innerText = name;
 
-                // 2. Avatar Mágico Inteligente
                 if (user.photoURL) {
                     userAvatarEl.src = user.photoURL;
                 } else {
-                    // Detección "Mágica" de Género por terminación (Simple pero efectiva para niños)
                     const firstName = name.split(' ')[0].toLowerCase();
                     const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
-
-                    // Configuración DiceBear
                     const seed = encodeURIComponent(name);
-
                     let avatarOptions = "radius=50";
-                    if (isGirl) {
-                        // Niña: Pelo largo verificado
-                        avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
-                    } else {
-                        // Niño: Pelo corto verificado
-                        avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
-                    }
-
+                    if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
+                    else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
                     userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
                 }
 
                 loadBadges(user.uid);
                 loadStories(user.uid);
             } else {
-                window.location.href = 'login.html'; // Kept original 'login.html' as the snippet's 'index.html' might be a typo or specific to a different flow.
+                window.location.href = 'login.html';
             }
         });
 
         async function loadStories(userId) {
             const grid = document.getElementById('storiesGrid');
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">Abriendo tu biblioteca de cuentos...</p>';
-
             try {
-                const snapshot = await db.collection("stories")
-                    .where("userId", "==", userId)
-                    .orderBy("createdAt", "desc")
+                const snapshot = await db.collection('stories')
+                    .where('userId', '==', userId)
+                    .orderBy('createdAt', 'desc')
                     .get();
 
-                // Guardar en cache local para modo offline
-                const storiesData = [];
-                snapshot.forEach(doc => storiesData.push({ id: doc.id, ...doc.data() }));
-                localStorage.setItem(`cached_stories_${userId}`, JSON.stringify(storiesData));
-
-                renderStories(snapshot, grid);
-
+                currentStoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderStoriesFromData(currentStoriesData);
+                
+                // Actualizar contadores y poder mágico
+                const storiesCount = currentStoriesData.length;
+                const countBadge = document.getElementById('storyCount');
+                if (countBadge) countBadge.innerText = storiesCount;
+                updateMagicPower(storiesCount);
+                
             } catch (error) {
-                console.error("Error cargando cuentos:", error);
-
-                // Si hay error (posiblemente offline), intentar cargar del cache
-                const cached = localStorage.getItem(`cached_stories_${userId}`);
-                if (cached) {
-                    const data = JSON.parse(cached);
-                    renderStories(data, grid, true); // true indica modo offline
-                    return;
-                }
-
-                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
-                    <p style="color: #ef4444; font-weight: bold;">Error al cargar la biblioteca mágina.</p>
-                    <p style="color: #666; font-size: 0.9rem;">Los duendes dicen: "${error.message}"</p>
-                </div>`;
+                console.error('Error al cargar cuentos:', error);
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 2rem;">Ops, los gnomos de la red están haciendo travesuras. Prueba a recargar.</p>';
             }
         }
+
+        function filterDashboardStories() {
+            const query = document.getElementById('dashboardSearch').value.toLowerCase().trim();
+            if (!query) {
+                renderStoriesFromData(currentStoriesData);
+                return;
+            }
+
+            const filtered = currentStoriesData.filter(story => 
+                (story.title && story.title.toLowerCase().includes(query)) ||
+                (story.character && story.character.toLowerCase().includes(query))
+            );
+
+            renderStoriesFromData(filtered);
+        }
+
+        function renderStoriesFromData(data) {
+            const grid = document.getElementById('storiesGrid');
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem;">
+                        <div style="font-size: 3.5rem; margin-bottom: 1rem;">🕳️</div>
+                        <h3 style="color: var(--text-main); font-weight: 700;">No encontramos ese cuento...</h3>
+                        <p style="color: var(--text-muted);">¿Quizás lo escribió un fantasma invisible? Prueba con otra palabra.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            data.forEach(story => {
+                const card = document.createElement('div');
+                card.className = 'story-card';
+                card.onclick = (e) => {
+                    if (e.target.closest('button')) return;
+                    localStorage.setItem('currentStoryId', story.id);
+                    window.location.href = 'story-reader.html';
+                };
+
+                const offlineBadge = !navigator.onLine ? '<span style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.5); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem;">💾 Offline</span>' : '';
+
+                card.innerHTML = `
+                    <div class="card-actions">
+                        <button class="action-btn delete" onclick="confirmDelete('${story.id}', '${story.title}')" title="Borrar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
+                        <button class="action-btn export" onclick="exportToPDF('${story.id}')" title="Descargar PDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </button>
+                        <button class="action-btn edit" onclick="openEditModal('${story.id}')" title="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </button>
+                        <button class="action-btn image" onclick="openImageModal('${story.id}')" title="Cambiar Imagen">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                        </button>
+                        <button class="action-btn fav ${story.isFavorite ? 'active' : ''}" onclick="toggleFavorite('${story.id}', ${story.isFavorite})" title="Favorito">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="${story.isFavorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        </button>
+                    </div>
+                    <img src="${story.coverImg || story.characterImg}" class="story-thumb" alt="${story.title}" loading="lazy">
+                    <div class="story-info">
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${story.title || 'Cuento sin título'}</h3>
+                        <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
+                            <span>👤 ${story.character}</span> • <span>📍 ${story.place}</span>
+                        </p>
+                        ${offlineBadge}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
         async function switchDashboardTab(tab, element = null) {
             currentStoriesTab = tab;
             
-            // UI feedback para pestañas (si existen) y sidebar
             if (element) {
                 document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
                 element.classList.add('active');
             }
             
-            // También actualizar sidebar si no se hizo desde ahí
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             sidebarItems.forEach(item => item.classList.remove('active'));
             const sideItem = document.getElementById(`side-${tab}`);
@@ -1188,13 +1330,15 @@
                         .where("userId", "==", user.uid)
                         .where("isFavorite", "==", true)
                         .get();
-                    renderStories(snapshot, grid);
+                    currentStoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderStoriesFromData(currentStoriesData);
                 } else if (tab === 'global') {
                     const snapshot = await db.collection("stories")
                         .where("isPublic", "==", true)
                         .limit(20)
                         .get();
-                    renderStories(snapshot, grid, false, true);
+                    currentStoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderStoriesFromData(currentStoriesData);
                 }
             } catch (error) {
                 console.error("Error al cambiar pestaña:", error);
@@ -1208,7 +1352,6 @@
                     isFavorite: !currentStatus
                 });
                 
-                // Refresh current view
                 const user = firebase.auth().currentUser;
                 if (user) {
                     if (currentStoriesTab === 'my-stories') loadStories(user.uid);
@@ -1229,7 +1372,6 @@
             document.getElementById('profileUserEmail').innerText = user.email;
             document.getElementById('profileAvatarLarge').src = document.getElementById('userAvatar').src;
             
-            // Stats
             try {
                 const storiesSnap = await db.collection("stories").where("userId", "==", user.uid).get();
                 document.getElementById('statStoriesCount').innerText = storiesSnap.size;
@@ -1238,21 +1380,13 @@
                 if (userDoc.exists) {
                     const badges = userDoc.data().badges || [];
                     document.getElementById('statBadgesCount').innerText = badges.length;
-                    
-                    // If they have a custom avatar seed in firestore, use it
-                    if (userDoc.data().avatarSeed) {
-                         // logo logic? No, already taken from userAvatar.src
-                    }
                 }
                 
-                // Actualizar contador global de historias si existe el elemento
                 const globalStoryCount = document.getElementById('storyCount');
                 if (globalStoryCount) globalStoryCount.innerText = storiesSnap.size;
                 
-                // --- ACTUALIZACIÓN DE PODER MÁGICO PLATINUM ---
                 updateMagicPower(storiesSnap.size);
 
-                // --- SALUDO MÁGICO DINÁMICO ---
                 const hour = new Date().getHours();
                 let greeting = "¡Hola";
                 if (hour < 12) greeting = "¡Buenos días";
@@ -1301,6 +1435,54 @@
             document.getElementById('profileModal').classList.remove('active');
         }
 
+        // --- SISTEMA DE ÁLBUM DE HÉROES (V17 Dashboard) ---
+        async function openAlbumModal() {
+            toggleSidebar();
+            const user = firebase.auth().currentUser;
+            if (!user) return;
+
+            document.getElementById('albumModal').classList.add('active');
+            const grid = document.getElementById('dashboardHeroGrid');
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem;">🪄 Abriendo tu cofre de tesoros...</div>';
+
+            try {
+                const snapshot = await db.collection("users").doc(user.uid).collection("heroes").orderBy("createdAt", "desc").get();
+                
+                if (snapshot.empty) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+                            <p style="font-weight: 700; font-size: 1.1rem;">¡Tu álbum aún no tiene magia!</p>
+                            <p>Ve al creador de cuentos, busca un personaje con "Magia" y pulsa la estrella ⭐ para guardarlo aquí.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const hero = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'option-card';
+                    card.style.cursor = 'default';
+                    card.innerHTML = `
+                        <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin: 0 auto 0.8rem; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <img src="${hero.url}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h4 style="font-size: 0.9rem; margin: 0; color: var(--text-main);">${hero.name}</h4>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (e) {
+                console.error("Error cargando álbum:", e);
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444;">Hubo un problema al abrir el baúl.</p>';
+            }
+        }
+
+        function closeAlbumModal() {
+            document.getElementById('albumModal').classList.remove('active');
+        }
+
         async function changeAvatarSeed() {
             const user = firebase.auth().currentUser;
             if (!user) return;
@@ -1345,7 +1527,6 @@
                         }
                     });
 
-                    // Bonus: Check for explorer badge automatically if not present
                     if (!badges.includes('explorer')) {
                         const storiesSnapshot = await db.collection("stories").where("userId", "==", userId).get();
                         if (storiesSnapshot.size >= 5) {
@@ -1361,79 +1542,27 @@
             }
         }
 
-        let currentStoriesTab = 'my-stories';
+        function updateMagicPower(count) {
+            const level = Math.floor(count / 5) + 1;
+            const progress = ((count % 5) / 5) * 100;
+            
+            const levelEl = document.getElementById('magicLevelDisplay');
+            const fillEl = document.getElementById('magicPowerFill');
+            const rankEl = document.getElementById('magicRankText');
 
-        function renderStories(snapshot, grid, isOffline = false, isGlobal = false) {
-            grid.innerHTML = '';
+            if (levelEl) levelEl.innerText = `Nv. ${level}`;
+            if (fillEl) fillEl.style.width = `${progress}%`;
 
-            let items = [];
-            if (isOffline || Array.isArray(snapshot)) {
-                items = snapshot;
-            } else {
-                snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
-            }
-
-            if (items.length === 0) {
-                let msg = "Tu biblioteca está vacía. ¡Crea tu primer cuento mágico!";
-                if (currentStoriesTab === 'favorites') msg = "Aún no tienes cuentos favoritos. ¡Haz clic en el ❤️ para guardarlos!";
-                if (currentStoriesTab === 'global') msg = "Aún no hay cuentos en la biblioteca global. ¡Sé el primero en compartir uno!";
-
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=300" 
-                                style="width: 120px; border-radius: 1rem; margin-bottom: 1rem; opacity: 0.7;">
-                        <p style="color: var(--text-muted);">${msg}</p>
-                    </div>
-                `;
-            }
-
-            items.forEach(story => {
-                const card = document.createElement('div');
-                card.className = 'story-card';
-                card.onclick = () => {
-                    localStorage.setItem('currentStoryId', story.id);
-                    window.location.href = 'story-reader.html';
-                };
-
-                const isFav = story.isFavorite || false;
-                const isPub = story.isPublic || false;
-
-                let imgUrl = story.coverImg || story.characterImg || story.placeImg || 'https://images.unsplash.com/photo-1512418490979-92798ccc13b0?auto=format&fit=crop&q=80&w=400';
-                let offlineBadge = isOffline ? `<div class="offline-badge">📡 Guardado</div>` : '';
-                
-                // Botones de acción agrupados
-                let actionBtns = '';
-                if (!isGlobal) {
-                    actionBtns = `
-                        <div class="card-actions">
-                            <button class="action-btn delete" onclick="event.stopPropagation(); confirmDelete('${story.id}', '${story.title.replace(/'/g, "\\'")}')" title="Eliminar">🗑️</button>
-                            <button class="action-btn share" onclick="event.stopPropagation(); shareStory('${story.title.replace(/'/g, "\\'")}', '${story.id}')" title="Compartir">🔗</button>
-                            <button class="action-btn export" onclick="event.stopPropagation(); exportToPDF('${story.id}')" title="Descargar PDF">📥</button>
-                            <button class="action-btn edit" onclick="event.stopPropagation(); openEditModal('${story.id}')" title="Editar">✍️</button>
-                            <button class="action-btn image" onclick="event.stopPropagation(); openImageModal('${story.id}')" title="Imagen">🎨</button>
-                            <button class="action-btn fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${story.id}', ${isFav})" title="Favorito">${isFav ? '❤️' : '🤍'}</button>
-                        </div>
-                    `;
-                } else {
-                    // Si es global, solo mostramos el botón de favorito
-                    actionBtns = `
-                        <div class="card-actions">
-                            <button class="action-btn fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${story.id}', ${isFav})" title="Favorito">${isFav ? '❤️' : '🤍'}</button>
-                        </div>
-                    `;
-                }
-
-                card.innerHTML = `
-                    ${actionBtns}
-                    <img src="${imgUrl}" class="story-thumb" alt="Story" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
-                    <div style="padding: 0.1rem;">
-                        <h3 style="margin-bottom: 0.2rem; font-size: 1rem; color: var(--text-main); line-height: 1.2;">${story.title}</h3>
-                        <p style="color: var(--text-muted); font-size: 0.75rem;">${story.character} en ${story.place}</p>
-                        ${offlineBadge}
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+            const ranks = [
+                "Aprendiz de Hechicero", 
+                "Iniciado del Cristal", 
+                "Guardián de Historias", 
+                "Maestro de la Tinta Mágica", 
+                "Gran Hechicero de Palabras",
+                "Leyenda Eterna de los Cuentos"
+            ];
+            const rankIndex = Math.min(level - 1, ranks.length - 1);
+            if (rankEl) rankEl.innerText = ranks[rankIndex];
         }
 
         // --- FUNCIONES DE ELIMINACIÓN ---
