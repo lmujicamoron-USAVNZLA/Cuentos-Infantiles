@@ -774,17 +774,125 @@ body {
     color: white;
 }
 
-/* Action Button Colors */
-.action-btn.delete { color: #ef4444; }
-.action-btn.edit { color: #f59e0b; }
-.action-btn.image { color: #10b981; }
-.action-btn.fav { color: #f43f5e; }
 
-/* Badges */
+/* --- DASHBOARD COMPONENTS (V20 POLISH) --- */
+.card-actions {
+    position: absolute;
+    top: 0.8rem;
+    left: 0.8rem;
+    right: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: var(--transition);
+}
+
+.story-card:hover .card-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover {
+    transform: scale(1.15) rotate(5deg);
+    background: white;
+}
+
+.action-btn.delete { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+.action-btn.edit { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+.action-btn.image { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+.action-btn.fav { color: #94a3b8; border-color: rgba(148, 163, 184, 0.3); }
+.action-btn.fav.active { color: #f43f5e; background: #fff1f2; border-color: rgba(244, 63, 94, 0.3); }
+.action-btn.export { color: #6366f1; border-color: rgba(99, 102, 241, 0.3); }
+
+/* Badges section styling */
 .badges-container {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.2rem;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.badge-item {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 90px;
+    transition: var(--transition);
+    opacity: 0.3; /* Desactivado por defecto */
+    filter: grayscale(1);
+}
+
+.badge-item.active {
+    opacity: 1;
+    filter: grayscale(0);
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 8px 15px rgba(99, 102, 241, 0.1);
+}
+
+.badge-icon {
+    font-size: 1.8rem;
+}
+
+.badge-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.badge-item.active .badge-name {
+    color: var(--primary);
+}
+
+/* Search refinement */
+.search-container {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Offline Badge */
+.offline-badge {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
 
 /* --- CREATOR UTILITIES (V20) --- */
 .min-h-screen-center {
