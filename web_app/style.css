@@ -104,7 +104,8 @@ body {
 /* Main Container */
 .container {
     width: 100%;
-    margin: 0 auto;
+    max-width: 1200px; /* Dashboard standard */
+    margin: 0 auto !important;
     padding: 1.5rem;
     position: relative;
     z-index: 1;
@@ -327,13 +328,21 @@ body {
 .page-left { background: #fff; border-right: 1px solid #f1f5f9; }
 .page-right { background: #fafafa; }
 
-.story-thumb {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow);
-    margin: 0;
+.story-thumb, .story-card img {
+    width: 100% !important;
+    height: 180px !important;
+    object-fit: cover !important;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    display: block;
+}
+
+.story-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: var(--transition);
+    border: 1px solid var(--glass-border);
+    position: relative;
 }
 
 .story-text {
@@ -633,12 +642,16 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(12px);
-    display: none; /* Hidden by default */
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(15px);
+    display: none !important; /* Forces hidden state */
     align-items: center;
     justify-content: center;
-    z-index: 4000;
+    z-index: 9999;
+}
+
+.modal-overlay.active {
+    display: flex !important;
 }
 
 .modal-overlay.active { display: flex; }
@@ -951,13 +964,20 @@ body {
 
 .search-input {
     width: 100%;
-    padding: 1rem 1rem 1rem 3.5rem;
+    padding: 1.1rem 1.1rem 1.1rem 3.5rem;
     border-radius: 1.2rem;
-    border: 2px solid transparent;
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05) !important;
     outline: none;
     font-weight: 600;
     color: var(--text-main);
+    transition: var(--transition);
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
 }
 
 .search-icon {
