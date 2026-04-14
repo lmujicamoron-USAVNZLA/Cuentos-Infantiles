@@ -1,14 +1,33 @@
 // Simulación de Base de Datos y API para Story Creator Kids
-// Este módulo maneja la persistencia de datos (Usuarios y Cuentos)
+// Este módulo maneja la persistencia de datos (Usuarios y Cuentos) con blindaje contra errores de seguridad local
 
 const DB = {
     // LLaves para localStorage
     USERS_KEY: 'sck_users',
     STORIES_KEY: 'sck_stories',
 
+    // Auxiliar para acceso seguro a localStorage
+    safeGet: function(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            console.warn("⚠️ Acceso a localStorage bloqueado por seguridad del navegador.");
+            return null;
+        }
+    },
+
+    safeSet: function(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            console.warn("⚠️ No se pudo guardar en localStorage: permiso denegado.");
+            return false;
+        }
+    },
+
     // --- MANEJO DE USUARIOS ---
 
-    // Guardar nuevo usuario (Pendiente de aprobación)
     saveUser: function (userData) {
         const users = this.getAllUsers();
         const newUser = {
@@ -18,53 +37,66 @@ const DB = {
             createdAt: new Date().toISOString()
         };
         users.push(newUser);
-        localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+        this.safeSet(this.USERS_KEY, JSON.stringify(users));
         return newUser;
     },
 
-    // Obtener todos los usuarios
     getAllUsers: function () {
-        const users = localStorage.getItem(this.USERS_KEY);
-        return users ? JSON.parse(users) : [];
+        const users = this.safeGet(this.USERS_KEY);
+        try {
+            return users ? JSON.parse(users) : [];
+        } catch (e) { return []; }
     },
 
-    // Aprobar usuario
     approveUser: function (userId) {
         const users = this.getAllUsers();
         const userIndex = users.findIndex(u => u.id === userId);
         if (userIndex !== -1) {
             users[userIndex].status = 'aprobado';
-            localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
-            return true;
+            return this.safeSet(this.USERS_KEY, JSON.stringify(users));
         }
         return false;
     },
 
-    // Eliminar/Rechazar usuario
     deleteUser: function (userId) {
         const users = this.getAllUsers();
         const filtered = users.filter(u => u.id !== userId);
-        localStorage.setItem(this.USERS_KEY, JSON.stringify(users.length > filtered.length ? this.USERS_KEY : filtered));
-        localStorage.setItem(this.USERS_KEY, JSON.stringify(filtered));
+        this.safeSet(this.USERS_KEY, JSON.stringify(filtered));
     },
 
     // --- MANEJO DE CUENTOS ---
 
     saveStory: function (storyData) {
         const stories = this.getAllStories();
+        
         const newStory = {
-            id: Date.now().toString(),
+            id: storyData.id || 'local_' + Date.now().toString(),
             ...storyData,
-            createdAt: new Date().toISOString()
+            source: storyData.id ? 'firebase' : 'local',
+            createdAt: storyData.createdAt || new Date().toISOString()
         };
-        stories.push(newStory);
-        localStorage.setItem(this.STORIES_KEY, JSON.stringify(stories));
+
+        const exists = stories.find(s => s.id === newStory.id || (s.title === newStory.title && s.userId === newStory.userId));
+        if (!exists) {
+            stories.push(newStory);
+            this.safeSet(this.STORIES_KEY, JSON.stringify(stories));
+        }
         return newStory;
     },
 
     getAllStories: function () {
-        const stories = localStorage.getItem(this.STORIES_KEY);
-        return stories ? JSON.parse(stories) : [];
+        const stories = this.safeGet(this.STORIES_KEY);
+        try {
+            return stories ? JSON.parse(stories) : [];
+        } catch (e) {
+            return [];
+        }
+    },
+
+    deleteStory: function (storyId) {
+        const stories = this.getAllStories();
+        const filtered = stories.filter(s => s.id !== storyId);
+        return this.safeSet(this.STORIES_KEY, JSON.stringify(filtered));
     }
 };
 

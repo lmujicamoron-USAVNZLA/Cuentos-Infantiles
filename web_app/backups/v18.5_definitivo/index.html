@@ -4,37 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Hechizo de Silencio v19.5: Filtra avisos técnicos de protocolo local (file://) -->
-    <script>
-        (function() {
-            const originalWarn = console.warn;
-            const originalError = console.error;
-            const silenceList = ['postMessage', 'location.protocol', 'CORS', 'manifest.json', 'Unsafe attempt', 'ERR_FAILED', 'ServiceWorker', 'SW registration'];
-            
-            console.warn = function(...args) {
-                if (args.length > 0 && typeof args[0] === 'string' && silenceList.some(s => args[0].includes(s))) return;
-                originalWarn.apply(console, args);
-            };
-            console.error = function(...args) {
-                if (args.length > 0 && typeof args[0] === 'string' && silenceList.some(s => args[0].includes(s))) return;
-                originalError.apply(console, args);
-            };
-        })();
-    </script>
     <title>Story Creator Kids (v13) - Cuentos Mágicos con IA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- PWA Magic: Solo se activa en servidores reales (HTTP/HTTPS) para evitar errores en modo local -->
-    <script>
-        if (window.location.protocol !== 'file:') {
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = 'manifest.json';
-            document.head.appendChild(link);
-        }
-    </script>
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -184,7 +159,7 @@
             console.log('🧹 Limpieza nuclear de caché v13 completada');
         }
 
-        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+        if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
                     .then(reg => console.log('Nuevo Service Worker v13 registrado ✨'))

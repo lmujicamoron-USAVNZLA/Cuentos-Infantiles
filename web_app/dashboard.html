@@ -4,12 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Hechizo de Silencio v19.5: Filtra avisos técnicos de protocolo local (file://) -->
+    <script>
+        (function() {
+            const originalWarn = console.warn;
+            const originalError = console.error;
+            const silenceList = ['postMessage', 'location.protocol', 'CORS', 'manifest.json', 'Unsafe attempt', 'ERR_FAILED', 'ServiceWorker', 'SW registration'];
+            
+            console.warn = function(...args) {
+                if (args.length > 0 && typeof args[0] === 'string' && silenceList.some(s => args[0].includes(s))) return;
+                originalWarn.apply(console, args);
+            };
+            console.error = function(...args) {
+                if (args.length > 0 && typeof args[0] === 'string' && silenceList.some(s => args[0].includes(s))) return;
+                originalError.apply(console, args);
+            };
+        })();
+    </script>
     <title>Dashboard (v5) - Story Creator Kids</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA Magic: Solo se activa en servidores reales (HTTP/HTTPS) para evitar errores en modo local -->
+    <script>
+        if (window.location.protocol !== 'file:') {
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = 'manifest.json';
+            document.head.appendChild(link);
+        }
+    </script>
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1145,6 +1170,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- SCRIPTS MÁGICOS -->
+    <script src="mascot.js?v=19.4"></script>
+    <script src="database.js"></script>
     <script src="safety.js"></script>
     <!-- jsPDF para exportación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1211,15 +1239,44 @@
         async function loadStories(userId) {
             const grid = document.getElementById('storiesGrid');
             try {
-                const snapshot = await db.collection('stories')
-                    .where('userId', '==', userId)
-                    .orderBy('createdAt', 'desc')
-                    .get();
+                // 1. Obtener de Firebase
+                let firebaseStories = [];
+                try {
+                    const snapshot = await db.collection('stories')
+                        .where('userId', '==', userId)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                    firebaseStories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), source: 'firebase' }));
+                } catch (fbErr) {
+                    console.warn("Firebase offline o lento, usando solo local.");
+                }
 
-                currentStoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // 2. Obtener de LocalStorage
+                const localStories = window.StoryDB ? window.StoryDB.getAllStories().filter(s => s.userId === userId) : [];
+                
+                // 3. Mezclar y deduplicar (prioridad Firebase si el ID es el mismo)
+                const mergedStories = [...firebaseStories];
+                localStories.forEach(local => {
+                    // Evitar duplicados por ID o por Título exacto
+                    const isDuplicated = mergedStories.find(s => s.id === local.id || s.title === local.title);
+                    if (!isDuplicated) {
+                        mergedStories.push({ ...local, source: 'local' });
+                    }
+                });
+
+                // Ordenar por fecha (descendente) - Blindado contra errores de fecha
+                currentStoriesData = mergedStories.sort((a, b) => {
+                    const getTimeValue = (val) => {
+                        if (!val) return 0;
+                        if (val.seconds) return val.seconds * 1000;
+                        const t = new Date(val).getTime();
+                        return isNaN(t) ? 0 : t;
+                    };
+                    return getTimeValue(b.createdAt) - getTimeValue(a.createdAt);
+                });
+
                 renderStoriesFromData(currentStoriesData);
                 
-                // Actualizar contadores y poder mágico
                 const storiesCount = currentStoriesData.length;
                 const countBadge = document.getElementById('storyCount');
                 if (countBadge) countBadge.innerText = storiesCount;
@@ -1249,6 +1306,16 @@
         function renderStoriesFromData(data) {
             const grid = document.getElementById('storiesGrid');
             grid.innerHTML = '';
+
+            // Pequeña función de limpieza para títulos con artefactos
+            const cleanText = (t) => {
+                if (!t) return "";
+                let s = t.trim();
+                if (s.startsWith('{')) {
+                    try { const p = JSON.parse(s); s = p.title || p.text || s; } catch(e) { s = s.replace(/\{.*?"title":\s*"/i, '').replace(/"\}$/, ''); }
+                }
+                return s.replace(/\*\*/g, '').replace(/[#*]/g, '').trim();
+            };
 
             if (data.length === 0) {
                 grid.innerHTML = `
@@ -1290,11 +1357,11 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="${story.isFavorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
                         </button>
                     </div>
-                    <img src="${story.coverImg || story.characterImg}" class="story-thumb" alt="${story.title}" loading="lazy">
+                    <img src="${story.coverImg || story.characterImg || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'}" class="story-thumb" alt="${cleanText(story.title)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'">
                     <div class="story-info">
-                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${story.title || 'Cuento sin título'}</h3>
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cleanText(story.title) || 'Cuento Mágico'}</h3>
                         <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
-                            <span>👤 ${story.character}</span> • <span>📍 ${story.place}</span>
+                            <span>👤 ${cleanText(story.character) || 'Héroe'}</span> • <span>📍 ${cleanText(story.place) || 'Lugar Mágico'}</span>
                         </p>
                         ${offlineBadge}
                     </div>
@@ -1403,8 +1470,14 @@
 
                 document.getElementById('profileModal').classList.add('active');
 
-            } catch (e) { 
+            } catch (e) {
                 console.error("Error en perfil:", e); 
+            }
+        }
+
+        function sparkyWelcome() {
+            if (window.Sparky) {
+                setTimeout(() => window.Sparky.say("¡Mira cuántos cuentos hemos creado! 📖"), 3000);
             }
         }
 
@@ -1590,37 +1663,43 @@
             deleteBtn.disabled = true;
 
             try {
-                await db.collection('stories').doc(storyToDelete).delete();
+                // 1. Eliminar de Firebase (si no es puramente local)
+                if (!storyToDelete.startsWith('local_')) {
+                    try {
+                        await db.collection('stories').doc(storyToDelete).delete();
+                    } catch (fbErr) {
+                        console.warn("No se pudo eliminar de la nube (posible offline):", fbErr);
+                    }
+                }
+
+                // 2. Eliminar de LocalStorage (siempre intentar)
+                if (window.StoryDB) {
+                    window.StoryDB.deleteStory(storyToDelete);
+                }
+
                 closeDeleteModal();
                 deleteBtn.innerHTML = originalText;
                 deleteBtn.disabled = false;
-                // Recargar la biblioteca con el usuario actual
+                
                 const user = firebase.auth().currentUser;
                 if (user) loadStories(user.uid);
             } catch (error) {
                 console.error('Error al eliminar:', error);
                 deleteBtn.innerHTML = originalText;
                 deleteBtn.disabled = false;
-
-                let errorMsg = '❌ Error al eliminar el cuento.';
-                if (error.code === 'permission-denied') {
-                    errorMsg += ' No tienes permisos para eliminar este cuento.';
-                } else if (error.code === 'unavailable') {
-                    errorMsg += ' Verifica tu conexión a internet.';
-                } else {
-                    errorMsg += ` (${error.message})`;
-                }
-
-                alert(errorMsg);
+                alert("Hubo un problema al eliminar el cuento.");
             }
         }
 
         // --- EXPORTAR A PDF ---
         async function exportToPDF(storyId) {
             try {
-                const docSnap = await db.collection('stories').doc(storyId).get();
-                if (!docSnap.exists) return;
-                const story = docSnap.data();
+                // Buscar el cuento en los datos ya cargados (híbridos)
+                const story = currentStoriesData.find(s => s.id === storyId);
+                if (!story) {
+                    console.error("Cuento no encontrado para exportar");
+                    return;
+                }
 
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF();
@@ -2215,7 +2294,7 @@
             }
         });
 
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log("SW registration failed:", err));
             });

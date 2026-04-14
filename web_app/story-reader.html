@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lectura Mágica - Story Creator Kids</title>
+    <title>Lector de Cuentos Mágicos ✨</title>
+    <script src="mascot.js?v=19.4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -197,6 +198,7 @@
             display: flex;
             gap: 2rem;
             align-items: center;
+            z-index: 200; /* Asegurar que esté por encima de las estrellas mágicas */
         }
 
         .nav-btn-circle {
@@ -246,19 +248,43 @@
 
         .top-control-btn:hover {
             transform: translateY(-2px);
-            background: white;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
         }
 
-        .top-control-btn svg {
-            width: 20px;
-            height: 20px;
+        .top-control-btn {
+            pointer-events: auto !important;
+            z-index: 101 !important;
+        }
+
+        /* --- V19.7: BARRA DE PROGRESO MÁGICA --- */
+        .progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #ec4899, #8b5cf6);
+            transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
         }
 
         .top-control-btn.active {
             background: var(--primary);
             color: white;
             box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .top-control-btn svg {
+            width: 20px;
+            height: 20px;
         }
 
         .top-control-btn.active-speaker {
@@ -278,6 +304,107 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 1rem;
+        }
+
+        /* --- V18 MAGIC SPARKLES UI --- */
+        .magic-score-badge {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 800;
+            color: #8b5cf6;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 2px solid white;
+            z-index: 200;
+            animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .sparkle-btn {
+            font-size: 1.4rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* --- V19 CREATIVE DRAWING WORKSHOP --- */
+        .drawing-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /></svg>'), auto;
+            display: none;
+            touch-action: none;
+        }
+
+        .drawing-active .drawing-canvas {
+            display: block;
+        }
+
+        .drawing-toolbar {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: none;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            z-index: 1000;
+            border: 2px solid #e0e7ff;
+        }
+
+        .drawing-active .drawing-toolbar {
+            display: flex;
+        }
+
+        .color-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.2);
+        }
+
+        .color-dot.active {
+            transform: scale(1.3);
+            border-color: #6366f1;
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: #f1f5f9;
         }
 
         .close-reader {
@@ -307,14 +434,20 @@
             pointer-events: auto;
             flex: 1;
             display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap; /* previene superposición en movil si hay muchos botones */
+            gap: 0.5rem;
+            overflow-x: auto; /* Permite scroll si hay muchos botones en movil */
             justify-content: flex-end;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 0.2rem 0;
+        }
+        .top-toolbar::-webkit-scrollbar {
+            display: none;
         }
 
         .close-reader:hover {
             background: white;
-            transform: translateX(-5px);
+            transform: translateX(-50px);
         }
 
         @media (max-width: 768px) {
@@ -473,31 +606,44 @@
                 <line x1="4" y1="22" x2="4" y2="15" />
             </svg>
         </button>
-        <!-- BOTÓN DE PDF (LIBRO REAL) -->
-        <button class="top-control-btn" id="pdfBtn" onclick="generateStoryPDF()" title="Descargar Libro Real (PDF)" style="color: #0ea5e9;">
+        <!-- BOTÓN DE PUZZLE -->
+        <button class="top-control-btn" id="puzzleBtn" onclick="openPuzzle()" title="Jugar Puzzle de este cuento" style="color: #ec4899;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
+                <path d="M11.75 5.92a.75.75 0 0 0-1.5 0v1.65a2.25 2.25 0 0 1-2.25 2.25h-1.65a.75.75 0 0 0 0 1.5h1.65a2.25 2.25 0 0 1 2.25 2.25v1.65a.75.75 0 0 0 1.5 0v-1.65a2.25 2.25 0 0 1 2.25-2.25h1.65a.75.75 0 0 0 0-1.5h-1.65a2.25 2.25 0 0 1-2.25-2.25V5.92Z" />
+                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
         </button>
     </div>
+    </div>
     </div> <!-- Cierre de header-overlay -->
 
+    <!-- BARRA DE PROGRESO (V19.7) -->
+    <div class="progress-bar-container">
+        <div id="readerProgressFill" class="progress-bar-fill"></div>
+    </div>
+
     <!-- ELEMENTOS ESCÉNICOS -->
+    <div id="particles-js" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;"></div>
     <audio id="pageTurnSfx" preload="auto">
         <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
     </audio>
     <audio id="bgMusic" loop preload="auto"></audio>
+    <audio id="ambientLoop" loop preload="auto"></audio>
     <canvas id="magicCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50;"></canvas>
+
+    <div class="magic-score-badge" id="magicScoreBadge">
+        <span class="sparkle-btn">✨</span>
+        <span id="magicScore">0</span>
+    </div>
 
     <main class="reader-container">
         <div class="book-wrapper">
-            <div class="book-page page-left">
+            <div class="book-page page-left" id="drawingWrapper">
                 <img id="storyImg"
                     src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"
                     class="story-image">
+                <canvas id="drawingCanvas" class="drawing-canvas"></canvas>
             </div>
             <div class="book-page page-right">
                 <div id="pageContent">
@@ -524,6 +670,21 @@
             </button>
         </div>
     </main>
+
+    <!-- BARRA DE HERRAMIENTAS DE DIBUJO -->
+    <div class="drawing-toolbar" id="drawingToolbar">
+        <div class="color-dot active" style="background: #ef4444;" onclick="setBrushColor('#ef4444', this)"></div>
+        <div class="color-dot" style="background: #3b82f6;" onclick="setBrushColor('#3b82f6', this)"></div>
+        <div class="color-dot" style="background: #10b981;" onclick="setBrushColor('#10b981', this)"></div>
+        <div class="color-dot" style="background: #f59e0b;" onclick="setBrushColor('#f59e0b', this)"></div>
+        <div class="color-dot" style="background: #8b5cf6;" onclick="setBrushColor('#8b5cf6', this)"></div>
+        <div class="color-dot" style="background: #000000;" onclick="setBrushColor('#000000', this)"></div>
+        <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
+        <button class="tool-btn" onclick="clearDrawing()" title="Borrar todo">🗑️</button>
+        <button class="tool-btn" onclick="saveDrawing()" title="Guardar en Perfil">💾</button>
+        <button class="tool-btn" onclick="downloadDrawing()" title="Descargar Imagen">📥</button>
+        <button class="tool-btn" onclick="toggleColoringMode()" title="Cerrar Taller" style="background: #fee2e2; color: #ef4444; border-radius: 50%;">✕</button>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -751,13 +912,19 @@
         resizeCanvas();
 
         class Particle {
-            constructor(x, y) {
+            constructor(x, y, isCollectible = false) {
                 this.x = x;
                 this.y = y;
                 this.size = Math.random() * 4 + 2;
+                this.isCollectible = isCollectible;
                 
-                // Tema espacial: estrellas flotando hacia arriba
-                if (currentTheme === 'space') {
+                if (isCollectible) {
+                    this.size = Math.random() * 8 + 6;
+                    this.color = '#fbbf24';
+                    this.speedX = (Math.random() - 0.5) * 4;
+                    this.speedY = (Math.random() - 0.5) * 4;
+                    this.life = 2.0; // Dura más
+                } else if (currentTheme === 'space') {
                     this.speedX = Math.random() * 1 - 0.5;
                     this.speedY = -Math.random() * 2 - 0.5;
                     this.color = Math.random() > 0.5 ? '#ffffff' : '#67e8f9';
@@ -784,17 +951,32 @@
                 this.life = 1;
             }
             update() {
-                if (currentTheme === 'forest') {
+                if (this.isCollectible) {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.speedX *= 0.98;
+                    this.speedY *= 0.98;
+                } else if (currentTheme === 'forest') {
                     this.x += Math.sin(this.life * 10) * 0.5;
                 }
                 this.x += this.speedX;
                 this.y += this.speedY;
-                this.life -= (currentTheme === 'space') ? 0.01 : 0.02;
+                this.life -= (this.isCollectible) ? 0.005 : (currentTheme === 'space' ? 0.01 : 0.02);
             }
             draw() {
                 ctx.fillStyle = this.color;
                 ctx.globalAlpha = this.life;
                 ctx.beginPath();
+                if (this.isCollectible) {
+                    // Dibujar estrella brillante
+                    ctx.save();
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#fbbf24';
+                    ctx.font = `${this.size * 2}px serif`;
+                    ctx.fillText('✨', this.x - this.size, this.y + this.size);
+                    ctx.restore();
+                    return;
+                }
                 if (currentTheme === 'forest') {
                     ctx.ellipse(this.x, this.y, this.size, this.size/2, this.life * Math.PI, 0, Math.PI * 2);
                 } else {
@@ -804,9 +986,10 @@
             }
         }
 
-        function createMagicDust(x, y) {
-            for (let i = 0; i < 20; i++) {
-                particles.push(new Particle(x, y));
+        function createMagicDust(x, y, isCollectible = false) {
+            const count = isCollectible ? 5 : 20;
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, isCollectible));
             }
         }
 
@@ -836,6 +1019,34 @@
             }
         }
         setInterval(createBackgroundSparkle, 200);
+
+        // --- SISTEMA DE INTERACTIVIDAD TÁCTIL ---
+        let magicScore = 0;
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                if (p.isCollectible) {
+                    const dist = Math.hypot(p.x - mouseX, p.y - mouseY);
+                    if (dist < 30) {
+                        // ¡Recolectado!
+                        particles.splice(i, 1);
+                        magicScore += 10;
+                        document.getElementById('magicScore').innerText = magicScore;
+                        createMagicDust(p.x, p.y); // Explosión de luz
+                        
+                        // Sonido de recolección
+                        const collectSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3');
+                        collectSfx.volume = 0.2;
+                        collectSfx.play().catch(() => {});
+                        break;
+                    }
+                }
+            }
+        });
 
         animateParticles();
 
@@ -884,8 +1095,8 @@
                     storyPages.push({
                         type: 'cover',
                         title: sanitizeText(data.title),
-                        body: sanitizeText(`Una historia sobre un ${data.character} en ${data.place}`),
-                        img: data.coverImg || charImg  // Usar imagen del protagonista en portada
+                        body: sanitizeText(`Una aventura mágica creada especialmente para ti en ${data.place}`), 
+                        img: data.coverImg || charImg
                     });
 
                     // 2. CUERPO DEL CUENTO (Dividir por puntos pero agrupar)
@@ -927,18 +1138,42 @@
                     document.getElementById('totalNum').innerText = storyPages.length;
                     currentPage = 0;
 
-                    // --- Cargar y Reproducir Música del Cuento ---
+                    // --- Cargar y Reproducir Música y Ambiente ---
                     const musicTheme = data.musicTheme || 'happy';
-                    currentTheme = musicTheme; // Conectar las partículas con la temática
+                    currentTheme = musicTheme;
                     const music = document.getElementById('bgMusic');
+                    const ambient = document.getElementById('ambientLoop');
+                    
+                    stopAllAudio(); // LIMPIEZA V19.7: Evitar superposición
+
                     music.src = musicThemes[musicTheme];
-                    // Intentar auto-play (muchos navegadores lo bloquean hasta el primer clic)
+                    
+                    // Capas de Ambiente
+                    const ambientMaps = {
+                        fantasy: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3", // Fantástico
+                        space: "https://assets.mixkit.co/active_storage/sfx/2855/2855-preview.mp3", // Vacío espacial
+                        forest: "https://assets.mixkit.co/active_storage/sfx/2143/2143-preview.mp3", // Pájaros
+                        adventure: "https://assets.mixkit.co/active_storage/sfx/2555/2555-preview.mp3", // Acción
+                        happy: "https://assets.mixkit.co/active_storage/sfx/1113/1113-preview.mp3" // Agua/Burbujas
+                    };
+                    ambient.src = ambientMaps[musicTheme] || ambientMaps.happy;
+                    ambient.volume = 0.15; // Ajuste V19.7: Más suave para no tapar música
+
                     music.play().then(() => {
                         isMusicPlaying = true;
+                        ambient.play().catch(() => {});
+                        if (window.Sparky) Sparky.say("¡Siente la música del reino! 🎶✨");
                     }).catch(() => {
                         isMusicPlaying = false;
                         document.getElementById('musicBtn').classList.remove('active');
                     });
+                    
+                    // Aparecer sparkles interactivos periódicamente
+                    setInterval(() => {
+                        if (currentPage > 0 && Math.random() > 0.7) {
+                            createMagicDust(Math.random() * canvas.width, Math.random() * canvas.height, true);
+                        }
+                    }, 3000);
 
                     updateUI();
                 }
@@ -946,6 +1181,12 @@
                 console.error(e);
                 window.location.href = 'dashboard.html';
             }
+        }
+
+        function openPuzzle() {
+            const img = document.getElementById('storyImg').src;
+            localStorage.setItem('lastStoryImg', img);
+            window.location.href = 'puzzles.html';
         }
 
         function getRelImg(char) {
@@ -1039,10 +1280,40 @@
             // --- DISPARAR SFX POR CONTEXTO ---
             playedKeywordsInPage.clear();
             setTimeout(() => playContextualSFX(p.body), 1500); // Pequeño delay para que el niño empiece a leer
+
+            // --- V19.7: BARRA DE PROGRESO Y SPARKY ---
+            const progress = ((currentPage + 1) / storyPages.length) * 100;
+            const barFill = document.getElementById('readerProgressFill');
+            if (barFill) barFill.style.width = `${progress}%`;
+
+            if (window.Sparky && currentPage > 0) {
+                const stepPhrases = [
+                    "¡Increíble descubrimiento! 🕵️‍♂️",
+                    "¡Eres un gran lector! ⭐",
+                    "¡Qué valentía la de este cuento! ⚔️",
+                    "¿Qué pasará después? 🤔✨",
+                    "¡Tus ojos brillan como estrellas! ✨"
+                ];
+                if (currentPage % 2 === 0 && currentPage < storyPages.length - 1) {
+                    Sparky.say(stepPhrases[Math.floor(Math.random() * stepPhrases.length)]);
+                }
+            }
+        }
+
+        function stopAllAudio() {
+            const music = document.getElementById('bgMusic');
+            const ambient = document.getElementById('ambientLoop');
+            if (music) { music.pause(); music.currentTime = 0; }
+            if (ambient) { ambient.pause(); ambient.currentTime = 0; }
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
         }
 
         function changePage(delta) {
             currentPage += delta;
+
+            // Reproducir SFX de paso de página V19.7
+            const pageTurn = document.getElementById('pageTurnSfx');
+            if (pageTurn) { pageTurn.currentTime = 0; pageTurn.play().catch(() => {}); }
 
             // Efecto de Partículas (En el centro del libro)
             createMagicDust(window.innerWidth / 2, window.innerHeight / 2);

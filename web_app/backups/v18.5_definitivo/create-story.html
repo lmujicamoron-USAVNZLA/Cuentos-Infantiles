@@ -40,7 +40,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="database.js"></script>
     <script src="safety.js"></script>
     <style>
         /* Banner de Magia Activa (v18.5) */
@@ -1134,8 +1133,6 @@
             selections.Titulo = '';
             selections.PersonajeImg = '';
             selections.LugarImg = '';
-            selections.PersonajePrompt = '';
-            selections.musicTheme = 'happy';
             currentStep = 1;
 
             // 2. Limpiar inputs visuales
@@ -1318,14 +1315,10 @@
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
 
-            // Asegurar que los botones siempre estén activos y visibles al cambiar de paso
+            // Asegurar que el botón siempre esté activo y visible
             prevBtn.disabled = false;
             prevBtn.style.display = "block";
             prevBtn.style.opacity = "1";
-            
-            nextBtn.disabled = false;
-            nextBtn.style.opacity = "1";
-            nextBtn.style.pointerEvents = "auto";
 
             // Sincronizar texto unificado (v18.4)
             prevBtn.innerText = "Atrás";
@@ -1482,29 +1475,36 @@
         }
 
         async function saveFinalStory() {
-            // VERIFICACIÓN ROBUSTA DE SESIÓN (V18.1/V18.5)
+            // VERIFICACIÓN ROBUSTA DE SESIÓN (V18.1/V18.5): Necesaria en modo local file://
             console.log("💾 Iniciando guardado definitivo...");
             let user = firebase.auth().currentUser;
             
             if (!user) {
-                console.log("⏳ Esperando sesión...");
+                console.log("⏳ Esperando a que el sistema de usuario termine de cargar...");
+                // Pequeña pausa mágica de 1s para que Firebase Auth cargue en modo local
                 await new Promise(r => setTimeout(r, 1000));
                 user = firebase.auth().currentUser;
             }
 
             if (!user) {
+                // ÚLTIMO RECURSO: Intentar jalar detalles de localStorage si existen
                 const localUser = JSON.parse(localStorage.getItem('cuentos_kids_user') || '{}');
                 if (localUser && localUser.uid) {
+                    console.log("🔑 Recurriendo a datos locales de sesión...");
                     user = { uid: localUser.uid, email: localUser.email || 'usuario@cuentos.kids' };
                 }
             }
 
             if (!user) {
-                alert("Uy, parece que tu sesión mágica expiró. Por favor, entra de nuevo.");
+                console.warn("❌ Sesión fallida al guardar.");
+                alert("Uy, parece que tu sesión mágica expiró. Por favor, entra de nuevo para guardar tu aventura.");
                 window.location.href = 'login.html';
                 return;
             }
             
+            console.log(`✅ Usuario verificado: ${user.email} (${user.uid})`);
+
+            // Sparky celebra
             if (window.Sparky) Sparky.react('save');
 
             const loader = document.getElementById('finalMagicLoader');
@@ -1515,76 +1515,75 @@
                 return;
             }
 
-            const finalContent = sanitizeText(storyText);
-            const finalTitle = sanitizeText(selections.Titulo || document.getElementById('storyTitle').value);
-
-            // --- PASO 1: GUARDADO LOCAL MÁGICO (Inmediato) ---
-            const storyToSave = {
-                userId: user.uid,
-                userEmail: user.email,
-                title: finalTitle,
-                character: selections.Personaje,
-                place: selections.Lugar,
-                characterImg: selections.PersonajeImg,
-                placeImg: selections.LugarImg,
-                coverImg: selections.PersonajeImg,
-                musicTheme: selections.musicTheme || 'happy',
-                content: finalContent
-            };
-
-            try {
-                // Guardado de rescate local preventivo (blindado)
-                if (window.StoryDB) {
-                    window.StoryDB.saveStory(storyToSave);
-                    console.log("📍 Guardado local preventivo efectuado.");
-                }
-            } catch (localErr) {
-                console.warn("⚠️ No se pudo realizar el guardado local, procediendo solo con nube.");
-            }
-
-            // --- PASO 2: INTENTO EN LA NUBE (Firebase) ---
             loader.querySelector('h2').innerText = "¡Guardando en la Biblioteca!";
             loader.style.display = 'flex';
 
+            const finalContent = sanitizeText(storyText);
+            const finalTitle = sanitizeText(selections.Titulo || document.getElementById('storyTitle').value);
+
+            // FALLBACK DE TIEMPO (V18.4): serverTimestamp() puede fallar en modo local
             let timeStampFallback = new Date();
             try {
                timeStampFallback = firebase.firestore.FieldValue.serverTimestamp();
-            } catch(e) { console.log("Usando fecha local."); }
+            } catch(e) { console.log("Usando fecha local para guardado rápido."); }
 
-            try {
+                // --- NUEVO (V18.5): RESCATE POR TIEMPO ---
                 const savePromise = db.collection("stories").add({
-                    ...storyToSave,
-                    createdAt: timeStampFallback
+                    userId: user.uid,
+                    userEmail: user.email,
+                    title: finalTitle,
+                    character: selections.Personaje,
+                    place: selections.Lugar,
+                    characterImg: selections.PersonajeImg,
+                    placeImg: selections.LugarImg,
+                    coverImg: selections.PersonajeImg,
+                    musicTheme: selections.musicTheme || 'happy',
+                    createdAt: timeStampFallback,
+                    content: finalContent
                 });
 
+                // Si Firestore tarda más de 3.5 segundos en responder vía file://, activamos el rescate preventivo
                 const timeoutPromise = new Promise((_, reject) => 
                     setTimeout(() => reject(new Error("Database timeout")), 3500)
                 );
 
-                await Promise.race([savePromise, timeoutPromise]);
-                console.log("✅ Guardado en la nube exitoso.");
-                
-                // SISTEMA DE MEDALLAS (Solo si llegamos a la nube)
+                try {
+                    await Promise.race([savePromise, timeoutPromise]);
+                } catch (saveErr) {
+                    console.warn("⚠️ Base de datos lenta por seguridad local. Iniciando descarga de rescate...");
+                    downloadStoryAsFile(finalTitle, finalContent);
+                    alert("✨ ¡Damas y caballeros! La base de datos de la nube está lenta por la seguridad de Chrome, pero hemos guardado tu historia automáticamente en un archivo para que no pierdas ni una letra.");
+                    loader.querySelector('h2').innerText = "¡Historia Salvada! ✨";
+                    setTimeout(() => window.location.replace('dashboard.html'), 300);
+                    return;
+                }
+
+                // --- RESTAURADO: SISTEMA DE MEDALLAS ---
                 try {
                     const userDoc = await db.collection("users").doc(user.uid).get();
                     if (userDoc.exists) {
                         const currentBadges = userDoc.data().badges || [];
-                        if (!currentBadges.includes('first_story')) {
+                        const newBadgesToAdd = [];
+                        if (!currentBadges.includes('first_story')) newBadgesToAdd.push('first_story');
+                        if (newBadgesToAdd.length > 0) {
                             await db.collection("users").doc(user.uid).update({
-                                badges: firebase.firestore.FieldValue.arrayUnion('first_story')
+                                badges: firebase.firestore.FieldValue.arrayUnion(...newBadgesToAdd)
                             });
                         }
                     }
-                } catch (bE) { console.warn("Error medallas:", bE); }
+                } catch (badgeErr) { console.warn("Error en medallas:", badgeErr); }
+                
+                console.log("✅ Proceso de guardado finalizado con éxito.");
+                loader.querySelector('h2').innerText = "¡Historia Guardada! ✨";
+                alert("✨ ¡Damas y caballeros, niños y niñas! Tu historia ha sido guardada mágicamente en la biblioteca.");
+                
+                setTimeout(() => window.location.replace('dashboard.html'), 300);
 
-            } catch (saveErr) {
-                console.warn("⚠️ Base de datos lenta. Ya está a salvo localmente.");
-                downloadStoryAsFile(finalTitle, finalContent);
-                alert("✨ ¡Historia guardada en tu biblioteca local! La nube está un poco lenta ahora.");
+            } catch (error) {
+                console.error("Error al guardar:", error);
+                alert("Error al guardar: " + error.message);
+                loader.style.display = 'none';
             }
-
-            loader.querySelector('h2').innerText = "¡Historia Guardada! ✨";
-            setTimeout(() => window.location.replace('dashboard.html'), 300);
         }
 
         // --- SISTEMA DE ESPEJO MÁGICO (Live Preview) ---

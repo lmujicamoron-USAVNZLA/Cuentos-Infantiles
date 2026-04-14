@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rompecabezas Mágico ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        #puzzle-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 5px solid white;
+        }
+        .puzzle-piece {
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .puzzle-piece:active {
+            cursor: grabbing;
+            z-index: 100;
+        }
+        .puzzle-piece.snapped {
+            cursor: default;
+            box-shadow: none;
+            pointer-events: none;
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99,102,241,0.3);
+        }
+        #win-msg {
+            display: none;
+            margin-top: 1rem;
+            color: #10b981;
+            font-weight: 800;
+            font-size: 1.5rem;
+            animation: bounce 0.5s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        @media (max-width: 600px) {
+            #puzzle-container {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="color: var(--primary); margin: 0;">🧩 Rompecabezas Mágico</h1>
+        <p style="color: #64748b;">¡Arma la imagen de tu aventura!</p>
+    </div>
+
+    <div id="puzzle-container"></div>
+
+    <div id="win-msg">¡LO LOGRASTE! ✨🏆</div>
+
+    <div class="controls">
+        <button class="btn" onclick="window.location.href='dashboard.html'">🏠 Volver</button>
+        <button class="btn" style="background: #8b5cf6;" onclick="initPuzzle()">🔄 Mezclar</button>
+    </div>
+
+    <script>
+        let pieces = [];
+        const container = document.getElementById('puzzle-container');
+        const rows = 2;
+        const cols = 2; // 4 piezas para empezar fácil
+        let snappedCount = 0;
+
+        function initPuzzle() {
+            container.innerHTML = '';
+            pieces = [];
+            snappedCount = 0;
+            document.getElementById('win-msg').style.display = 'none';
+            
+            const imgUrl = localStorage.getItem('lastStoryImg') || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&w=800';
+            
+            const pWidth = container.clientWidth / cols;
+            const pHeight = container.clientHeight / rows;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    piece.style.width = pWidth + 'px';
+                    piece.style.height = pHeight + 'px';
+                    piece.style.backgroundImage = `url(${imgUrl})`;
+                    piece.style.backgroundSize = `${container.clientWidth}px ${container.clientHeight}px`;
+                    piece.style.backgroundPosition = `-${c * pWidth}px -${r * pHeight}px`;
+                    
+                    // Posición correcta
+                    piece.dataset.correctX = c * pWidth;
+                    piece.dataset.correctY = r * pHeight;
+
+                    // Posición aleatoria inicial
+                    const randX = Math.random() * (container.clientWidth - pWidth);
+                    const randY = Math.random() * (container.clientHeight - pHeight);
+                    piece.style.left = randX + 'px';
+                    piece.style.top = randY + 'px';
+
+                    setupDrag(piece);
+                    container.appendChild(piece);
+                    pieces.push(piece);
+                }
+            }
+        }
+
+        function setupDrag(el) {
+            let isDragging = false;
+            let startX, startY;
+
+            const onStart = (e) => {
+                isDragging = true;
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                startX = clientX - el.offsetLeft;
+                startY = clientY - el.offsetTop;
+                el.style.zIndex = 1000;
+            };
+
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                
+                let x = clientX - startX;
+                let y = clientY - startY;
+
+                // Límites del contenedor
+                x = Math.max(0, Math.min(x, container.clientWidth - el.clientWidth));
+                y = Math.max(0, Math.min(y, container.clientHeight - el.clientHeight));
+
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+            };
+
+            const onEnd = () => {
+                isDragging = false;
+                el.style.zIndex = 1;
+                checkSnap(el);
+            };
+
+            el.addEventListener('mousedown', onStart);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+            
+            el.addEventListener('touchstart', onStart);
+            window.addEventListener('touchmove', (e) => { if(isDragging) e.preventDefault(); onMove(e); });
+            window.addEventListener('touchend', onEnd);
+        }
+
+        function checkSnap(el) {
+            const curX = parseInt(el.style.left);
+            const curY = parseInt(el.style.top);
+            const targetX = parseInt(el.dataset.correctX);
+            const targetY = parseInt(el.dataset.correctY);
+
+            if (Math.abs(curX - targetX) < 30 && Math.abs(curY - targetY) < 30) {
+                el.style.left = targetX + 'px';
+                el.style.top = targetY + 'px';
+                el.classList.add('snapped');
+                snappedCount++;
+                
+                if (snappedCount === pieces.length) {
+                    document.getElementById('win-msg').style.display = 'block';
+                    if (window.parent && window.parent.Sparky) window.parent.Sparky.say("¡Increíble! ¡Eres un maestro de los puzzles! 🏆");
+                }
+            }
+        }
+
+        window.onload = initPuzzle;
+    </script>
+</body>
+</html>

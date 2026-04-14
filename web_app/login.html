@@ -4,6 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Hechizo de Silencio v19.5: Filtra avisos técnicos de protocolo local (file://) -->
+    <script>
+        (function() {
+            const originalWarn = console.warn;
+            const originalError = console.error;
+            const silenceList = ['postMessage', 'location.protocol', 'CORS', 'manifest.json', 'Unsafe attempt', 'ERR_FAILED', 'ServiceWorker', 'SW registration'];
+            
+            console.warn = function(...args) {
+                if (args.length > 0 && typeof args[0] === 'string' && silenceList.some(s => args[0].includes(s))) return;
+                originalWarn.apply(console, args);
+            };
+            console.error = function(...args) {
+                if (args.length > 0 && typeof args[0] === 'string' && silenceList.some(s => args[0].includes(s))) return;
+                originalError.apply(console, args);
+            };
+        })();
+    </script>
     <title>Iniciar Sesión - Story Creator Kids</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
