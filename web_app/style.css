@@ -37,10 +37,18 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Centering for Auth Pages (Login/Register) */
+.auth-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow-x: hidden;
+}
+
+.auth-page .container {
+    max-width: 480px;
 }
 
 /* Background Animations */
@@ -96,7 +104,7 @@ body {
 /* Main Container */
 .container {
     width: 100%;
-    max-width: 480px;
+    margin: 0 auto;
     padding: 1.5rem;
     position: relative;
     z-index: 1;
@@ -319,14 +327,13 @@ body {
 .page-left { background: #fff; border-right: 1px solid #f1f5f9; }
 .page-right { background: #fafafa; }
 
-.story-image {
+.story-thumb {
     width: 100%;
-    height: auto;
-    max-height: 100%;
+    height: 180px;
     object-fit: cover;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow);
-    margin: auto;
+    margin: 0;
 }
 
 .story-text {
@@ -628,7 +635,7 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(12px);
-    display: none;
+    display: none; /* Hidden by default */
     align-items: center;
     justify-content: center;
     z-index: 4000;
@@ -1025,5 +1032,30 @@ body {
 
 .flash-active {
     animation: magicFlash 0.4s ease-out;
+}
+
+.story-info {
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid var(--glass-border);
+}
+
+.story-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.story-info p {
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
