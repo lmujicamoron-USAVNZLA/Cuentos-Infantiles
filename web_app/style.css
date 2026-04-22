@@ -62,7 +62,7 @@ body:not(.dark-mode) .gallery-item {
 
 body:not(.dark-mode) .story-card {
     background: #ffffff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 * {
@@ -379,20 +379,32 @@ body {
 
 .story-card img {
     width: 100% !important;
-    height: 180px !important;
+    height: 140px !important;
     object-fit: cover !important;
     border-bottom: 1px solid var(--glass-border);
+    transition: transform 0.5s;
+}
+
+.story-card:hover img {
+    transform: scale(1.05);
 }
 
 .story-card {
     background: var(--card-bg);
-    border-radius: var(--radius);
+    border-radius: 1.2rem;
     overflow: hidden;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--glass-border);
     position: relative;
     display: flex;
     flex-direction: column;
+    height: 280px; /* Tamaño estandarizado más compacto */
+}
+
+.story-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-indigo);
+    border-color: var(--primary);
 }
 
 .story-text {
@@ -1549,15 +1561,97 @@ input:checked + .slider:before {
     object-fit: cover;
 }
 
-/* 5. Flickering Fix */
+/* 5. Textarea Autosize Support */
+#editStoryText {
+    min-height: 100px;
+    resize: none;
+    overflow-y: hidden; 
+    line-height: 1.6;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid var(--glass-border) !important;
+    color: var(--text-main);
+    transition: all 0.3s;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: none;
+}
+
+#editStoryText:focus {
+    border-color: var(--primary) !important;
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+#editStoryText:focus {
+    border-color: var(--primary);
+}
+
+/* 6. Profile Avatar & Modal Fixes (V21.5) */
+.modal-overlay#profileModal .modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem; /* Eleva el contenido */
+    margin-top: -5vh; /* Ajuste fino de posición vertical */
+}
+
+#profileAvatarContainer {
+    margin-bottom: 1.2rem !important;
+}
+
+#profileAvatarLarge {
+    width: 120px;
+    height: 120px;
+    border: 5px solid white !important;
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+    background: white;
+}
+
+/* 7. Gallery Item Enhancements */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.gallery-item {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.05); /* Placeholder background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.gallery-item:hover {
+    transform: scale(1.03);
+    border-color: var(--primary);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 8. Page Animations */
 body {
     opacity: 0;
     background: #f8fafc;
-    animation: fadeInPage 0.6s ease-out forwards;
+    animation: fadeInPage 0.8s ease-out forwards;
 }
 
 @keyframes fadeInPage {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 

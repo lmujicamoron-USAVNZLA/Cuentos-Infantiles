@@ -41,7 +41,10 @@ firebase.auth().onAuthStateChanged(user => {
             db.collection("users").doc(user.uid).get().then(doc => {
                 if (doc.exists && doc.data().avatarSeed) {
                     const savedSeed = doc.data().avatarSeed;
-                    userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${savedSeed}&radius=50`;
+                    const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${savedSeed}&radius=50`;
+                    userAvatarEl.src = url;
+                    const largeAvatar = document.getElementById('profileAvatarLarge');
+                    if (largeAvatar) largeAvatar.src = url;
                 } else {
                     const firstName = name.split(' ')[0].toLowerCase();
                     const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
@@ -49,7 +52,8 @@ firebase.auth().onAuthStateChanged(user => {
                     let avatarOptions = "radius=50";
                     if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
                     else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
-                    userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
+                    containerAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
+                    userAvatarEl.src = containerAvatarUrl;
                 }
             }).catch(e => console.log("Error loading avatar preference:", e));
         }
@@ -345,17 +349,27 @@ async function changeAvatarSeed() {
     const name = user.displayName || user.email.split('@')[0];
     const randomSeed = Math.random().toString(36).substring(7);
     const newSeed = name + "_" + randomSeed;
-    const userAvatarEl = document.getElementById('userAvatar');
-    const profileAvatarLarge = document.getElementById('profileAvatarLarge');
-    const isGirl = name.toLowerCase().endsWith('a');
-    let avatarOptions = "radius=50";
-    if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
-    else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
-    const newUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(newSeed)}&${avatarOptions}`;
-    userAvatarEl.src = newUrl;
-    profileAvatarLarge.src = newUrl;
+    
+    // Función auxiliar para obtener la URL
+    const getAvatarUrl = (seed) => {
+        const isGirl = name.toLowerCase().endsWith('a');
+        let avatarOptions = "radius=50";
+        if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
+        else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
+        return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}&${avatarOptions}`;
+    };
+
+    const newUrl = getAvatarUrl(newSeed);
+    
+    // Actualizar todas las instancias del avatar en el UI
+    document.querySelectorAll('[id*="Avatar"]').forEach(el => {
+        if (el.tagName === 'IMG') el.src = newUrl;
+    });
+    
     try {
         await db.collection("users").doc(user.uid).set({ avatarSeed: newSeed }, { merge: true });
+        // Actualizar el objeto global si existe
+        if (window.currentUserData) window.currentUserData.avatarSeed = newSeed;
     } catch (e) {
         console.error("Error guardando avatar:", e);
     }
@@ -723,13 +737,14 @@ async function filterGallery() {
     }
 
     const aiResults = [];
-    // Prompt optimizado para niños
-    const prompt = `Digital art, children book illustration, cute, bright colors, ${translated}`;
+    // Prompt simplificado para evitar errores de generación
+    const cleanQuery = translated.replace(/[^a-zA-Z0-9 ]/g, '');
+    const prompt = `Digital art, children book illustration, ${cleanQuery}`;
     
-    for (let i = 0; i < 6; i++) { // Mostrar 6 opciones de IA
-        const seed = Math.floor(Math.random() * 999999);
+    for (let i = 0; i < 6; i++) {
+        const seed = Math.floor(Math.random() * 100000);
         aiResults.push({ 
-            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true`, 
+            url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true`, 
             tags: query 
         });
     }
@@ -774,6 +789,7 @@ function closeImageModal() {
 async function saveNewImage() {
     if (!storyToUpdateImage || !selectedImageUrl) return;
     const btn = document.getElementById('confirmImageBtn');
+    const originalText = btn.innerHTML;
     btn.innerHTML = '🪄 Hechizando...';
     btn.disabled = true;
     try {
@@ -782,11 +798,25 @@ async function saveNewImage() {
             characterImg: selectedImageUrl,
             placeImg: selectedImageUrl
         });
-        alert("✨ ¡Imagen actualizada!"); 
+        
+        // Actualizar localmente para feedback inmediato
+        const storyIndex = currentStoriesData.findIndex(s => s.id === storyToUpdateImage);
+        if (storyIndex !== -1) {
+            currentStoriesData[storyIndex].coverImg = selectedImageUrl;
+        }
+        
+        celebrate();
         closeImageModal();
-        const user = firebase.auth().currentUser;
-        if (user) loadStories(user.uid);
-    } catch (error) { console.error(error); alert(error.message); }
+        renderStories(currentStoriesData); // Re-renderizar para ver el cambio ya
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    } catch (error) { 
+        console.error(error); 
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert("Hubo un problema al guardar la imagen.");
+    }
 }
 
 // --- PWA & SERVICE WORKER ---
