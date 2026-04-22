@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20.9">
     <script>
         if (window.location.protocol !== 'file:') {
             const link = document.createElement('link');
@@ -48,8 +48,7 @@
         }
     </style>
 </head>
-<body class="dark-mode">
-
+<body>
 
 
     <!-- Menú Lateral (Sidebar) Premium -->
@@ -184,17 +183,17 @@
                 opciones!</p>
 
             <div
-                style="margin-top: 1rem; display: flex; gap: 0.75rem; background: #f8fafc; padding: 0.5rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; position: relative; align-items: center;">
+                style="margin-top: 1rem; display: flex; gap: 0.75rem; background: var(--glass-bg); padding: 0.5rem; border-radius: 1.5rem; border: 1px solid var(--glass-border); position: relative; align-items: center;">
                 <input type="text" id="gallerySearch"
-                    placeholder="Busca lo que imagines (ej. superman, robot, playa)..."
+                    placeholder="Busca lo que imagines (ej. spiderman, hada, robot)..."
                     onkeyup="if(event.key === 'Enter') filterGallery()" oninput="liveGallerySearch()"
-                    style="flex: 1; border: 3px solid #94a3b8 !important; background: transparent; padding: 0.5rem 1rem; outline: none; font-size: 1rem;">
+                    style="flex: 1; border: 1px solid var(--glass-border) !important; background: transparent; padding: 0.5rem 1rem; outline: none; font-size: 1rem; color: var(--text-main); border-radius: 1rem;">
                 <button id="clearGallerySearch" onclick="clearGallerySearch()"
-                    style="background: #cbd5e1; border: none; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; font-size: 0.8rem; margin-right: 0.5rem;">✕</button>
+                    style="background: var(--glass-border); border: none; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; cursor: pointer; color: var(--text-main); font-size: 0.8rem; margin-right: 0.5rem;">✕</button>
                 <button onclick="filterGallery()"
-                    style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; border-radius: 1.2rem; padding: 0.6rem 1.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
+                    style="background: var(--magic-gradient); color: white; border: none; border-radius: 1.2rem; padding: 0.6rem 2rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨
-                    Magia (v16)</button>
+                    Magia</button>
             </div>
 
             <div class="image-gallery-grid" id="galleryGrid" style="margin-top: 1.5rem; min-height: 200px;">
@@ -208,9 +207,9 @@
             <div class="modal-actions" style="margin-top: 2rem; flex-direction: row-reverse; gap: 1rem;">
                 <button class="modal-btn modal-btn-primary" id="confirmImageBtn"
                     style="opacity: 0.5; cursor: not-allowed; flex: 2; font-size: 1.1rem; padding: 1rem;"
-                    onclick="saveNewImage()" disabled>✨ ¡Usar esta Imagen!</button>
+                    onclick="saveNewImage()" disabled>💾 Guardar Cambios</button>
                 <button class="modal-btn modal-btn-cancel" onclick="closeImageModal()" style="flex: 1;">⬅️
-                    Volver</button>
+                    Atrás</button>
             </div>
         </div>
     </div>
@@ -225,17 +224,17 @@
             <p id="profileUserEmail" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;"></p>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                <div style="background: #f8fafc; padding: 1rem; border-radius: 1rem; border: 1px solid #e2e8f0;">
+                <div style="background: var(--glass-bg); padding: 1rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
                     <span style="display: block; font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="statStoriesCount">0</span>
                     <span style="font-size: 0.8rem; color: var(--text-muted);">Cuentos Creados</span>
                 </div>
-                <div style="background: #f8fafc; padding: 1rem; border-radius: 1rem; border: 1px solid #e2e8f0;">
+                <div style="background: var(--glass-bg); padding: 1rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
                     <span style="display: block; font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="statBadgesCount">0</span>
                     <span style="font-size: 0.8rem; color: var(--text-muted);">Medallas</span>
                 </div>
             </div>
             <div class="modal-actions" style="gap: 1rem; margin-top: 1.5rem;">
-                <button class="modal-btn modal-btn-cancel" onclick="logout()" style="flex: 1; border: 1px solid #f43f5e; color: #f43f5e; background: transparent;">🚪 Salir de Cuenta</button>
+                <button class="modal-btn modal-btn-cancel" onclick="logout()" style="flex: 1; border: 1px solid #f43f5e; color: #f43f5e; background: transparent;">🚪 Salir</button>
                 <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="flex: 2;">¡Genial! ✨</button>
             </div>
         </div>
@@ -252,7 +251,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
                 <div style="display: flex; flex-direction: column;">
-                    <h2 id="displayUserName" style="font-size: 1.2rem; font-weight: 700; color: var(--primary); margin: 0;">¡Hola, pequeño hechicero! ✨</h2>
+                    <h2 id="displayUserName" style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin: 0;">¡Hola! ✨</h2>
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 2px;">
                         <span style="background: var(--magic-gradient); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">V20 PREMIUM MAGIC EDITION</span>
                     </div>
@@ -260,7 +259,7 @@
             </div>
             
             <!-- BUSCADOR MÁGICO DE CUENTOS -->
-            <div class="search-container glass-effect">
+            <div class="search-container">
                 <div class="search-box-wrapper">
                     <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
@@ -269,9 +268,13 @@
                 </div>
             </div>
 
-            <div class="user-profile" onclick="openProfileModal()" style="cursor: pointer;">
-                <span id="userName" style="font-weight: 600;">Cargando...</span>
-                <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid white;">
+            <div class="user-profile" id="userProfileStatus" style="display: flex; align-items: center; cursor: pointer; position: relative;" onclick="handleAvatarClick()">
+                <div class="avatar-magic-ring">
+                    <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid white; box-shadow: var(--shadow-sm); transition: transform 0.3s; display: block;">
+                </div>
+                <div id="magicRankToast" style="position: absolute; top: 120%; right: 0; background: var(--magic-gradient); color: white; padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; box-shadow: 0 10px 15px rgba(99, 102, 241, 0.4); transform: scale(0); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5000; pointer-events: none;">
+                    ✨ ¡Hechicero de Nivel 1!
+                </div>
             </div>
         </nav>
 
@@ -281,7 +284,6 @@
         <div id="badgesSection" style="margin-top: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                 <h3 style="font-size: 1.1rem; color: var(--primary);">Mis Medallas Mágicas</h3>
-                <button onclick="openProfileModal()" style="background: white; border: 1px solid #e2e8f0; padding: 0.4rem 0.8rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--text-main);">👤 Mi Perfil</button>
             </div>
             <div class="badges-container" id="badgesGrid">
                 <div class="badge-item active" id="badge-first_story" title="Crea tu primer cuento">
@@ -316,14 +318,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <!-- SCRIPTS MÁGICOS -->
-    <script src="mascot.js?v=19.4"></script>
+    <script src="mascot.js?v=20.4"></script>
     <script src="database.js"></script>
     <script src="safety.js"></script>
     <!-- jsPDF para exportación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script src="firebase-init.js"></script>
-    <script src="dashboard-logic.js"></script>
+    <script src="dashboard-logic.js?v=20.5"></script>
     <script>
         // UI logic managed by dashboard-logic.js
     </script>

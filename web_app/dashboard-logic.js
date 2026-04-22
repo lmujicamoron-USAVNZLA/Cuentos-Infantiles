@@ -37,13 +37,21 @@ firebase.auth().onAuthStateChanged(user => {
         if (user.photoURL) {
             userAvatarEl.src = user.photoURL;
         } else {
-            const firstName = name.split(' ')[0].toLowerCase();
-            const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
-            const seed = encodeURIComponent(name);
-            let avatarOptions = "radius=50";
-            if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
-            else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
-            userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
+            // Cargar Avatar Guardado desde Firestore (V21.5 Persistence Fix)
+            db.collection("users").doc(user.uid).get().then(doc => {
+                if (doc.exists && doc.data().avatarSeed) {
+                    const savedSeed = doc.data().avatarSeed;
+                    userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${savedSeed}&radius=50`;
+                } else {
+                    const firstName = name.split(' ')[0].toLowerCase();
+                    const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
+                    const seed = encodeURIComponent(name);
+                    let avatarOptions = "radius=50";
+                    if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
+                    else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
+                    userAvatarEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
+                }
+            }).catch(e => console.log("Error loading avatar preference:", e));
         }
 
         loadBadges(user.uid);
@@ -160,6 +168,9 @@ function renderStoriesFromData(data) {
                 <button class="action-btn edit" onclick="openEditModal('${story.id}')" title="Editar">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                 </button>
+                <button class="action-btn image" onclick="openImageModal('${story.id}')" title="Cambiar Imagen">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                </button>
                 <div style="flex: 1;"></div>
                 <button class="action-btn fav ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${story.id}', ${isFavorite})" title="Favorito">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${isFavorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
@@ -213,6 +224,16 @@ async function switchDashboardTab(tab, element = null) {
     } catch (error) {
         console.error("Error al cambiar pestaña:", error);
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #ef4444;">No pudimos cruzar el puente mágico ahora mismo.</p>';
+    }
+}
+
+function handleSidebarNav(tab) {
+    switchDashboardTab(tab);
+    
+    // Auto-hide the sidebar after selecting an option
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && sidebar.classList.contains('active')) {
+        toggleSidebar();
     }
 }
 
@@ -457,7 +478,13 @@ async function exportToPDF(storyId) {
     }
 }
 
-// --- EDICIÓN ---
+// --- SISTEMA DE AUTOSIZE PARA EL EDITOR (V21.5) ---
+function autoResizeTextarea(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+}
+
 async function openEditModal(storyId) {
     const isAdult = await triggerParentalGate();
     if (!isAdult) return;
@@ -467,10 +494,19 @@ async function openEditModal(storyId) {
         if (!docSnap.exists) return;
         const data = docSnap.data();
         document.getElementById('editStoryTitle').value = data.title;
-        document.getElementById('editStoryText').value = data.content;
+        const textEl = document.getElementById('editStoryText');
+        textEl.value = data.content;
+        
+        // Abrir modal y disparar autosize
         document.getElementById('editModal').classList.add('active');
+        setTimeout(() => autoResizeTextarea(textEl), 100);
     } catch (error) { console.error(error); }
 }
+
+// Listener para redimensionar mientras se escribe
+document.getElementById('editStoryText')?.addEventListener('input', function() {
+    autoResizeTextarea(this);
+});
 
 function closeEditModal() {
     document.getElementById('editModal').classList.remove('active');
@@ -655,33 +691,54 @@ function renderGallery(images) {
 let galleryDebounceTimer;
 function liveGallerySearch() {
     clearTimeout(galleryDebounceTimer);
-    galleryDebounceTimer = setTimeout(() => { filterGallery(); }, 800);
+    galleryDebounceTimer = setTimeout(() => { filterGallery(); }, 400); // Reducir a 400ms para más fluidez
     toggleGalleryClearBtn();
 }
 
 async function filterGallery() {
     const queryInput = document.getElementById('gallerySearch');
     const query = queryInput.value.toLowerCase().trim();
-    if (!query) { renderGallery(magicImages); return; }
+    if (!query) { 
+        renderGallery(magicImages); 
+        document.getElementById('galleryLoader').style.display = 'none';
+        return; 
+    }
+    
     if (!checkSafetyAndAlert(query)) return;
+    
     const grid = document.getElementById('galleryGrid');
     const loader = document.getElementById('galleryLoader');
+    
     grid.innerHTML = '';
     loader.style.display = 'block';
+
     const localResults = magicImages.filter(img => img.tags.toLowerCase().includes(query));
+    
+    // Búsqueda en diccionario maestro para mejorar prompts
     let translated = query;
     const sortedKeys = Object.keys(masterDictionary).sort((a,b) => b.length - a.length);
     for (let k of sortedKeys) {
         const regex = new RegExp(`\\b${k}\\b`, 'gi');
         if (regex.test(translated)) translated = translated.replace(regex, masterDictionary[k].en);
     }
+
     const aiResults = [];
-    if (curatedImages[query]) aiResults.push({ url: curatedImages[query], tags: query });
-    for (let i = aiResults.length; i < 8; i++) {
+    // Prompt optimizado para niños
+    const prompt = `Digital art, children book illustration, cute, bright colors, ${translated}`;
+    
+    for (let i = 0; i < 6; i++) { // Mostrar 6 opciones de IA
         const seed = Math.floor(Math.random() * 999999);
-        aiResults.push({ url: `https://gen.pollinations.ai/image/${encodeURIComponent('3D Pixar style of ' + translated)}?width=512&height=512&seed=${seed}&nologo=true`, tags: query });
+        aiResults.push({ 
+            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true`, 
+            tags: query 
+        });
     }
-    setTimeout(() => { loader.style.display = 'none'; renderGallery([...localResults, ...aiResults]); }, 600);
+
+    // Pequeño delay artificial para feedback visual de "carga mágica"
+    setTimeout(() => { 
+        loader.style.display = 'none'; 
+        renderGallery([...localResults, ...aiResults]); 
+    }, 400);
 }
 
 function toggleGalleryClearBtn() {
@@ -769,7 +826,13 @@ function updateThemeUI(isDark) {
     }
 }
 
-if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+if (localStorage.getItem('darkMode') === 'true') { 
+    document.body.classList.add('dark-mode'); 
+}
+// Run once on load to ensure UI matches the current body class
+document.addEventListener('DOMContentLoaded', () => {
+    updateThemeUI(document.body.classList.contains('dark-mode'));
+});
 
 // --- COMPARTIR ---
 function shareStory(title, id) {
@@ -816,3 +879,27 @@ window.addEventListener('keydown', (e) => {
         if (sbar && sbar.classList.contains('active')) toggleSidebar();
     }
 });
+
+// --- NEW V20 INTERACTION: AVATAR MAGIC CLICK ---
+function handleAvatarClick() {
+    const toast = document.getElementById('magicRankToast');
+    const rankText = document.getElementById('magicRankText')?.innerText || "Hechicero Aprendiz";
+    
+    // Trigger celebration (confetti)
+    if (typeof celebrate === 'function') celebrate();
+    else if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+    // Update and show toast
+    if (toast) {
+        toast.innerText = `✨ ¡${rankText}!`;
+        toast.classList.add('visible');
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('visible');
+        }, 3000);
+    }
+    
+    console.log("✨ Magia invocada desde el Avatar!");
+}
+

@@ -71,8 +71,8 @@ const Mascot = {
             <style>
                 .mascot-container {
                     position: fixed;
-                    bottom: 12px;
-                    left: 12px;
+                    bottom: 24px;
+                    right: 24px;
                     z-index: 9999;
                     pointer-events: none;
                     animation: mascotFloat 5s ease-in-out infinite;
@@ -91,7 +91,7 @@ const Mascot = {
                 .mascot-bubble {
                     position: absolute;
                     top: -70px;
-                    left: 55px;
+                    right: 110px;
                     background: white;
                     padding: 12px 22px;
                     border-radius: 20px;
@@ -120,11 +120,10 @@ const Mascot = {
                 @media (max-width: 768px) { 
                     .mascot-container { 
                         bottom: 80px; 
-                        left: auto;
                         right: 12px; 
                     }
                     .mascot-wrapper { width: 90px; height: 90px; } 
-                    .mascot-bubble { font-size: 0.75rem; top: -50px; left: -100px; border-radius: 15px 15px 0 15px; }
+                    .mascot-bubble { font-size: 0.75rem; top: -50px; right: 70px; border-radius: 15px 15px 0 15px; }
                 }
             </style>
         `;

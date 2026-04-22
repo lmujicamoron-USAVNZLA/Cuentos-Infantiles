@@ -215,12 +215,14 @@
         </div>
 
         <div class="actions-nav">
-            <button type="button" class="btn-action"
-                style="background: #ffffff; color: #1e1b4b; border: 2px solid #1e1b4b; font-weight: 700; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
-                onclick="changeStep(-1)" id="prevBtn">Atrás</button>
-            <button type="button" class="btn-action"
-                style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);"
-                onclick="changeStep(1)" id="nextBtn">Siguiente</button>
+            <button type="button" class="btn-action" style="background: white; color: #1e1b4b; border: 2px solid #e2e8f0;" onclick="changeStep(-1)" id="prevBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Atrás
+            </button>
+            <button type="button" class="btn-action" style="background: var(--magic-gradient); color: white;" onclick="changeStep(1)" id="nextBtn">
+                Siguiente
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
         </div>
 
         <!-- Pantalla de Carga Mágica -->
