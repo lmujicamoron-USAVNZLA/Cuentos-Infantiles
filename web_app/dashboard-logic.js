@@ -757,7 +757,7 @@ async function filterGallery() {
     for (let i = 0; i < 9; i++) { // Aumentado a 9 opciones
         const seed = Math.floor(Math.random() * 1000000);
         aiResults.push({ 
-            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`, 
+            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm`, 
             tags: query 
         });
     }

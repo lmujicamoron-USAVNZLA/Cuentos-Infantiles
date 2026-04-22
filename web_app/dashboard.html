@@ -207,12 +207,11 @@
                 <p style="color: var(--primary); font-weight: 600; margin-top: 1rem;">Buscando en el cofre mágico...</p>
             </div>
 
-            <div class="modal-actions" style="margin-top: 2rem; flex-direction: row-reverse; gap: 1rem;">
+            <div class="modal-actions" style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button class="modal-btn modal-btn-cancel" onclick="closeImageModal()" style="flex: 1;">⬅️ Atrás</button>
                 <button class="modal-btn modal-btn-primary" id="confirmImageBtn"
-                    style="opacity: 0.5; cursor: not-allowed; flex: 2; font-size: 1.1rem; padding: 1rem;"
-                    onclick="saveNewImage()" disabled>💾 Guardar Cambios</button>
-                <button class="modal-btn modal-btn-cancel" onclick="closeImageModal()" style="flex: 1;">⬅️
-                    Atrás</button>
+                    style="opacity: 0.5; cursor: not-allowed; flex: 1;"
+                    onclick="saveNewImage()" disabled>💾 Usar Imagen ✨</button>
             </div>
         </div>
     </div>
@@ -236,9 +235,9 @@
                     <span style="font-size: 0.8rem; color: var(--text-muted);">Medallas</span>
                 </div>
             </div>
-            <div class="modal-actions">
+            <div class="modal-actions" style="display: flex; gap: 1rem; width: 100%;">
                 <button class="modal-btn modal-btn-cancel" onclick="logout()" style="flex: 1;">🚪 Salir</button>
-                <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="flex: 2;">¡Genial! ✨</button>
+                <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="flex: 1;">¡Genial! ✨</button>
             </div>
         </div>
     </div>
