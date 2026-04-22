@@ -627,6 +627,8 @@ const masterDictionary = {
     'perro': { en: 'dog', cat: 'subject', sub: 'animal' },
     'perrito': { en: 'cute dog', cat: 'subject', sub: 'animal' },
     'gato': { en: 'cat', cat: 'subject', sub: 'animal' },
+    'gato con botas': { en: 'Puss in Boots', cat: 'subject', sub: 'character' },
+    'botas': { en: 'boots', cat: 'modifier' },
     'gatito': { en: 'cute cat', cat: 'subject', sub: 'animal' },
     'leon': { en: 'lion', cat: 'subject', sub: 'animal' },
     'león': { en: 'lion', cat: 'subject', sub: 'animal' },
