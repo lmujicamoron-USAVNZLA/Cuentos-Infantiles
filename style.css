@@ -1930,3 +1930,27 @@ body.dark-mode .modal-btn-cancel {
     font-size: 0.9rem !important;
 }
 
+
+/* 18. Scroll Visibility & Modal Positioning */
+.modal-overlay {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding-top: 5vh !important;
+    overflow-y: auto !important;
+}
+
+.image-gallery-grid::-webkit-scrollbar { 
+    width: 10px !important; 
+}
+.image-gallery-grid::-webkit-scrollbar-thumb { 
+    background: var(--primary) !important;
+    border-radius: 10px !important;
+    border: 2px solid white !important;
+}
+
+/* Ensure grid takes enough space to scroll */
+.image-gallery-grid {
+    min-height: 400px !important;
+}
+

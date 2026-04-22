@@ -1,30 +1,119 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('input-personaje');
-    const display = document.getElementById('img-protagonista');
+    const registerForm = document.getElementById('registerForm');
+    const avatarInput = document.getElementById('avatarInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
 
-    // Función que limpia el texto y busca la imagen
-    const actualizarImagen = (nombre) => {
-        const busquedaLimpia = nombre.trim().toLowerCase();
-        
-        if (busquedaLimpia === "") {
-            display.style.opacity = "0";
+    // Handle Avatar Preview
+    avatarInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form Submission and Validation
+    registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        // Validation Logic (replicating FlutterFlow model)
+        if (!username) {
+            alert('El nombre de usuario es requerido');
             return;
         }
 
-        // Importante: Tus imágenes deben estar en assets/img/ y ser .png
-        display.src = `assets/img/${busquedaLimpia}.png`;
-        display.style.opacity = "1";
+        if (!email) {
+            alert('El correo electrónico es requerido');
+            return;
+        }
 
-        display.onerror = () => {
-            display.src = "assets/img/default.png"; // Imagen por si no la encuentra
-        };
-    };
+        // Simple Email Regex (matching kTextValidatorEmailRegex logic)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Por favor, ingresa un correo electrónico válido');
+            return;
+        }
 
-    input.addEventListener('input', () => actualizarImagen(input.value));
+        if (!password) {
+            alert('La contraseña es requerida');
+            return;
+        }
 
-    // Función para los clics en las fotos pequeñas
-    window.seleccionar = (nombre) => {
-        input.value = nombre;
-        actualizarImagen(nombre);
-    };
+        if (password !== confirmPassword) {
+            alert('Las contraseñas no coinciden');
+            return;
+        }
+
+        // --- REGISTRO REAL CON FIREBASE ---
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const btn = registerForm.querySelector('.submit-btn');
+        const originalContent = btn.innerHTML;
+
+        btn.innerHTML = '<span>🚀 Creando cuenta mágica...</span>';
+        btn.style.opacity = '0.7';
+        btn.disabled = true;
+
+        // --- VERIFICACIÓN DE DUPLICADOS EN FIRESTORE ---
+        db.collection("users").where("email", "==", email).get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    const existingUser = querySnapshot.docs[0].data();
+                    
+                    if (existingUser.status === 'aprobado') {
+                        alert("¡Este correo ya es parte del reino! Por favor, inicia sesión.");
+                        window.location.href = 'login.html';
+                    } else {
+                        alert("¡Casi listo! Ya tenemos una solicitud para este correo y está siendo revisada por un Guardián. Por favor, ten un poco de paciencia ✨");
+                    }
+                    
+                    btn.innerHTML = originalContent;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Si no existe, procedemos con el registro en Auth
+                return auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+
+                        // 1. Enviar correo de verificación (AUTOMÁTICO)
+                        return user.sendEmailVerification().then(() => {
+                            alert("¡Correo enviado! Revisa tu bandeja de entrada para activar tu cuenta.");
+                            // 2. Guardar datos adicionales en Firestore
+                            return db.collection("users").doc(user.uid).set({
+                                username: username,
+                                email: email,
+                                avatar: imagePreview.src || '',
+                                status: 'pendiente',
+                                emailVerified: false,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
+                    });
+            })
+            .then(() => {
+                localStorage.setItem('lastUser', username);
+                window.location.href = 'verify-account.html';
+            })
+            .catch((error) => {
+                console.error("Error en Firebase:", error);
+                btn.innerHTML = originalContent;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                alert("Hubo un error: " + error.message);
+            });
+    });
 });
