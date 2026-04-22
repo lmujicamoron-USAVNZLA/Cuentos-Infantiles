@@ -180,10 +180,9 @@
 
     <!-- Modal de Cambio de Imagen -->
     <div class="modal-overlay" id="imageModal">
-        <div class="modal-content" style="max-width: 600px;">
-            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">🎨 Galería Mágica Rebosante</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Selecciona una nueva ilustración. ¡Hay más de 20
-                opciones!</p>
+        <div class="modal-content" style="max-width: 650px; text-align: center;">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem; font-size: 1.5rem;">🎨 Galería Mágica Rebosante</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Selecciona una nueva ilustración. ¡Hay muchísimas opciones!</p>
 
             <div
                 style="margin-top: 1rem; display: flex; gap: 0.75rem; background: var(--glass-bg); padding: 0.5rem; border-radius: 1.5rem; border: 1px solid var(--glass-border); position: relative; align-items: center;">
@@ -194,9 +193,8 @@
                 <button id="clearGallerySearch" onclick="clearGallerySearch()"
                     style="background: var(--glass-border); border: none; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; cursor: pointer; color: var(--text-main); font-size: 0.8rem; margin-right: 0.5rem;">✕</button>
                 <button onclick="filterGallery()"
-                    style="background: var(--magic-gradient); color: white; border: none; border-radius: 1.2rem; padding: 0.6rem 2rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                    onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨
-                    Magia</button>
+                    style="background: var(--magic-gradient); color: white; border: none; border-radius: var(--radius); padding: 0.6rem 2rem; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-indigo);"
+                    onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨ Magia</button>
             </div>
 
             <div class="image-gallery-grid" id="galleryGrid" style="margin-top: 1.5rem; min-height: 200px;">
