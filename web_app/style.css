@@ -391,18 +391,21 @@ body {
 
 .story-card {
     background: var(--card-bg);
-    border-radius: 1.2rem;
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition);
     border: 1px solid var(--glass-border);
     position: relative;
     display: flex;
     flex-direction: column;
-    height: 280px; /* Tamaño estandarizado más compacto */
+    height: 320px; /* Tamaño estandarizado y compacto */
+    box-shadow: var(--shadow);
+    cursor: pointer;
 }
 
 .story-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.02);
     box-shadow: var(--shadow-indigo);
     border-color: var(--primary);
 }
@@ -662,8 +665,8 @@ body {
 /* Dashboard & Modal Overhaul V20 */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.5rem;
     margin-top: 2rem;
 }
 
@@ -685,12 +688,11 @@ body {
     top: 0;
     left: -320px;
     width: 320px;
-    height: 100dvh;
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(30px) saturate(200%);
+    height: 100%;
+    background: var(--bg-color);
+    backdrop-filter: blur(20px);
     z-index: 5000;
-    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--transition);
     display: flex;
     flex-direction: column;
     padding: 2rem;
@@ -1297,6 +1299,21 @@ input:checked + .slider:before {
     flex-wrap: wrap;
 }
 
+.modal-content {
+    background: var(--bg-color);
+    backdrop-filter: blur(30px) saturate(200%);
+    width: 95%;
+    max-width: 480px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
 .search-container {
     flex: 1;
     max-width: 500px;
@@ -1646,7 +1663,7 @@ input:checked + .slider:before {
 /* 8. Page Animations */
 body {
     opacity: 0;
-    background: #f8fafc;
+    background: var(--bg-color);
     animation: fadeInPage 0.8s ease-out forwards;
 }
 
@@ -1682,4 +1699,40 @@ body {
 }
 
 
-
+
+/* 11. Final Theme & UX Polish */
+body { background: var(--bg-color) !important; }
+.modal-content { background: var(--bg-color) !important; max-width: 480px !important; padding: 1.5rem !important; border: 1px solid var(--glass-border) !important; }
+.menu-toggle { color: var(--text-main) !important; z-index: 100 !important; }
+.search-input { caret-color: var(--primary) !important; }
+.gallery-item { background: var(--card-bg) !important; }
+#editStoryText { min-height: 120px !important; }
+.header-overlay { background: var(--bg-color) !important; }
+.drawing-toolbar { background: var(--card-bg) !important; border: 1px solid var(--glass-border) !important; }
+
+
+/* 12. Restoring Drawing Toolbar */
+.drawing-toolbar {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(150%);
+    backdrop-filter: blur(15px);
+    padding: 0.8rem 1.5rem;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.drawing-toolbar.active { transform: translateX(-50%) translateY(0); }
+.color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+.color-dot:hover, .color-dot.active { transform: scale(1.2); box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+.tool-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; transition: transform 0.2s; }
+.tool-btn:hover { transform: scale(1.2); }
+.coloring-mode { cursor: crosshair !important; }
+.drawing-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+.coloring-mode + .drawing-canvas { pointer-events: auto; }
+

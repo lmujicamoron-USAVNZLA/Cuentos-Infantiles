@@ -162,12 +162,15 @@
                     <span>✨</span> Mejorar texto
                 </button>
             </div>
-            <div class="input-group" style="margin-bottom: 0.5rem;">
-                <label for="editStoryTitle">Título</label>
+            <div class="input-group" style="margin-bottom: 0.3rem;">
+                <label for="editStoryTitle" style="font-size: 0.8rem; opacity: 0.8;">Título</label>
                 <input type="text" id="editStoryTitle"
-                    style="width: 100%; padding: 0.8rem; border-radius: 0.8rem; border: 1px solid #ddd;">
+                    style="width: 100%; padding: 0.6rem; border-radius: 0.6rem; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main);">
             </div>
-            <textarea id="editStoryText" placeholder="Escribe aquí tu cuento mágico..."></textarea>
+            <div class="input-group" style="margin-bottom: 0.3rem; flex: 1; display: flex; flex-direction: column;">
+                <label for="editStoryText" style="font-size: 0.8rem; opacity: 0.8;">Contenido</label>
+                <textarea id="editStoryText" placeholder="Escribe aquí tu cuento mágico..." style="flex: 1; min-height: 120px; font-size: 0.95rem;"></textarea>
+            </div>
             <div class="modal-actions">
                 <button class="modal-btn modal-btn-cancel" onclick="closeEditModal()">⬅️ Volver</button>
                 <button class="modal-btn modal-btn-primary" onclick="saveEditedStory()">💾 Guardar Cambios</button>
