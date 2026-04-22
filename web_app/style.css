@@ -1762,3 +1762,58 @@ body { background: var(--bg-color) !important; }
 .action-btn.image:hover { background: #d1fae5 !important; border-color: #10b981 !important; }
 .action-btn.export:hover { background: #e0e7ff !important; border-color: #6366f1 !important; }
 
+
+/* 14. Fixing Modal Overflow & Profile Layout */
+.modal-content {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+#profileModal .modal-content {
+    padding: 2rem !important;
+}
+.modal-actions {
+    margin-top: auto !important;
+    padding-top: 1rem !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+
+/* 15. Modal Button Polish */
+.modal-btn {
+    padding: 0.8rem 1.5rem !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+}
+.modal-btn-primary {
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+}
+.modal-btn-primary:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3) !important;
+}
+.modal-btn-cancel {
+    background: var(--glass-bg) !important;
+    color: var(--error) !important;
+    border: 1px solid var(--error) !important;
+}
+.modal-btn-cancel:hover {
+    background: var(--error) !important;
+    color: white !important;
+    transform: translateY(-3px) !important;
+}
+body:not(.dark-mode) .modal-btn-cancel {
+    background: #fff1f2 !important;
+}
+
