@@ -621,7 +621,27 @@ async function generateStoryPreview() {
 
     try {
         const randomSeed = Math.floor(Math.random() * 999999);
-        const safePrompt = `Escribe un cuento infantil mágico y extenso en español. Protagonista: ${character}. Lugar: ${place}. Título: ${title}. REGLAS: Al menos 450-500 palabras, 6 párrafos detallados con una introducción mágica, nudo emocionante y final feliz. ÚNICAMENTE el cuento. (Ref: ${randomSeed})`;
+        const safePrompt = `Eres un narrador experto en cuentos infantiles mágicos. Escribe EN ESPAÑOL un cuento encantador para niños de 5 a 10 años con la siguiente información:
+- PROTAGONISTA: ${character}
+- ESCENARIO: ${place}
+- TÍTULO: "${title}"
+
+ESTRUCTURA OBLIGATORIA (exactamente 7 párrafos separados por línea en blanco):
+1. INTRODUCCIÓN: Describe al protagonista y el mundo mágico donde vive. Usa 3 oraciones vivas y coloridas.
+2. LLAMADO A LA AVENTURA: Algo inesperado y emocionante le sucede al protagonista. Incluye una frase de diálogo entrecomillada.
+3. PRIMER OBSTÁCULO: El protagonista enfrenta su primer gran reto o misterio.
+4. AYUDA MÁGICA: Aparece un nuevo amigo, objeto mágico o habilidad especial que ayuda al héroe.
+5. CLÍMAX: El momento más emocionante e intenso del cuento. Usa una onomatopeya como ¡BOOM!, ¡WHOOSH!, ¡ZAP! o ¡CRASH!
+6. RESOLUCIÓN: El protagonista supera el reto gracias a su valentía o astucia. Incluye una frase de diálogo final.
+7. FINAL FELIZ: Cómo quedó el mundo y qué lección aprendieron todos. Termina con una frase inspiradora.
+
+REGLAS CRÍTICAS:
+- Mínimo 550 palabras en total
+- Lenguaje sencillo, descriptivo y accesible a niños
+- Tono alegre, mágico y lleno de esperanza
+- NO incluyas títulos, numeración de párrafos ni metadatos
+- Escribe SOLO el texto del cuento, nada más
+(Semilla: ${randomSeed})`;
 
         let text = await magicalFetch(safePrompt, randomSeed, 25000);
         
@@ -784,13 +804,33 @@ async function saveFinalStory() {
             const userDoc = await db.collection("users").doc(user.uid).get();
             if (userDoc.exists) {
                 const currentBadges = userDoc.data().badges || [];
+                const badgesToAdd = [];
+
+                // Medalla: Primer cuento
                 if (!currentBadges.includes('first_story')) {
+                    badgesToAdd.push('first_story');
+                }
+
+                // Medalla: Sabio Nocturno (crear cuento entre las 8pm y las 6am)
+                const currentHour = new Date().getHours();
+                const isNight = currentHour >= 20 || currentHour < 6;
+                if (isNight && !currentBadges.includes('night_owl')) {
+                    badgesToAdd.push('night_owl');
+                    console.log('🦉 ¡Medalla Sabio Nocturno desbloqueada!');
+                }
+
+                if (badgesToAdd.length > 0) {
                     await db.collection("users").doc(user.uid).update({
-                        badges: firebase.firestore.FieldValue.arrayUnion('first_story')
+                        badges: firebase.firestore.FieldValue.arrayUnion(...badgesToAdd)
                     });
                 }
+                
+                // RECOMPENSA V22: Polvo de Hada por crear un cuento
+                if (typeof rewardMagicDust === 'function') {
+                    await rewardMagicDust(20);
+                }
             }
-        } catch (bE) { console.warn("Error medallas:", bE); }
+        } catch (bE) { console.warn("Error recompensas:", bE); }
 
     } catch (saveErr) {
         console.warn("⚠️ Base de datos lenta. Ya está a salvo localmente.");

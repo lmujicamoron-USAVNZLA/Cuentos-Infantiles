@@ -1,0 +1,118 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
+import '/backend/firebase_storage/storage.dart';
+import '/components/warning_espacios_blancos_widget.dart';
+import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/upload_data.dart';
+import 'dart:ui';
+import '/flutter_flow/custom_functions.dart' as functions;
+import '/index.dart';
+import 'registrar_user_widget.dart' show RegistrarUserWidget;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_debounce/easy_debounce.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+class RegistrarUserModel extends FlutterFlowModel<RegistrarUserWidget> {
+  ///  State fields for stateful widgets in this page.
+
+  final formKey = GlobalKey<FormState>();
+  bool isDataUploading_uploadDataDue = false;
+  FFUploadedFile uploadedLocalFile_uploadDataDue =
+      FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
+  String uploadedFileUrl_uploadDataDue = '';
+
+  bool isDataUploading_uploadDataYp4ImgRegister = false;
+  FFUploadedFile uploadedLocalFile_uploadDataYp4ImgRegister =
+      FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
+  String uploadedFileUrl_uploadDataYp4ImgRegister = '';
+
+  // State field(s) for TextUsuario widget.
+  FocusNode? textUsuarioFocusNode;
+  TextEditingController? textUsuarioTextController;
+  String? Function(BuildContext, String?)? textUsuarioTextControllerValidator;
+  String? _textUsuarioTextControllerValidator(
+      BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'campo requerido';
+    }
+
+    return null;
+  }
+
+  // State field(s) for emailAddress widget.
+  FocusNode? emailAddressFocusNode;
+  TextEditingController? emailAddressTextController;
+  String? Function(BuildContext, String?)? emailAddressTextControllerValidator;
+  String? _emailAddressTextControllerValidator(
+      BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Debe tener un correo valido';
+    }
+
+    if (!RegExp(kTextValidatorEmailRegex).hasMatch(val)) {
+      return 'campo requerido';
+    }
+    return null;
+  }
+
+  // State field(s) for password widget.
+  FocusNode? passwordFocusNode;
+  TextEditingController? passwordTextController;
+  late bool passwordVisibility;
+  String? Function(BuildContext, String?)? passwordTextControllerValidator;
+  String? _passwordTextControllerValidator(BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'campo requerido';
+    }
+
+    return null;
+  }
+
+  // State field(s) for passwordConfirm widget.
+  FocusNode? passwordConfirmFocusNode;
+  TextEditingController? passwordConfirmTextController;
+  late bool passwordConfirmVisibility;
+  String? Function(BuildContext, String?)?
+      passwordConfirmTextControllerValidator;
+  String? _passwordConfirmTextControllerValidator(
+      BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'campo requerido';
+    }
+
+    return null;
+  }
+
+  @override
+  void initState(BuildContext context) {
+    textUsuarioTextControllerValidator = _textUsuarioTextControllerValidator;
+    emailAddressTextControllerValidator = _emailAddressTextControllerValidator;
+    passwordVisibility = false;
+    passwordTextControllerValidator = _passwordTextControllerValidator;
+    passwordConfirmVisibility = false;
+    passwordConfirmTextControllerValidator =
+        _passwordConfirmTextControllerValidator;
+  }
+
+  @override
+  void dispose() {
+    textUsuarioFocusNode?.dispose();
+    textUsuarioTextController?.dispose();
+
+    emailAddressFocusNode?.dispose();
+    emailAddressTextController?.dispose();
+
+    passwordFocusNode?.dispose();
+    passwordTextController?.dispose();
+
+    passwordConfirmFocusNode?.dispose();
+    passwordConfirmTextController?.dispose();
+  }
+}

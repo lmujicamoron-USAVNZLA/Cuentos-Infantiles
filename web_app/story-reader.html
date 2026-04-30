@@ -17,10 +17,33 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         /* STORY READER V20 MAGIC OVERHAUL */
+        /* Sticker Selector (V22) */
+        .sticker-selector {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            display: none;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 2px solid var(--primary);
+            z-index: 1000;
+        }
+        .sticker-selector.active { display: flex; }
+        .sticker-option {
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .sticker-option:hover { transform: scale(1.3); }
+
     </style>
 </head>
 
-<body>
+<body oncontextmenu="return false">
     <div class="background-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2" style="background: #fbcfe8;"></div>
@@ -114,7 +137,7 @@
     <main class="reader-container">
         <div class="book-wrapper">
             <div class="book-page page-left" id="drawingWrapper">
-                <img id="storyImg"
+                <img id="storyImg" crossorigin="anonymous"
                     src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"
                     class="story-image">
                 <canvas id="drawingCanvas" class="drawing-canvas"></canvas>
@@ -154,10 +177,23 @@
         <div class="color-dot" style="background: #8b5cf6;" onclick="setBrushColor('#8b5cf6', this)"></div>
         <div class="color-dot" style="background: #000000;" onclick="setBrushColor('#000000', this)"></div>
         <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
+        <button class="tool-btn" onclick="undoLastAction()" title="Deshacer último trazo">↩️</button>
+        <button class="tool-btn" id="stickerBtn" onclick="toggleStickers()" title="Sellos Mágicos">⭐️</button>
         <button class="tool-btn" onclick="clearDrawing()" title="Borrar todo">🗑️</button>
         <button class="tool-btn" onclick="saveDrawing()" title="Guardar en Perfil">💾</button>
         <button class="tool-btn" onclick="downloadDrawing()" title="Descargar Imagen">📥</button>
         <button class="tool-btn" onclick="toggleColoringMode()" title="Cerrar Taller" style="background: #fee2e2; color: #ef4444; border-radius: 50%;">✕</button>
+    </div>
+
+    <!-- Menú de Sellos (V22) -->
+    <div id="stickerSelector" class="sticker-selector">
+        <div class="sticker-option" onclick="selectSticker('✨')">✨</div>
+        <div class="sticker-option" onclick="selectSticker('⭐')">⭐</div>
+        <div class="sticker-option" onclick="selectSticker('❤️')">❤️</div>
+        <div class="sticker-option" onclick="selectSticker('🐉')">🐉</div>
+        <div class="sticker-option" onclick="selectSticker('🌈')">🌈</div>
+        <div class="sticker-option" onclick="selectSticker('👑')">👑</div>
+        <div class="sticker-option" onclick="selectSticker('🍀')">🍀</div>
     </div>
 
     <script src="firebase-init.js"></script>

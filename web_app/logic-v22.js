@@ -16,6 +16,17 @@
     setTimeout(() => clearInterval(interval), 3000);
 })();
 
+// UTILITIES
+function checkSafetyAndAlert(text) {
+    const forbidden = ['malo', 'feo', 'grosero']; // Ejemplo simple
+    const found = forbidden.find(w => text.toLowerCase().includes(w));
+    if (found) {
+        alert("¡Cuidado! Esa palabra no es muy mágica. Intentemos con algo más alegre. ✨");
+        return false;
+    }
+    return true;
+}
+
 // UI ELEMENTS
 const displayNameEl = document.getElementById('displayUserName');
 const userAvatarEl = document.getElementById('userAvatar');
@@ -41,11 +52,13 @@ firebase.auth().onAuthStateChanged(user => {
             const sideAdmin = document.getElementById('sideAdminItem');
             if (sideAdmin) sideAdmin.style.display = 'block';
         }
-        const name = user.displayName || user.email.split('@')[0];
-        if (displayNameEl) displayNameEl.innerText = `Hola, ${name}`; 
+        const rawName = user.displayName || user.email.split('@')[0];
+        const cleanName = rawName.charAt(0).toUpperCase() + rawName.slice(1).replace(/[._]/g, ' ');
+        
+        if (displayNameEl) displayNameEl.innerText = `¡Hola, ${cleanName}! ✨`; 
         
         const userNameSmall = document.getElementById('userName');
-        if (userNameSmall) userNameSmall.innerText = name;
+        if (userNameSmall) userNameSmall.innerText = cleanName;
 
         // Cargar Avatar Guardado desde Firestore (V21.5 Persistence Fix - Priority over Auth photoURL)
         db.collection("users").doc(user.uid).get().then(doc => {
@@ -53,7 +66,7 @@ firebase.auth().onAuthStateChanged(user => {
                 const savedSeed = doc.data().avatarSeed;
                 const name = user.displayName || user.email.split('@')[0];
                 const isGirl = name.toLowerCase().endsWith('a');
-                let avatarOptions = "radius=50";
+                let avatarOptions = "radius=25";
                 if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
                 else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
                 
@@ -73,7 +86,7 @@ firebase.auth().onAuthStateChanged(user => {
                 const firstName = name.split(' ')[0].toLowerCase();
                 const isGirl = firstName.endsWith('a') || firstName === 'belen' || firstName === 'carmen';
                 const seed = encodeURIComponent(name);
-                let avatarOptions = "radius=50";
+                let avatarOptions = "radius=25";
                 if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
                 else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
                 containerAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&${avatarOptions}`;
@@ -178,15 +191,12 @@ function filterStories() {
     renderStoriesFromData(filtered);
 }
 
-function confirmDelete(id, title) {
-    if (confirm(`¿Seguro que quieres borrar "${title}"? Esta magia no se puede deshacer.`)) {
-        deleteStory(id);
-    }
-}
-
 async function deleteStory(id) {
     try {
-        await db.collection('stories').doc(id).delete();
+        if (!id.startsWith('local_')) {
+            await db.collection('stories').doc(id).delete();
+        }
+        if (window.StoryDB) window.StoryDB.deleteStory(id);
         const user = firebase.auth().currentUser;
         if (user) loadStories(user.uid);
     } catch (e) {
@@ -271,72 +281,7 @@ async function exportToPDF(id) {
     // Aquí iría la lógica de jsPDF, pero por ahora damos feedback
 }
 
-// --- EDITAR CUENTO ---
-let storyToEditId = null;
-function openEditModal(storyId) {
-    const story = currentStoriesData.find(s => s.id === storyId);
-    if (!story) return;
-    storyToEditId = storyId;
-    document.getElementById('editTitle').value = story.title || '';
-    document.getElementById('editCharacter').value = story.characterSelected || story.character || '';
-    document.getElementById('editModal').classList.add('active');
-}
-
-async function saveStoryEdit() {
-    if (!storyToEditId) return;
-    const newTitle = document.getElementById('editTitle').value;
-    const newChar = document.getElementById('editCharacter').value;
-    try {
-        await db.collection('stories').doc(storyToEditId).update({
-            title: newTitle,
-            characterSelected: newChar
-        });
-        document.getElementById('editModal').classList.remove('active');
-        const user = firebase.auth().currentUser;
-        if (user) loadStories(user.uid);
-        celebrate();
-    } catch (e) {
-        console.error("Error al editar:", e);
-        alert("No pudimos guardar los cambios mágicos.");
-    }
-}
-
-// --- CAMBIAR IMAGEN ---
-let storyToUpdateImageId = null;
-function openImageModal(storyId) {
-    storyToUpdateImageId = storyId;
-    const gallery = document.getElementById('imageGalleryGrid');
-    gallery.innerHTML = '<p style="grid-column:1/-1; text-align:center;">Cargando galería mágica...</p>';
-    document.getElementById('imageModal').classList.add('active');
-    
-    // Simular galería o cargar de una lista predefinida (V17 style)
-    const placeholders = [
-        'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
-        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400',
-        'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=400',
-        'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=400'
-    ];
-    
-    gallery.innerHTML = placeholders.map(url => `
-        <img src="${url}" style="width:100%; border-radius:1rem; cursor:pointer; border:3px solid transparent;" 
-             onclick="selectNewImage('${url}')" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='transparent'">
-    `).join('');
-}
-
-async function selectNewImage(url) {
-    if (!storyToUpdateImageId) return;
-    try {
-        await db.collection('stories').doc(storyToUpdateImageId).update({
-            coverImg: url
-        });
-        document.getElementById('imageModal').classList.remove('active');
-        const user = firebase.auth().currentUser;
-        if (user) loadStories(user.uid);
-        celebrate();
-    } catch (e) {
-        console.error("Error al cambiar imagen:", e);
-    }
-}
+// Secciones consolidadas de UI y navegación
 
 async function switchDashboardTab(tab, element = null) {
     currentStoriesTab = tab;
@@ -376,15 +321,7 @@ async function switchDashboardTab(tab, element = null) {
     }
 }
 
-function handleSidebarNav(tab) {
-    switchDashboardTab(tab);
-    
-    // Auto-hide the sidebar after selecting an option
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar && sidebar.classList.contains('active')) {
-        toggleSidebar();
-    }
-}
+// Modales y navegación avanzada manejados al final del archivo
 
 async function toggleFavorite(storyId, currentStatus) {
     try {
@@ -406,7 +343,9 @@ async function toggleFavorite(storyId, currentStatus) {
 async function openProfileModal() {
     const user = firebase.auth().currentUser;
     if (!user) return;
-    document.getElementById('profileName').innerText = user.displayName || user.email.split('@')[0];
+    const rawName = user.displayName || user.email.split('@')[0];
+    const cleanName = rawName.charAt(0).toUpperCase() + rawName.slice(1).replace(/[._]/g, ' ');
+    document.getElementById('profileName').innerText = cleanName;
     document.getElementById('profileUserEmail').innerText = user.email;
     document.getElementById('profileAvatarLarge').src = document.getElementById('userAvatar').src;
     try {
@@ -500,7 +439,7 @@ async function changeAvatarSeed() {
     // Función auxiliar para obtener la URL
     const getAvatarUrl = (seed) => {
         const isGirl = name.toLowerCase().endsWith('a');
-        let avatarOptions = "radius=50";
+        let avatarOptions = "radius=25";
         if (isGirl) avatarOptions += "&backgroundColor=fbc3bc&top=bigHair";
         else avatarOptions += "&backgroundColor=a2d2ff&top=shortFlat";
         return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}&${avatarOptions}`;
@@ -819,19 +758,24 @@ const curatedImages = {
 function openImageModal(storyId) {
     storyToUpdateImage = storyId;
     selectedImageUrl = null;
-    document.getElementById('gallerySearch').value = '';
-    renderGallery(magicImages);
+    
+    // Clear search and reset UI
+    const searchInput = document.getElementById('gallerySearch');
+    if (searchInput) searchInput.value = '';
+    
     const confirmBtn = document.getElementById('confirmImageBtn');
-    confirmBtn.style.opacity = '0.5';
-    confirmBtn.style.cursor = 'not-allowed';
-    confirmBtn.disabled = true;
-    confirmBtn.innerHTML = 'Usar Imagen ✨';
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.style.opacity = '0.5';
+    }
+    
+    renderGallery(magicImages);
     document.getElementById('imageModal').classList.add('active');
-    setTimeout(() => document.getElementById('gallerySearch').focus(), 100);
 }
 
 function renderGallery(images) {
-    const grid = document.getElementById('galleryGrid');
+    const grid = document.getElementById('imageGalleryGrid');
+    if (!grid) return;
     grid.innerHTML = '';
     if (images.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #94a3b8;">No encontramos esa magia...</p>';
@@ -843,14 +787,9 @@ function renderGallery(images) {
         item.innerHTML = `<img src="${img.url}" alt="Opción Mágica" loading="lazy">`;
         item.onclick = function() { selectImage(this.querySelector('img').src, item); };
         const imgElement = item.querySelector('img');
+        imgElement.onload = () => item.classList.add('loaded');
         imgElement.onerror = () => {
-            const query = img.tags || 'magic';
-            const cleanQuery = query.toLowerCase().trim();
-            if (curatedImages[cleanQuery] && index === 0) {
-                imgElement.src = curatedImages[cleanQuery];
-            } else {
-                imgElement.src = `https://api.dicebear.com/7.x/initials/svg?seed=${cleanQuery}&backgroundColor=c084fc&chars=✨`;
-            }
+            imgElement.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(img.tags || 'magic')}&backgroundColor=c084fc`;
         };
         grid.appendChild(item);
     });
@@ -874,11 +813,12 @@ async function filterGallery() {
     
     if (!checkSafetyAndAlert(query)) return;
     
-    const grid = document.getElementById('galleryGrid');
+    const grid = document.getElementById('imageGalleryGrid');
     const loader = document.getElementById('galleryLoader');
     
+    if (!grid) return;
     grid.innerHTML = '';
-    loader.style.display = 'block';
+    if (loader) loader.style.display = 'block';
 
     const localResults = magicImages.filter(img => img.tags.toLowerCase().includes(query));
     
@@ -891,21 +831,31 @@ async function filterGallery() {
     }
 
     const aiResults = [];
-    // Prompt simplificado para evitar errores de generación
+    // Prompt optimizado para máxima precisión y belleza (flux model)
     const cleanQuery = translated.replace(/[^a-zA-Z0-9 ]/g, '');
-    const prompt = `${cleanQuery}, 3D character portrait, Disney Pixar animation style, vibrant colors, soft cinematic lighting, white background, highly detailed, 8K quality, friendly expression, professional illustration, NO TEXT, NO WATERMARKS, NO LOGOS`;
+    const prompt = `${cleanQuery}, 3D digital art, cute character, Pixar style, vivid colors, detailed background, soft lighting, high resolution, 8k, masterpiece, children storybook illustration, centered composition, no text, no blur`;
     
-    for (let i = 0; i < 9; i++) { // Aumentado a 9 opciones
+    // Generar 8 imágenes precisas usando Pollinations
+    for (let i = 0; i < 8; i++) {
         const seed = Math.floor(Math.random() * 1000000);
         aiResults.push({ 
-            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux&key=pk_iOJLArs0DLNG7EGm`, 
+            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true`, 
             tags: query 
         });
     }
 
-    // Sin delay artificial para máxima velocidad
-    loader.style.display = 'none'; 
-    renderGallery([...localResults, ...aiResults]); 
+    if (loader) loader.style.display = 'none'; 
+    const finalResults = [...localResults, ...aiResults];
+    
+    // Feedback de resultados
+    const feedback = document.getElementById('searchFeedback');
+    const countEl = document.getElementById('resultsCount');
+    if (feedback && countEl) {
+        countEl.innerText = finalResults.length;
+        feedback.style.display = 'block';
+    }
+    
+    renderGallery(finalResults); 
 }
 
 function toggleGalleryClearBtn() {
@@ -959,7 +909,7 @@ async function saveNewImage() {
         
         celebrate();
         closeImageModal();
-        renderStories(currentStoriesData); // Re-renderizar para ver el cambio ya
+        renderStoriesFromData(currentStoriesData); // Re-renderizar para ver el cambio ya
         
         btn.innerHTML = originalText;
         btn.disabled = false;
@@ -1047,8 +997,14 @@ function handleSidebarNav(tab) {
     sidebarItems.forEach(item => item.classList.remove('active'));
     const activeItem = document.getElementById(`side-${tab}`);
     if (activeItem) activeItem.classList.add('active');
-    if (typeof switchDashboardTab === 'function') switchDashboardTab(tab);
-    toggleSidebar();
+    
+    switchDashboardTab(tab);
+    
+    // Auto-hide the sidebar after selecting an option
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && sidebar.classList.contains('active')) {
+        toggleSidebar();
+    }
 }
 
 window.addEventListener('keydown', (e) => {

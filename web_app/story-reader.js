@@ -519,6 +519,13 @@ function updateUI() {
             db.collection("users").doc(user.uid).update({
                 badges: firebase.firestore.FieldValue.arrayUnion('story_read')
             }).catch(e => console.log("Error al dar medalla:", e));
+            
+            // RECOMPENSA V22: Polvo de Hada por leer (Evitar recompensas múltiples en la misma sesión)
+            if (typeof rewardMagicDust === 'function' && !window.storyRewardGranted) {
+                rewardMagicDust(10);
+                window.storyRewardGranted = true;
+                if (window.Sparky) Sparky.say("¡Por ser un lector estrella, ganaste 10 ✨ de polvo de hada! 📚🐉", 5000);
+            }
         }
         nextBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
         nextBtn.onclick = () => window.location.href = 'dashboard.html';
@@ -793,18 +800,219 @@ async function generateStoryPDF() {
     }
 }
 
-function toggleColoringMode() {
+// --- SISTEMA DE DIBUJO Y CREATIVIDAD (V22) ---
+const drawCanvas = document.getElementById('drawingCanvas');
+const drawCtx = drawCanvas ? drawCanvas.getContext('2d') : null;
+let isDrawing = false;
+let brushColor = '#ef4444';
+let brushSize = 5;
+let drawingHistory = []; // Para el sistema de Undo
+let currentPath = [];
+let currentSticker = null;
+
+if (drawCanvas) {
+    // Ajustar resolución del canvas al tamaño visual
+    const resizeDrawCanvas = () => {
+        const rect = drawCanvas.getBoundingClientRect();
+        drawCanvas.width = rect.width;
+        drawCanvas.height = rect.height;
+        redrawHistory();
+    };
+    window.addEventListener('resize', resizeDrawCanvas);
+    setTimeout(resizeDrawCanvas, 1000); // Dar tiempo a que la imagen cargue
+
+    drawCanvas.addEventListener('mousedown', startDrawing);
+    drawCanvas.addEventListener('mousemove', draw);
+    drawCanvas.addEventListener('mouseup', stopDrawing);
+    drawCanvas.addEventListener('mouseout', stopDrawing);
+
+    // Soporte táctil
+    drawCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        startDrawing(touch);
+    }, { passive: false });
+    drawCanvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        draw(touch);
+    }, { passive: false });
+    drawCanvas.addEventListener('touchend', stopDrawing);
+}
+
+function startDrawing(e) {
+    if (currentSticker) {
+        placeSticker(e);
+        return;
+    }
+    isDrawing = true;
+    currentPath = [];
+    draw(e);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    const rect = drawCanvas.getBoundingClientRect();
+    const x = (e.clientX || e.pageX) - rect.left;
+    const y = (e.clientY || e.pageY) - rect.top;
+
+    drawCtx.lineWidth = brushSize;
+    drawCtx.lineCap = 'round';
+    drawCtx.strokeStyle = brushColor;
+
+    if (currentPath.length === 0) {
+        drawCtx.beginPath();
+        drawCtx.moveTo(x, y);
+    } else {
+        drawCtx.lineTo(x, y);
+        drawCtx.stroke();
+    }
+    
+    currentPath.push({ x, y, color: brushColor, size: brushSize, type: 'line' });
+}
+
+function stopDrawing() {
+    if (isDrawing) {
+        isDrawing = false;
+        drawingHistory.push([...currentPath]);
+        currentPath = [];
+    }
+}
+
+function setBrushColor(color, el) {
+    brushColor = color;
+    currentSticker = null; // Desactivar sello al elegir color
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (window.Sparky) Sparky.say("¡Qué color tan bonito! 🎨");
+}
+
+function undoLastAction() {
+    if (drawingHistory.length > 0) {
+        drawingHistory.pop();
+        redrawHistory();
+        if (window.Sparky) Sparky.say("¡No pasa nada! Lo borramos con magia. ↩️");
+    }
+}
+
+function redrawHistory() {
+    drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    drawingHistory.forEach(path => {
+        if (path.length === 0) return;
+        
+        if (path[0].type === 'sticker') {
+            const item = path[0];
+            drawCtx.font = `${item.size * 8}px serif`;
+            drawCtx.textAlign = 'center';
+            drawCtx.textBaseline = 'middle';
+            drawCtx.fillText(item.sticker, item.x, item.y);
+        } else {
+            drawCtx.beginPath();
+            drawCtx.lineWidth = path[0].size;
+            drawCtx.lineCap = 'round';
+            drawCtx.strokeStyle = path[0].color;
+            drawCtx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) {
+                drawCtx.lineTo(path[i].x, path[i].y);
+            }
+            drawCtx.stroke();
+        }
+    });
+}
+
+function clearDrawing() {
+    if (confirm("¿Quieres borrar todo tu dibujo? ✨")) {
+        drawingHistory = [];
+        redrawHistory();
+    }
+}
+
+function toggleStickers() {
+    const selector = document.getElementById('stickerSelector');
+    selector.classList.toggle('active');
+}
+
+function selectSticker(sticker) {
+    currentSticker = sticker;
+    toggleStickers();
+    if (window.Sparky) Sparky.say("¡Has elegido un sello mágico! Toca la imagen para ponerlo. ✨");
+}
+
+function placeSticker(e) {
+    const rect = drawCanvas.getBoundingClientRect();
+    const x = (e.clientX || e.pageX) - rect.left;
+    const y = (e.clientY || e.pageY) - rect.top;
+    
+    const stickerItem = [{ x, y, sticker: currentSticker, size: brushSize, type: 'sticker' }];
+    drawingHistory.push(stickerItem);
+    redrawHistory();
+    
+    // Pequeño efecto visual
+    createMagicDust(e.clientX, e.clientY);
+}
+
+function downloadDrawing() {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
     const img = document.getElementById('storyImg');
+    
+    tempCanvas.width = img.naturalWidth;
+    tempCanvas.height = img.naturalHeight;
+    
+    // Dibujar imagen original
+    tempCtx.drawImage(img, 0, 0);
+    
+    // Dibujar el arte encima (escalado)
+    const scaleX = tempCanvas.width / drawCanvas.width;
+    const scaleY = tempCanvas.height / drawCanvas.height;
+    
+    drawingHistory.forEach(path => {
+        if (path.length === 0) return;
+        if (path[0].type === 'sticker') {
+            const item = path[0];
+            tempCtx.font = `${item.size * 8 * scaleX}px serif`;
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            tempCtx.fillText(item.sticker, item.x * scaleX, item.y * scaleY);
+        } else {
+            tempCtx.beginPath();
+            tempCtx.lineWidth = path[0].size * scaleX;
+            tempCtx.lineCap = 'round';
+            tempCtx.strokeStyle = path[0].color;
+            tempCtx.moveTo(path[0].x * scaleX, path[0].y * scaleY);
+            for (let i = 1; i < path.length; i++) {
+                tempCtx.lineTo(path[i].x * scaleX, path[i].y * scaleY);
+            }
+            tempCtx.stroke();
+        }
+    });
+    
+    const link = document.createElement('a');
+    link.download = 'mi_obra_magica.png';
+    link.href = tempCanvas.toDataURL();
+    link.click();
+}
+
+async function saveDrawing() {
+    downloadDrawing(); // Descargar para que el usuario tenga su copia
+    if (window.Sparky) Sparky.say("¡Tu obra de arte ha sido guardada en tu dispositivo! ✨");
+    alert("¡Obra guardada! ✨ Se ha descargado una copia de tu creación mágica.");
+}
+
+function toggleColoringMode() {
+    const wrapper = document.getElementById('drawingWrapper');
+    const toolbar = document.getElementById('drawingToolbar');
     const btn = document.getElementById('colorBtn');
-    if (img.classList.contains('coloring-mode')) {
-        img.classList.remove('coloring-mode');
+    
+    if (wrapper.classList.contains('coloring-active')) {
+        wrapper.classList.remove('coloring-active');
+        toolbar.classList.remove('active');
         btn.classList.remove('active');
     } else {
-        img.classList.add('coloring-mode');
+        wrapper.classList.add('coloring-active');
+        toolbar.classList.add('active');
         btn.classList.add('active');
-        if (confirm("✨ ¡Modo Dibujo activado! ¿Quieres imprimir esta imagen para colorearla a mano?")) {
-            window.print();
-        }
+        if (window.Sparky) Sparky.say("¡Bienvenido al Taller de Arte! 🎨✨ ¡A divertirse!");
     }
 }
 
@@ -812,9 +1020,13 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         window.location.href = 'dashboard.html';
     }
+    if (e.ctrlKey && e.key === 'z') {
+        undoLastAction();
+    }
 });
 
 // Start animation
 animateParticles();
 // Start reader
 initReader();
+
