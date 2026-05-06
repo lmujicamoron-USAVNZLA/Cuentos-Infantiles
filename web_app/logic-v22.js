@@ -784,12 +784,21 @@ function renderGallery(images) {
     images.forEach((img, index) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
-        item.innerHTML = `<img src="${img.url}" alt="Opción Mágica" loading="lazy">`;
+        item.style.position = 'relative';
+        item.innerHTML = `
+            <div class="magic-spinner" style="position:absolute; top:40%; left:45%; z-index:1; font-size:2.5rem; opacity:0.5;">🪄</div>
+            <img src="${img.url}" alt="Opción Mágica" loading="lazy" style="z-index:2; opacity:0; transition:opacity 0.4s ease; width:100%; height:100%; object-fit:cover; position:relative;">
+        `;
         item.onclick = function() { selectImage(this.querySelector('img').src, item); };
+        
         const imgElement = item.querySelector('img');
-        imgElement.onload = () => item.classList.add('loaded');
+        imgElement.onload = () => {
+            item.classList.add('loaded');
+            item.style.background = 'white';
+            imgElement.style.opacity = '1';
+        };
         imgElement.onerror = () => {
-            imgElement.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(img.tags || 'magic')}&backgroundColor=c084fc`;
+            item.innerHTML = '<div style="position:absolute; top:40%; left:10%; right:10%; text-align:center; color:#94a3b8; font-size:0.9rem;">No se pudo crear la magia 😔</div>';
         };
         grid.appendChild(item);
     });
@@ -831,15 +840,15 @@ async function filterGallery() {
     }
 
     const aiResults = [];
-    // Prompt optimizado para máxima precisión y belleza (flux model)
     const cleanQuery = translated.replace(/[^a-zA-Z0-9 ]/g, '');
-    const prompt = `${cleanQuery}, 3D digital art, cute character, Pixar style, vivid colors, detailed background, soft lighting, high resolution, 8k, masterpiece, children storybook illustration, centered composition, no text, no blur`;
+    // Prompt directo y ligero para reducir delay
+    const prompt = `Clear illustration of ${cleanQuery}, storybook style, no text, vivid`;
     
-    // Generar 8 imágenes precisas usando Pollinations
-    for (let i = 0; i < 8; i++) {
-        const seed = Math.floor(Math.random() * 1000000);
+    // Generar menos imágenes iniciales para que cargue más rápido (ej: 4 en lugar de 8)
+    for (let i = 0; i < 4; i++) {
+        const seed = Math.floor(Math.random() * 5000000);
         aiResults.push({ 
-            url: `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true`, 
+            url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`, 
             tags: query 
         });
     }

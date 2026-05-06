@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -8,9 +8,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <!-- BYPASS DE CACHÉ ABSOLUTO V22.2 -->
-    <link rel="stylesheet" href="magic-v22.css?v=22.8">
+    <!-- BYPASS DE CACHÉ ABSOLUTO V22.4 -->
+    <link rel="stylesheet" href="magic-v22.css?v=24.1">
     <script>
+        // DESTRUCTOR DE CACHÉ Y SERVICE WORKERS V24
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        if (window.location.search.indexOf('v=24.0') === -1 && window.location.protocol !== 'file:') {
+            window.location.replace(window.location.pathname + '?v=24.0');
+        }
+
         if (window.location.protocol !== 'file:') {
             const link = document.createElement('link');
             link.rel = 'manifest';
@@ -28,7 +40,8 @@
     </style>
 </head>
 
-<body class="dashboard-page" style="background: url('magic_castle_background_1777566017157.png') no-repeat center center fixed; background-size: cover; margin: 0; padding: 0;">
+<body class="dashboard-page" style="margin: 0; padding: 0;">
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: url('magic_castle_background_1777566017157.png') no-repeat center center; background-size: cover; z-index: -2;"></div>
     <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px); z-index: -1;"></div>
     <script>
         (function() {
@@ -62,11 +75,11 @@
             <div class="magic-rank" id="magicRankText">Aprendiz de Hechicero</div>
         </div>
 
-        <div class="theme-switch">
-            <div style="display: flex; align-items: center; gap: 0.8rem; font-weight: 700; color: var(--primary);">
-                <span id="theme-icon">☀️</span> <span id="theme-label">Modo Día</span>
+        <div class="theme-switch" style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: 0.8rem 1rem; background: rgba(0,0,0,0.03); border-radius: 1.2rem; margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--primary); white-space: nowrap;">
+                <span id="theme-icon">☀️</span> <span id="theme-label" style="font-size: 0.9rem;">Modo Día</span>
             </div>
-            <label class="switch">
+            <label class="switch" style="margin: 0; flex-shrink: 0;">
                 <input type="checkbox" id="darkModeToggle" onclick="toggleDarkMode()">
                 <span class="slider round"></span>
             </label>
@@ -106,8 +119,8 @@
                         </svg>
                     </button>
                     <div class="header-greeting" style="margin-left: 1rem;">
-                        <h2 id="displayUserName" style="font-size: 1.6rem; font-weight: 800; color: #1e293b; margin-bottom: 5px; letter-spacing: -0.5px;">¡Hola! ✨</h2>
-                        <span class="v-badge" style="background: var(--magic-gradient); color: white; padding: 5px 14px; border-radius: 80px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4); display: inline-block;">V22 Magic Edition</span>
+                        <h2 id="displayUserName" style="font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 0px; letter-spacing: -0.5px;">¡Hola! ✨</h2>
+                        <span class="v-badge" style="background: var(--magic-gradient); color: white; padding: 3px 10px; border-radius: 80px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4); display: inline-block; margin-top: 5px;">V22 Magic Edition</span>
                     </div>
                 </div>
 
@@ -130,26 +143,26 @@
             </header>
 
             <div class="dashboard-content">
-                <div class="stats-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; max-width: 1100px; margin: 1rem auto 4rem; padding: 0 1.5rem;">
-                    <div class="stat-card stat-cuentos" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 1.8rem; border-radius: 2rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s;">
-                        <div class="stat-icon" style="width: 60px; height: 60px; background: #eef2ff; color: #4f46e5; border-radius: 1.2rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">📖</div>
+                <div class="stats-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1100px; margin: 1rem auto 2rem; padding: 0 1.5rem;">
+                    <div class="stat-card stat-cuentos" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 1.2rem; border-radius: 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.04); transition: transform 0.3s;">
+                        <div class="stat-icon" style="width: 48px; height: 48px; background: #eef2ff; color: #4f46e5; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">📖</div>
                         <div class="stat-data">
-                            <span class="stat-value" id="storyCount" style="font-size: 2rem; font-weight: 900; color: #4f46e5; line-height: 1;">0</span>
-                            <span class="stat-label" style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Cuentos</span>
+                            <span class="stat-value" id="storyCount" style="font-size: 1.6rem; font-weight: 900; color: #4f46e5; line-height: 1;">0</span>
+                            <span class="stat-label" style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Cuentos</span>
                         </div>
                     </div>
-                    <div class="stat-card stat-favoritos" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 1.8rem; border-radius: 2rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s;">
-                        <div class="stat-icon" style="width: 60px; height: 60px; background: #fdf2f8; color: #ec4899; border-radius: 1.2rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">💖</div>
+                    <div class="stat-card stat-favoritos" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 1.2rem; border-radius: 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.04); transition: transform 0.3s;">
+                        <div class="stat-icon" style="width: 48px; height: 48px; background: #fdf2f8; color: #ec4899; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">💖</div>
                         <div class="stat-data">
-                            <span class="stat-value" id="favoriteCount" style="font-size: 2rem; font-weight: 900; color: #ec4899; line-height: 1;">0</span>
-                            <span class="stat-label" style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Favoritos</span>
+                            <span class="stat-value" id="favoriteCount" style="font-size: 1.6rem; font-weight: 900; color: #ec4899; line-height: 1;">0</span>
+                            <span class="stat-label" style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Favoritos</span>
                         </div>
                     </div>
-                    <div class="stat-card stat-magia" style="background: var(--gold-gradient); border: none; padding: 1.8rem; border-radius: 2rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: 0 15px 35px rgba(251, 191, 36, 0.4); transition: transform 0.3s;">
-                        <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); color: white; border-radius: 1.2rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">✨</div>
+                    <div class="stat-card stat-magia" style="background: var(--gold-gradient); border: none; padding: 1.2rem; border-radius: 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3); transition: transform 0.3s;">
+                        <div class="stat-icon" style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); color: white; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">✨</div>
                         <div class="stat-data">
-                            <span class="stat-value" id="magicDustDisplay" style="font-size: 2rem; font-weight: 900; color: white; line-height: 1;">0</span>
-                            <span class="stat-label" style="font-size: 0.8rem; color: rgba(255,255,255,0.9); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Magia</span>
+                            <span class="stat-value" id="magicDustDisplay" style="font-size: 1.6rem; font-weight: 900; color: white; line-height: 1;">0</span>
+                            <span class="stat-label" style="font-size: 0.75rem; color: rgba(255,255,255,0.9); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Magia</span>
                         </div>
                     </div>
                 </div>
@@ -167,7 +180,38 @@
     <button class="fab-create" onclick="window.location.href='create-story.html'">✨</button>
 
     <!-- MODALES -->
-    <div class="modal-overlay" id="profileModal"><div class="modal-content" style="max-width: 420px; padding: 2.5rem; border-radius: 32px; text-align: center; position: relative; overflow: hidden; background: var(--bg-color); border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);"><button onclick="closeProfileModal()" class="modal-close" style="position: absolute; top: 1.2rem; right: 1.2rem; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 10;">?</button><div style="position: relative; display: inline-block; margin: 1rem 0 1.5rem;"><img id="profileAvatarLarge" src="" style="width: 120px; height: 120px; border-radius: 28px; border: 5px solid white; box-shadow: var(--shadow); background: white;"><button onclick="changeAvatarSeed()" style="position: absolute; bottom: -5px; right: -5px; width: 40px; height: 40px; border-radius: 12px; background: var(--magic-gradient); border: 2px solid white; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 2;" title="Cambiar Avatar">??</button></div><h2 id="profileName" style="font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem; font-size: 1.5rem;">Explorador</h2><p id="profileUserEmail" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;"></p><div style="display: flex; gap: 1.5rem; margin-bottom: 2.5rem; justify-content: center; background: rgba(0,0,0,0.02); padding: 1.2rem; border-radius: 1.5rem; width: 100%;"><div style="flex: 1; text-align: center;"><div id="statStoriesCount" style="font-size: 1.8rem; font-weight: 900; color: #4f46e5;">0</div><div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 800;">Cuentos</div></div><div style="width: 1px; background: rgba(0,0,0,0.05);"></div><div style="flex: 1; text-align: center;"><div id="statBadgesCount" style="font-size: 1.8rem; font-weight: 900; color: #ec4899;">0</div><div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 800;">Medallas</div></div></div><div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;"><button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="width: 100%; justify-content: center; padding: 1.2rem; border-radius: 20px; font-size: 1.1rem; font-weight: 800; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);">GUARDAR AVATAR ?</button><button class="modal-btn modal-btn-cancel" onclick="firebase.auth().signOut().then(() => window.location.href='login.html')" style="width: 100%; justify-content: center; padding: 1rem; border-radius: 18px; background: #fff1f2; color: #f43f5e; border: 1px solid #fecaca; font-size: 0.95rem; font-weight: 700;">CERRAR SESI�N</button></div></div></div><div class="modal-overlay" id="editModal">
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content" style="max-width: 340px; padding: 1.2rem; border-radius: 20px; text-align: center; position: relative; overflow-y: auto; background: var(--bg-color); border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);">
+            <button onclick="closeProfileModal()" class="modal-close" style="position: absolute; top: 0.8rem; right: 0.8rem; width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; z-index: 10; font-size: 0.9rem;">✕</button>
+            
+            <div style="position: relative; display: inline-block; margin: 0.5rem 0 0.8rem;">
+                <img id="profileAvatarLarge" src="" style="width: 70px; height: 70px; border-radius: 18px; border: 3px solid white; box-shadow: var(--shadow); background: white;">
+                <button onclick="changeAvatarSeed()" style="position: absolute; bottom: -4px; right: -4px; width: 28px; height: 28px; border-radius: 8px; background: var(--magic-gradient); border: 2px solid white; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 2; font-size: 0.75rem;" title="Cambiar Avatar">✨</button>
+            </div>
+            
+            <h2 id="profileName" style="font-weight: 800; color: var(--text-main); margin-bottom: 0.1rem; font-size: 1.1rem;">Explorador</h2>
+            <p id="profileUserEmail" style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 1rem;"></p>
+            
+            <div style="display: flex; gap: 0.8rem; margin-bottom: 1rem; justify-content: center; background: rgba(0,0,0,0.02); padding: 0.8rem; border-radius: 0.8rem; width: 100%;">
+                <div style="flex: 1; text-align: center;">
+                    <div id="statStoriesCount" style="font-size: 1.4rem; font-weight: 900; color: #4f46e5;">0</div>
+                    <div style="font-size: 0.6rem; color: #64748b; text-transform: uppercase; font-weight: 800;">Cuentos</div>
+                </div>
+                <div style="width: 1px; background: rgba(0,0,0,0.05);"></div>
+                <div style="flex: 1; text-align: center;">
+                    <div id="statBadgesCount" style="font-size: 1.4rem; font-weight: 900; color: #ec4899;">0</div>
+                    <div style="font-size: 0.6rem; color: #64748b; text-transform: uppercase; font-weight: 800;">Medallas</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                <button class="modal-btn modal-btn-primary" onclick="closeProfileModal()" style="width: 100%; justify-content: center; padding: 0.8rem; border-radius: 12px; font-size: 0.9rem; font-weight: 800; box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);">GUARDAR AVATAR ✨</button>
+                <button class="modal-btn modal-btn-cancel" onclick="firebase.auth().signOut().then(() => window.location.href='login.html')" style="width: 100%; justify-content: center; padding: 0.7rem; border-radius: 12px; background: #fff1f2; color: #f43f5e; border: 1px solid #fecaca; font-size: 0.85rem; font-weight: 700;">CERRAR SESIÓN</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
         <div class="modal-content" style="max-width: 600px; width: 90%;">
             <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Perfeccionar Cuento ✨</h2>
             
@@ -178,31 +222,25 @@
             
             <div style="text-align: left; margin-bottom: 1.5rem;">
                 <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem;">Contenido del Cuento</label>
-                <textarea id="editStoryText" style="width: 100%; padding: 1rem; border-radius: 1rem; border: 2px solid #e2e8f0; font-family: inherit; font-size: 1rem; min-height: 200px; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.3s;"></textarea>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">💡 El editor se ajusta solo mientras escribes magia.</p>
+                <textarea id="editStoryText" style="width: 100%; min-height: 180px; padding: 1rem; border-radius: 1rem; border: 2px solid #e2e8f0; font-family: inherit; font-size: 1rem; outline: none; transition: border-color 0.3s;"></textarea>
             </div>
-
-            <div class="modal-actions" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between;">
-                <button id="regenerateBtn" class="modal-btn" onclick="regenerateStoryText()" style="background: var(--magic-gradient); color: white; flex: 1; min-width: 200px; justify-content: center;">
-                    <span>🪄</span> Mejorar con Magia AI
-                </button>
-                <div style="display: flex; gap: 1rem; flex: 1; justify-content: flex-end;">
-                    <button class="modal-btn modal-btn-cancel" onclick="closeEditModal()">Cancelar</button>
-                    <button class="modal-btn modal-btn-primary" onclick="saveEditedStory()">Guardar Cambios</button>
-                </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('editModal').classList.remove('active')">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" onclick="saveStoryEdit()">Guardar Magia ✨</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="imageModal">
-        <div class="modal-content" style="max-width: 900px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 2.5rem; border-radius: 32px; position: relative; overflow: hidden; background: var(--bg-color); border: 1px solid var(--glass-border);">
-            <button onclick="closeImageModal()" class="modal-close" style="position: absolute; top: 1.2rem; right: 1.2rem; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 20;">✕</button>
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem; font-size: 1.8rem; padding-right: 2rem;">Elige una Imagen Mágica ✨</h2>
+        <div class="modal-content" style="max-width: 650px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 1.5rem; border-radius: 24px; position: relative; overflow: hidden; background: var(--bg-color); border: 1px solid var(--glass-border);">
+            <button onclick="closeImageModal()" class="modal-close" style="position: absolute; top: 1rem; right: 1rem; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 20;">✕</button>
+            <h2 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.4rem; padding-right: 2rem;">Elige una Imagen Mágica ✨</h2>
             
-            <div class="search-bar-container" style="display: flex; gap: 0.5rem; margin-bottom: 2rem;">
-                <div class="search-bar" style="flex: 1; padding: 1rem 1.5rem; border-radius: 2rem; background: #f8fafc; border: 2px solid #e2e8f0; display: flex; align-items: center;">
-                    <svg style="margin-right: 0.8rem; color: var(--primary);" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="gallerySearch" placeholder="Describe tu imagen... (ej: un dragón azul)" onkeydown="if(event.key==='Enter') filterGallery()" style="font-size: 1.1rem; width: 100%; border: none; background: transparent; outline: none;">
+            <div class="search-bar-container" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                <div class="search-bar" style="flex: 1; padding: 0.8rem 1.2rem; border-radius: 1.5rem; background: #f8fafc; border: 2px solid #e2e8f0; display: flex; align-items: center;">
+                    <svg style="margin-right: 0.8rem; color: var(--primary);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="gallerySearch" placeholder="Describe tu imagen... (ej: un dragón azul)" onkeydown="if(event.key==='Enter') filterGallery()" style="font-size: 1rem; width: 100%; border: none; background: transparent; outline: none;">
                 </div>
                 <button onclick="filterGallery()" class="modal-btn modal-btn-primary" style="padding: 0 2rem; border-radius: 1.5rem; font-weight: 800;">BUSCAR ✨</button>
             </div>
@@ -247,7 +285,25 @@
     <!-- SCRIPTS CON BYPASS DE CACHÉ -->
     <script src="firebase-init.js?v=22.2"></script>
     <script src="safety.js"></script>
-    <script src="logic-v22.js?v=22.8"></script>
+    <script src="logic-v22.js?v=23.1"></script>
+    <script>
+        // Bloqueo Universal de Scroll para Modales (Soporte en todos los navegadores)
+        const modalObserver = new MutationObserver(() => {
+            let anyModalOpen = false;
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                if(m.classList.contains('active')) anyModalOpen = true;
+            });
+            if (anyModalOpen) {
+                document.body.style.setProperty('overflow', 'hidden', 'important');
+                document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+            } else {
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+            }
+        });
+        document.querySelectorAll('.modal-overlay').forEach(m => {
+            modalObserver.observe(m, { attributes: true, attributeFilter: ['class'] });
+        });
+    </script>
 </body>
 </html>
-
