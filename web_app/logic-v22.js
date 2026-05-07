@@ -720,8 +720,8 @@ const masterDictionary = {
     'tiburón': { en: 'shark', cat: 'subject', sub: 'animal' },
     'ballena': { en: 'whale', cat: 'subject', sub: 'animal' },
     'dinosaurio': { en: 'dinosaur', cat: 'subject' },
-    'dragon': { en: 'dragon', cat: 'subject' },
-    'dragón': { en: 'dragon', cat: 'subject' },
+    'dragon': { en: 'mythical dragon', cat: 'subject' },
+    'dragón': { en: 'mythical dragon', cat: 'subject' },
     'sapo': { en: 'frog', cat: 'subject', sub: 'animal' },
     'rana': { en: 'frog', cat: 'subject', sub: 'animal' },
     'sapito': { en: 'cute frog', cat: 'subject', sub: 'animal' },
@@ -740,13 +740,35 @@ const masterDictionary = {
     'pirata': { en: 'pirate', cat: 'subject' },
     'ninja': { en: 'ninja', cat: 'subject' },
     'caballero': { en: 'knight', cat: 'subject' },
-    'astronauta': { en: 'astronaut', cat: 'subject' },
+    'astronauta': { en: 'astronaut in space suit', cat: 'subject' },
     'bosque': { en: 'enchanted forest', cat: 'landscape' },
     'playa': { en: 'tropical beach', cat: 'landscape' },
     'mar': { en: 'deep blue ocean', cat: 'landscape' },
     'espacio': { en: 'epic outer space', cat: 'landscape' },
     'castillo': { en: 'magical fairytale castle', cat: 'landscape' },
-    'ciudad': { en: 'futuristic city', cat: 'landscape' }
+    'ciudad': { en: 'futuristic city', cat: 'landscape' },
+    'escuela': { en: 'magic school', cat: 'landscape' },
+    'casa': { en: 'cozy house', cat: 'landscape' },
+    'volando': { en: 'flying', cat: 'action' },
+    'saltando': { en: 'jumping', cat: 'action' },
+    'corriendo': { en: 'running', cat: 'action' },
+    'comiendo': { en: 'eating', cat: 'action' },
+    'azul': { en: 'blue color', cat: 'modifier' },
+    'rojo': { en: 'red color', cat: 'modifier' },
+    'verde': { en: 'green color', cat: 'modifier' },
+    'amarillo': { en: 'yellow color', cat: 'modifier' },
+    'magico': { en: 'magical glowing', cat: 'modifier' },
+    'mágico': { en: 'magical glowing', cat: 'modifier' },
+    'leon': { en: 'majestic lion', cat: 'subject', sub: 'animal' },
+    'león': { en: 'majestic lion', cat: 'subject', sub: 'animal' },
+    'rey': { en: 'king with a gold crown', cat: 'subject' },
+    'rey leon': { en: 'majestic lion king with a crown, pride lands background', cat: 'subject' },
+    'rey león': { en: 'majestic lion king with a crown, pride lands background', cat: 'subject' },
+    'el rey leon': { en: 'majestic lion king with a crown, pride lands background', cat: 'subject' },
+    'el rey león': { en: 'majestic lion king with a crown, pride lands background', cat: 'subject' },
+    'ell': { en: 'the', cat: 'modifier' },
+    'leeon': { en: 'lion', cat: 'subject' },
+    'leon': { en: 'lion', cat: 'subject' }
 };
 
 const curatedImages = {
@@ -841,30 +863,42 @@ async function filterGallery() {
 
     const aiResults = [];
     const cleanQuery = translated.replace(/[^a-zA-Z0-9 ]/g, '');
-    // Prompt directo y ligero para reducir delay
-    const prompt = `Clear illustration of ${cleanQuery}, storybook style, no text, vivid`;
     
-    // Generar menos imágenes iniciales para que cargue más rápido (ej: 4 en lugar de 8)
+    const variations = [
+        "vibrant illustration",
+        "magical storybook style",
+        "clear detailed view",
+        "cinematic lighting"
+    ];
+
+    // Mostrar loader antes de empezar
+    if (loader) loader.style.display = 'block';
+
     for (let i = 0; i < 4; i++) {
-        const seed = Math.floor(Math.random() * 5000000);
+        const seed = Math.floor(Math.random() * 100000);
+        const prompt = `${cleanQuery}, ${variations[i]}, high resolution, child friendly, no text`;
         aiResults.push({ 
-            url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`, 
+            url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=700&height=700&seed=${seed}&nologo=true&t=${Date.now()}`, 
             tags: query 
         });
+        // Pequeño retardo entre peticiones para evitar bloqueos del servidor
+        await new Promise(r => setTimeout(r, 150));
     }
 
     if (loader) loader.style.display = 'none'; 
     const finalResults = [...localResults, ...aiResults];
     
-    // Feedback de resultados
-    const feedback = document.getElementById('searchFeedback');
-    const countEl = document.getElementById('resultsCount');
-    if (feedback && countEl) {
-        countEl.innerText = finalResults.length;
-        feedback.style.display = 'block';
+    // Solo renderizar si tenemos algo, para evitar que la pantalla se quede en blanco
+    if (finalResults.length > 0) {
+        renderGallery(finalResults);
+        
+        const feedback = document.getElementById('searchFeedback');
+        const countEl = document.getElementById('resultsCount');
+        if (feedback && countEl) {
+            countEl.innerText = finalResults.length;
+            feedback.style.display = 'block';
+        }
     }
-    
-    renderGallery(finalResults); 
 }
 
 function toggleGalleryClearBtn() {
