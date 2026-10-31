@@ -355,7 +355,7 @@
 
         // Validar Usuario al Cargar
         firebase.auth().onAuthStateChanged(user => {
-            const isAdmin = user && (user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com');
+            const isAdmin = user && (user.email === 'historycreatorkids@gmail.com' || user.email === 'lmujimoron@gmail.com');
             if (isAdmin) {
                 console.log("¡Bienvenido, Superusuario!");
             } else if (user) {
@@ -370,7 +370,7 @@
         function checkAdminAccess() {
             const pass = document.getElementById('adminPass').value;
             const user = firebase.auth().currentUser;
-            const isAdmin = user && (user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com');
+            const isAdmin = user && (user.email === 'historycreatorkids@gmail.com' || user.email === 'lmujimoron@gmail.com');
 
             if (isAdmin) {
                 if (pass === '202600') {
@@ -621,7 +621,7 @@
         // --- MAGIA DE AUTOCREACIÓN ---
         // Si el usuario superusuario se registra, esta función lo aprueba automáticamente
         async function checkAutoApproval() {
-            const adminEmails = ["luisalberto.mm4130@gmail.com", "luis.mujicam65@gmail.com"];
+            const adminEmails = ["historycreatorkids@gmail.com", "lmujimoron@gmail.com"];
             for (const email of adminEmails) {
                 const users = await db.collection("users").where("email", "==", email).get();
                 users.forEach(async (doc) => {

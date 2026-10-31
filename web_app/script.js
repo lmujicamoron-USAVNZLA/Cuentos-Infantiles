@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 username: username,
                                 email: email,
                                 avatar: imagePreview.src || '',
-                                status: 'pendiente',
+                                status: (email === 'historycreatorkids@gmail.com' || email === 'lmujimoron@gmail.com') ? 'aprobado' : 'pendiente',
                                 emailVerified: false,
                                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
                             });

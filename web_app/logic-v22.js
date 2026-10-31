@@ -48,7 +48,7 @@ function logout() {
 // CONTROL DE SESIÓN
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
-        if (user.email === 'luisalberto.mm4130@gmail.com' || user.email === 'luis.mujicam65@gmail.com') {
+        if (user.email === 'historycreatorkids@gmail.com' || user.email === 'lmujimoron@gmail.com') {
             const sideAdmin = document.getElementById('sideAdminItem');
             if (sideAdmin) sideAdmin.style.display = 'block';
         }
