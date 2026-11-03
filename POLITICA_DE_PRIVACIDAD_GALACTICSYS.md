@@ -79,3 +79,4 @@ Cualquier operador o usuario de **GalacticSys** puede solicitar la eliminación 
 Para cualquier duda, consulta sobre privacidad o ejercicio de sus derechos ARCO/GDPR:  
 **Director de Misión:** Luis A. Mujica M.  
 **Correo:** `admingalactic@gmail.com`  
+

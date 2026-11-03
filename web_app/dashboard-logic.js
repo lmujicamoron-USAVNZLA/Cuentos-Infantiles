@@ -37,7 +37,13 @@ function logout() {
 // CONTROL DE SESIÓN
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
-        if (user.email === 'historycreatorkids@gmail.com' || user.email === 'lmujimoron@gmail.com') {
+        const isAdmin = user.email === 'historycreatorkids@gmail.com' || user.email === 'lmujimoron@gmail.com';
+        if (!isAdmin && !user.emailVerified) {
+            console.warn("Acceso restringido: Correo no verificado.");
+            window.location.href = 'verify-account.html';
+            return;
+        }
+        if (isAdmin) {
             const sideAdmin = document.getElementById('sideAdminItem');
             if (sideAdmin) sideAdmin.style.display = 'block';
         }
@@ -49,6 +55,14 @@ firebase.auth().onAuthStateChanged(user => {
 
         // Cargar Avatar Guardado desde Firestore (V21.5 Persistence Fix - Priority over Auth photoURL)
         db.collection("users").doc(user.uid).get().then(doc => {
+            if (!isAdmin) {
+                const userData = doc.exists ? doc.data() : null;
+                if (!userData || userData.status !== 'aprobado') {
+                    console.warn("Acceso restringido: Cuenta pendiente de aprobacion.");
+                    window.location.href = 'verify-account.html';
+                    return;
+                }
+            }
             if (doc.exists && doc.data().avatarSeed) {
                 const savedSeed = doc.data().avatarSeed;
                 const name = user.displayName || user.email.split('@')[0];

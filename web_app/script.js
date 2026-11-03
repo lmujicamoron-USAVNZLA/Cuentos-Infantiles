@@ -65,47 +65,32 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.opacity = '0.7';
         btn.disabled = true;
 
-        // --- VERIFICACIÓN DE DUPLICADOS EN FIRESTORE ---
-        db.collection("users").where("email", "==", email).get()
-            .then((querySnapshot) => {
-                if (!querySnapshot.empty) {
-                    const existingUser = querySnapshot.docs[0].data();
-                    
-                    if (existingUser.status === 'aprobado') {
-                        alert("¡Este correo ya es parte del reino! Por favor, inicia sesión.");
-                        window.location.href = 'login.html';
-                    } else {
-                        alert("¡Casi listo! Ya tenemos una solicitud para este correo y está siendo revisada por un Guardián. Por favor, ten un poco de paciencia ✨");
-                    }
-                    
-                    btn.innerHTML = originalContent;
-                    btn.style.opacity = '1';
-                    btn.disabled = false;
-                    return;
+        // Registro directo y blindado en Firebase Auth (previene scraping y errores de reglas privadas)
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(async (userCredential) => {
+                const user = userCredential.user;
+
+                // 1. Enviar correo de verificación (AUTOMÁTICO)
+                try {
+                    await user.sendEmailVerification();
+                    console.log("Correo de verificación enviado a:", email);
+                } catch (emailErr) {
+                    console.warn("Aviso al enviar verificación de correo:", emailErr);
                 }
 
-                // Si no existe, procedemos con el registro en Auth
-                return auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
+                // 2. Guardar datos iniciales en Firestore
+                await db.collection("users").doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    avatar: imagePreview.src || '',
+                    status: (email === 'historycreatorkids@gmail.com' || email === 'lmujimoron@gmail.com') ? 'aprobado' : 'pendiente',
+                    emailVerified: false,
+                    magicDust: 50,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-                        // 1. Enviar correo de verificación (AUTOMÁTICO)
-                        return user.sendEmailVerification().then(() => {
-                            alert("¡Correo enviado! Revisa tu bandeja de entrada para activar tu cuenta.");
-                            // 2. Guardar datos adicionales en Firestore
-                            return db.collection("users").doc(user.uid).set({
-                                username: username,
-                                email: email,
-                                avatar: imagePreview.src || '',
-                                status: (email === 'historycreatorkids@gmail.com' || email === 'lmujimoron@gmail.com') ? 'aprobado' : 'pendiente',
-                                emailVerified: false,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        });
-                    });
-            })
-            .then(() => {
                 localStorage.setItem('lastUser', username);
+                alert("¡Cuenta creada con éxito! 📧 Te hemos enviado un correo de verificación. Por favor revisa tu bandeja de entrada.");
                 window.location.href = 'verify-account.html';
             })
             .catch((error) => {
@@ -113,7 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.innerHTML = originalContent;
                 btn.style.opacity = '1';
                 btn.disabled = false;
-                alert("Hubo un error: " + error.message);
+
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("¡Este correo ya está registrado en el reino! Por favor, inicia sesión.");
+                    window.location.href = 'login.html';
+                } else if (error.code === 'auth/weak-password') {
+                    alert("La contraseña debe tener al menos 6 caracteres mágicos.");
+                } else if (error.code === 'auth/invalid-email') {
+                    alert("Por favor ingresa un correo electrónico válido.");
+                } else {
+                    alert("Hubo un problema al registrar la cuenta: " + error.message);
+                }
             });
     });
 });

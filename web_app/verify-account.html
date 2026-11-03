@@ -61,25 +61,30 @@
                 <p>Te hemos enviado un correo mágico de verificación.</p>
             </header>
 
-            <div class="status-badge">
-                ⏳ Esperando aprobación del Administrador
+            <div class="status-badge" id="statusBadge">
+                ⏳ Esperando verificación de correo y aprobación
             </div>
 
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
-                Por seguridad, un administrador debe revisar tu solicitud antes de que puedas entrar al mundo de los
-                cuentos.
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Por seguridad infantil, debes confirmar el enlace que enviamos a tu email y un administrador revisará tu solicitud para darte acceso al reino.
             </p>
 
-            <button class="submit-btn"
-                style="background: white; color: var(--text-main); border: 1px solid var(--input-border); margin-bottom: 1rem;"
+            <button class="submit-btn" id="checkBtn"
+                style="background: var(--primary); color: white; margin-bottom: 0.75rem;"
+                onclick="checkStatus()">
+                ✨ Ya confirmé mi correo (Entrar al Reino)
+            </button>
+
+            <button class="submit-btn" id="resendBtn"
+                style="background: white; color: var(--text-main); border: 1px solid var(--input-border); margin-bottom: 0.75rem;"
                 onclick="resendEmail()">
                 📧 Re-enviar correo mágico
             </button>
 
             <button class="submit-btn"
                 style="background: transparent; color: var(--text-muted); border: none; font-size: 0.9rem;"
-                onclick="window.location.href='index.html'">
-                Volver al inicio
+                onclick="window.location.href='login.html'">
+                Ir a Iniciar Sesión
             </button>
         </div>
     </main>
@@ -100,22 +105,88 @@
             appId: "1:454293856709:web:6b40a7fa1788e3681c6bac",
             measurementId: "G-GSLT5XHTPV"
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        async function checkStatus() {
+            const btn = document.getElementById('checkBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span>🔍 Comprobando...</span>';
+
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert("Por favor inicia sesión con tu correo y contraseña.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                // Recargar el usuario de Firebase Auth para actualizar emailVerified
+                await user.reload();
+                const refreshedUser = firebase.auth().currentUser;
+
+                const isAdmin = refreshedUser.email === 'historycreatorkids@gmail.com' || refreshedUser.email === 'lmujimoron@gmail.com';
+
+                if (!refreshedUser.emailVerified && !isAdmin) {
+                    alert("Tu correo aún no figura como verificado. Por favor abre el enlace que te llegó a tu email y luego vuelve a presionar este botón.");
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+
+                // Si está verificado el email, verificar estado en Firestore
+                const db = firebase.firestore();
+                const doc = await db.collection("users").doc(refreshedUser.uid).get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Sincronizar emailVerified en Firestore
+                    if (!data.emailVerified) {
+                        await db.collection("users").doc(refreshedUser.uid).update({ emailVerified: true });
+                    }
+
+                    if (data.status === 'aprobado' || isAdmin) {
+                        alert("¡Bienvenido al reino mágico! 🌟 Todo listo.");
+                        window.location.href = 'dashboard.html';
+                        return;
+                    } else {
+                        document.getElementById('statusBadge').innerText = '✅ Correo verificado - Esperando aprobación de Guardián';
+                        document.getElementById('statusBadge').style.background = '#dbeafe';
+                        document.getElementById('statusBadge').style.color = '#1d4ed8';
+                        alert("¡Tu correo ya está verificado! ✨ Tu cuenta está en revisión por un Administrador. En cuanto sea aprobada podrás entrar.");
+                    }
+                } else if (isAdmin) {
+                    window.location.href = 'dashboard.html';
+                    return;
+                } else {
+                    alert("No encontramos tu perfil. Por favor intenta registrarte de nuevo.");
+                }
+            } catch (err) {
+                console.error("Error al comprobar:", err);
+                alert("Hubo un error al comprobar tu cuenta: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
 
         function resendEmail() {
             const user = firebase.auth().currentUser;
             if (user) {
                 user.sendEmailVerification().then(() => {
-                    alert("¡Correo re-enviado con éxito! Por favor revisa tu bandeja de entrada.");
+                    alert("¡Correo re-enviado con éxito! Por favor revisa tu bandeja de entrada o la carpeta de Spam.");
                 }).catch(err => {
                     alert("Error al enviar: " + err.message);
                 });
             } else {
-                alert("Para re-enviar el correo, intenta registrarte de nuevo o contacta a soporte.");
+                alert("Para re-enviar el correo, inicia sesión en la pantalla de login.");
+                window.location.href = 'login.html';
             }
         }
 
-        // Simulación: Obtener el nombre del usuario del registro previo
+        // Obtener el nombre del usuario del registro previo
         document.getElementById('userName').innerText = localStorage.getItem('lastUser') || 'Aventurero';
     </script>
 </body>

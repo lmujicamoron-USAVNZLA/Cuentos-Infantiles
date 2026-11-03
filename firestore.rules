@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========================================================================
+    // REGLAS DE SEGURIDAD BLINDADAS - PROYECTO MÁGICO (CUENTOS INFANTILES)
+    // ========================================================================
+
+    // 1. Función para Superusuarios / Administradores Oficiales
+    function isAdmin() {
+      return request.auth != null && 
+        (request.auth.token.email == 'historycreatorkids@gmail.com' || 
+         request.auth.token.email == 'lmujimoron@gmail.com');
+    }
+
+    // 2. Colección de Usuarios (users)
+    match /users/{userId} {
+      // Lectura individual (get): Solo el propio usuario o el administrador
+      allow get: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      
+      // Listado de usuarios (list / queries): Exclusivo para el administrador
+      allow list: if request.auth != null && isAdmin();
+      
+      // Creación de perfil:
+      // Requiere sesión iniciada y coincidencia con su UID.
+      // Un usuario común solo puede registrarse con status 'pendiente' (los administradores pueden ser 'aprobado').
+      allow create: if request.auth != null && (request.auth.uid == userId || isAdmin()) &&
+        (isAdmin() || request.resource.data.status == 'pendiente' || !('status' in request.resource.data));
+      
+      // Actualización de perfil:
+      // - El Administrador tiene control total (aprobar cuentas, cambiar estados).
+      // - El usuario común solo puede actualizar sus datos (avatar, magicDust, streak, etc.),
+      //   pero tiene PROHIBIDO alterar 'status', 'role' o 'email'.
+      allow update: if request.auth != null && (
+        isAdmin() || 
+        (request.auth.uid == userId && 
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role', 'email']))
+      );
+      
+      // Eliminación de usuarios: Solo el administrador
+      allow delete: if request.auth != null && isAdmin();
+
+      // Subcolección: Héroes creados por el usuario
+      match /heroes/{heroId} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
+    }
+
+    // 3. Colección de Historias / Cuentos (stories)
+    match /stories/{storyId} {
+      // Lectura: Cuentos públicos accesibles a todos; cuentos privados solo a su autor o al administrador
+      allow read: if resource.data.isPublic == true || 
+                     (request.auth != null && (request.auth.uid == resource.data.userId || isAdmin()));
+
+      // Creación: Usuarios autenticados. El campo userId debe ser su propio UID (anti-suplantación)
+      allow create: if request.auth != null && 
+                       request.resource.data.userId == request.auth.uid;
+
+      // Actualización:
+      // - El Administrador puede moderar o actualizar cualquier historia.
+      // - El autor original puede editar su cuento (sin cambiar el autor original).
+      // - Reporte seguro de contenido inapropiado: cualquier usuario autenticado puede marcar flagged = true.
+      allow update: if request.auth != null && (
+        isAdmin() || 
+        (request.auth.uid == resource.data.userId && request.resource.data.userId == resource.data.userId) ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['flagged', 'flaggedAt']) && request.resource.data.flagged == true)
+      );
+
+      // Eliminación: Solo el autor del cuento o el administrador
+      allow delete: if request.auth != null && (
+        isAdmin() || 
+        request.auth.uid == resource.data.userId
+      );
+    }
+
+    // 4. Bloqueo Total por Defecto (Default Deny)
+    // Cualquier otra colección o documento no especificado queda cerrado a lectura y escritura
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

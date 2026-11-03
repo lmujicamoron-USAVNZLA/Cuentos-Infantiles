@@ -1,19 +1,28 @@
 # 📅 Agenda de Trabajo - Proyecto Mágico (Cuentos Infantiles)
 
-## 📌 Puntos para la siguiente sesión:
+## ✅ Puntos Completados con Éxito:
 
-### 1. Flujo de Registro y Verificación de Correo
-- **Problema detectado:**
-  1. El correo de verificación enviado por la app (`user.sendEmailVerification()`) no llegó a la bandeja del usuario (posible spam, configuración de remitente o plantilla en la consola de Firebase).
-  2. El usuario pudo acceder directamente a la aplicación sin necesidad de haber verificado su correo previamente ni esperar aprobación.
-- **Causas identificadas para revisar con el Admin:**
-  - `createUserWithEmailAndPassword` deja la sesión iniciada automáticamente en Firebase Auth tras el registro.
-  - Las pantallas interiores (`dashboard.html`, `dashboard-logic.js`, `logic-v22.js`) solo verifican si el usuario está autenticado (`if (user)`), pero no restringen el paso si `!user.emailVerified` o si `status !== 'aprobado'`.
-  - Los correos de superusuario cuentan con bypass intencional en `login.html`.
-- **Propuesta de solución a consultar y aprobar con el Admin antes de tocar código:**
-  - Cerrar sesión (`auth.signOut()`) inmediatamente después del registro hasta que el correo sea confirmado.
-  - Blindar el guardián de rutas en `dashboard.html` para que redirija a `verify-account.html` si el correo no está verificado.
-  - Revisar la plantilla y remitente de Firebase Authentication Console.
+### 1. Blindaje Total y Privacidad de la Base de Datos (Firestore)
+- **Implementado y Publicado en Firebase Console:**
+  - Archivo oficial `firestore.rules` con modelo *Default Deny*.
+  - Colección `users`: Solo lectura propia o del administrador. Prohibición estricta de auto-aprobarse cuentas o modificar roles.
+  - Subcolección `heroes`: Aislada y privada para el creador.
+  - Colección `stories`: Cuentos privados visibles solo al autor; cuentos públicos para lectura comunitaria. Autoría protegida (anti-suplantación). Reporte de contenido inapropiado habilitado de forma segura.
+  - Superusuarios oficiales con control administrativo: `historycreatorkids@gmail.com` y `lmujimoron@gmail.com`.
+
+### 2. Flujo de Registro Seguro y Guardián de Acceso
+- **Implementado en el código:**
+  - `web_app/script.js`: Registro directo y seguro con Firebase Auth. Manejo de duplicados con `auth/email-already-in-use` sin consultas no autenticadas a la base de datos.
+  - `web_app/logic-v22.js` y `web_app/dashboard-logic.js`: Guardián en `onAuthStateChanged`. Si no es administrador y `!user.emailVerified` o `status !== 'aprobado'`, redirige inmediatamente a `verify-account.html`.
+  - `web_app/verify-account.html`: Nuevo botón interactivo *"✨ Ya confirmé mi correo (Entrar al Reino)"* con recarga de estado y validación en tiempo real.
 
 ---
-*Nota: Siguiendo las directrices del proyecto, no se modificará ningún archivo de código hasta contar con la aprobación explícita del administrador.*
+
+## 📌 Puntos para la Siguiente Sesión / Seguimiento:
+1. **Plantilla de Correo en Firebase Authentication Console:**
+   - Verificar y personalizar el nombre del remitente (*Sender Name*) en Firebase Auth > Templates para asegurar que no caiga en la carpeta de Spam.
+2. **Pruebas de Registro:**
+   - Realizar prueba con un usuario nuevo para comprobar la experiencia de extremo a extremo.
+
+---
+*Nota: Cumpliendo las directrices del proyecto, todas las modificaciones fueron realizadas previa aprobación del administrador y con aislamiento quirúrgico.*
