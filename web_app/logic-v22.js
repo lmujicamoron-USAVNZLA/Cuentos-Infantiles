@@ -1024,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- COMPARTIR ---
 function shareStory(title, id) {
-    const text = `¡Mira el cuento que creamos: "${title}"! ✨\nLéelo aquí: https://cuentos-infantiles-2026.web.app/story-reader.html?id=${id}`;
+    const text = `¡Mira el cuento que creamos: "${title}"! ✨\nLéelo aquí: https://storycreator2024.web.app/story-reader.html?id=${id}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 

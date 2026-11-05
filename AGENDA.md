@@ -1,4 +1,4 @@
-# 📅 Agenda de Trabajo - Proyecto Mágico (Cuentos Infantiles)
+<!--  --># 📅 Agenda de Trabajo - Proyecto Mágico (Cuentos Infantiles)
 
 ## ✅ Puntos Completados con Éxito:
 
