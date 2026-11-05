@@ -1,28 +1,35 @@
-<!--  --># 📅 Agenda de Trabajo - Proyecto Mágico (Cuentos Infantiles)
+# 📅 Agenda de Trabajo - Proyecto Mágico (Cuentos Infantiles)
 
-## ✅ Puntos Completados con Éxito:
+## ✅ Puntos Completados con Éxito (Sesión 05-Nov-2026):
 
-### 1. Blindaje Total y Privacidad de la Base de Datos (Firestore)
-- **Implementado y Publicado en Firebase Console:**
-  - Archivo oficial `firestore.rules` con modelo *Default Deny*.
-  - Colección `users`: Solo lectura propia o del administrador. Prohibición estricta de auto-aprobarse cuentas o modificar roles.
-  - Subcolección `heroes`: Aislada y privada para el creador.
-  - Colección `stories`: Cuentos privados visibles solo al autor; cuentos públicos para lectura comunitaria. Autoría protegida (anti-suplantación). Reporte de contenido inapropiado habilitado de forma segura.
-  - Superusuarios oficiales con control administrativo: `historycreatorkids@gmail.com` y `lmujimoron@gmail.com`.
+### 1. Conexión Oficial con el Proyecto Real de Firebase (`storycreator2024`)
+- **Descubrimiento y Corrección:** Se identificó que el código anterior apuntaba a un proyecto ficticio. Se vincularon las credenciales auténticas del proyecto oficial de Google Cloud / Firebase:
+  - Project ID: `storycreator2024` (StoryCreatorKids)
+  - Project Number: `882256272683`
+  - App Web ID: `1:882256272683:web:ea287fc61291282ace396e`
+- **Archivos actualizados:** `firebase-init.js`, `verify-account.html`, `admin.html`, `logic-v22.js`, `dashboard-logic.js`.
 
-### 2. Flujo de Registro Seguro y Guardián de Acceso
-- **Implementado en el código:**
-  - `web_app/script.js`: Registro directo y seguro con Firebase Auth. Manejo de duplicados con `auth/email-already-in-use` sin consultas no autenticadas a la base de datos.
-  - `web_app/logic-v22.js` y `web_app/dashboard-logic.js`: Guardián en `onAuthStateChanged`. Si no es administrador y `!user.emailVerified` o `status !== 'aprobado'`, redirige inmediatamente a `verify-account.html`.
-  - `web_app/verify-account.html`: Nuevo botón interactivo *"✨ Ya confirmé mi correo (Entrar al Reino)"* con recarga de estado y validación en tiempo real.
+### 2. Limpieza y Optimización de la Consola de Firebase
+- Se eliminaron los 4 registros obsoletos y duplicados de 2024 (2 de Android y 2 de iOS).
+- Se preservó y verificó como única y oficial la app web: `Story-Creator-kids WEB` (que da cobertura total a web, PWA y móviles Android / iOS).
+- Se confirmó habilitado el proveedor de acceso por correo y contraseña.
+
+### 3. Blindaje de Base de Datos y Guardián de Acceso Probado al 100%
+- Reglas de Firestore activas y blindadas (modelo *Default Deny* y privacidad total de niños y familias).
+- **Prueba exitosa de extremo a extremo:** 
+  - Al registrarse una cuenta nueva, el guardián de seguridad la interceptó y retuvo con `status: 'pendiente'`.
+  - El administrador pudo ingresar exitosamente con privilegios a la plataforma para gestionar y aprobar las cuentas.
+
+### 4. Cumplimiento Google Play Console (Proyecto Galáctico)
+- Se declaró el **Trader status** como **Non-trader** para GalacticSys, protegiendo la dirección física y el teléfono personal del desarrollador.
 
 ---
 
-## 📌 Puntos para la Siguiente Sesión / Seguimiento:
-1. **Plantilla de Correo en Firebase Authentication Console:**
-   - Verificar y personalizar el nombre del remitente (*Sender Name*) en Firebase Auth > Templates para asegurar que no caiga en la carpeta de Spam.
-2. **Pruebas de Registro:**
-   - Realizar prueba con un usuario nuevo para comprobar la experiencia de extremo a extremo.
+## 📌 Puntos para la Siguiente Sesión:
+1. **Prueba de Creación de Cuento:**
+   - Iniciar sesión con la cuenta de prueba recién aprobada y crear un cuento mágico para verificar la persistencia y la biblioteca mágica en `storycreator2024`.
+2. **Monitoreo de Google Play Console (GalacticSys):**
+   - Revisar estado de aprobación del bundle v3.8 en Google Play.
 
 ---
-*Nota: Cumpliendo las directrices del proyecto, todas las modificaciones fueron realizadas previa aprobación del administrador y con aislamiento quirúrgico.*
+*Nota: Cumpliendo con las directrices obligatorias, se realizaron todos los respaldos locales fechados y remotos en GitHub.*
